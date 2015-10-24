@@ -1,0 +1,10 @@
+CC=g++
+CFLAGS="-pthread -std=c++11"
+INC="-Isrc"
+CCC="$CC $CFLAGS $INC"
+
+
+$CCC -c src/util/log.cpp -o lib/log.o
+$CCC -c src/screen/screen.cpp -o lib/screen.o
+$CCC lib/* src/snake/main.cpp -o snake.x
+
