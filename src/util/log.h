@@ -25,8 +25,8 @@ extern Log g_log;
 #define LSTART ""
 #define LOG(x) g_log << LSTART << (x)
 #define ERR(x) LOG("ERROR:") << (x)
-#define START(x) LOG(__PRETTY_FUNCTION__) << "{" << LEND
-#define END(x) LOG(__PRETTY_FUNCTION__) << "}" << LEND
+#define START(x) LOG(__PRETTY_FUNCTION__) << " {" << LEND
+#define END(x) LOG(__PRETTY_FUNCTION__) << " }" << LEND
 
 #define INITLOG(pathname) Log g_log((pathname));
 

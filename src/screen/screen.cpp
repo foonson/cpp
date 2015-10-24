@@ -39,8 +39,13 @@ Screen& Screen::colorDefault() {
   return *this;
 }
 
-Screen& Screen::show(const string& s) {
-  printf("%s", s.c_str());
+Screen& Screen::show(const string& s_) {
+  printf("%s", s_.c_str());
+  return *this;
+}
+
+Screen& Screen::show(char ch_) {
+  printf("%c", ch_);
   return *this;
 }
 

@@ -15,14 +15,15 @@
 #include "util/UString"
 #include "snakeCommand.h"
 
+
+#include <functional> // std:function
+
 //#include <sys/select.h>
 
 
 INITLOG("./snake.log");
 bool g_exit=false;
 
-class Snake {
-};
 
 void signalHandler(int signum) {
   printf("signal %d\n", signum);
@@ -34,7 +35,7 @@ void signalHandler(int signum) {
   }
   if (signum==SIGQUIT) {  // core
     printf("SIGQUIT\n");
-    ERR("SIGQIUT") << LEND;
+    ERR("SIGQUIT") << LEND;
     g_exit = true;
   }
   if (signum==SIGSEGV) {  // segmentation
@@ -46,132 +47,38 @@ void signalHandler(int signum) {
   }
 }
 
-void threadListenCommand(Screen& screen_, SyncQueue<SnakeCommand>& queue_) {
-  START("threadListenCommand");
 
-  do {
-
-    if (g_exit) {
-      break;
-    }    
-    
-    //FD_ZERO(&readfds);
-    //FD_SET(STDIN_FILENO, &readfds);
-    //int iResult = select(1, &readfds, NULL, NULL, NULL);
-    //if (iResult==-1 && errno!=EINTR) {
-    //} else {
-    //  if (FD_ISSET(STDIN_FILENO, &readfds)) {
-    //    printf("%d", iResult);
-    //  }
-    //}
-
-    char ch=getchar();
-    if (ch==27) {
-      ch=getchar();
-      if (ch==91) {
-        ch=getchar();
-        if (ch==65) {
-          queue_.put(SnakeCommand(SNAKE_UP));
-        } else if (ch==66) {
-          queue_.put(SnakeCommand(SNAKE_DOWN));
-        } else if (ch==68) {
-          queue_.put(SnakeCommand(SNAKE_LEFT));
-        } else if (ch==67) {
-          queue_.put(SnakeCommand(SNAKE_RIGHT));
-        }
-      }
-      
-    } else if (ch=='i') {
-     queue_.put(SnakeCommand(SNAKE_UP));
-    } else if (ch=='x') {
-     queue_.put(SnakeCommand(SNAKE_EXIT));
-     break;
-    }
-    
-    screen_.xy(1,8).show(UString::toString(queue_.size()));
-
-  } while (true);
-  END("");
+SNAKEACTION commonKeyActionMap(KEY key_, char ch_) {
+  if (ch_=='x') {
+    return SNAKE_EXIT;
+  }
+  return SNAKE_NOTHING;
 }
 
-
-void threadMove(Screen& screen_, SyncQueue<SnakeCommand>& queue_) {
-  START("threadMove");
-
-  try {
-
-    int xLast=0;
-    int yLast=0;  
-    int x=10;
-    int y=10;
-    SNAKEACTION lastAction = SNAKE_NOTHING;
-    do {
-
-      if (g_exit) {
-        return;
-      }
-      bool moved = false;
-      SNAKEACTION action = SNAKE_NOTHING;
-
-      do {
-        if (queue_.empty()) {
-          break;
-        }
-        SnakeCommand cmd = queue_.get();
-        action = cmd.action();
-        if (action==SNAKE_NOTHING) {
-          break;
-        }
-        screen_.xy(1,8).show(UString::toString(queue_.size()) + " ");
-      } while(action==lastAction);
-
-      if (action==SNAKE_NOTHING) {
-        action = lastAction;
-      }
-      if (action==SNAKE_EXIT) {
-        return;
-      }
-      if (action==SNAKE_UP) {
-        moved = true;
-        y=y-1;
-      } else if (action==SNAKE_DOWN) {
-        moved = true;
-        y=y+1;
-      } else if (action==SNAKE_LEFT) {
-        moved = true;
-        x=x-1;
-      } else if (action==SNAKE_RIGHT) {
-        moved = true;
-        x=x+1;
-      }
-      if (y<=0) {
-        y=40;
-      }
-      if (y>40) {
-        y=0;
-      }
-      if (x<=0) {
-        x=80;
-      }
-      if (x>80) {
-        x=0;
-      }
-
-      if (moved) {
-        //using namespace std::literals;
-        screen_.xy(x, y).color(GREEN).show("X");
-        screen_.xy(xLast, yLast).colorDefault().show(" ");
-        this_thread::sleep_for(std::chrono::milliseconds(500));
-        xLast = x;
-        yLast = y;
-        lastAction = action;
-      }
-
-    } while (true);
-  } catch (...) {
-    ERR("threadMove exception") << LEND;
+SNAKEACTION snake1KeyActionMap(KEY key_, char ch_) {
+  if (key_==KEY_UP) {
+    return SNAKE_UP;
+  } else if (key_==KEY_DOWN) {
+    return SNAKE_DOWN;
+  } else if (key_==KEY_LEFT) {
+    return SNAKE_LEFT;
+  } else if (key_==KEY_RIGHT) {
+    return SNAKE_RIGHT;
   }
-  END("");
+  return commonKeyActionMap(key_, ch_);
+}
+
+SNAKEACTION snake2KeyActionMap(KEY key_, char ch_) {
+  if (ch_=='w') {
+    return SNAKE_UP;
+  } else if (ch_=='z') {
+    return SNAKE_DOWN;
+  } else if (ch_=='a') {
+    return SNAKE_LEFT;
+  } else if (ch_=='s') {
+    return SNAKE_RIGHT;
+  }
+  return commonKeyActionMap(key_, ch_);
 }
 
 void initialize() {
@@ -183,19 +90,214 @@ void initialize() {
   std::signal(SIGFPE, signalHandler);
 }
 
-int main() {
-  START("start");
-  initialize();
+class Snake {
+public:
 
-  Screen screen;
-  SyncQueue<SnakeCommand> queue1;
+  Snake(Layer& layer_) : _layer(layer_) {
+    _lastAction = SNAKE_NOTHING;
+    _x = 10;
+    _y = 10;
+    _layer.text(_x,_y,0,0,'X');
+  }
 
-  try {
-    thread t1(threadMove, std::ref(screen), std::ref(queue1));
-    thread t2(threadListenCommand, std::ref(screen), std::ref(queue1));
+  bool listenCommand(KEY key_, char ch_) {
+    SNAKEACTION action = _fnKeyActionMap(key_, ch_);
+    if (action!=SNAKE_NOTHING) {
+      _pcmdQueue->put(SnakeCommand(action));
+    }
+  }
+
+  void evaluate() {
+
+    int xLast = _x;
+    int yLast = _y;
+
+    SNAKEACTION action = SNAKE_NOTHING;
+    bool moved = false;
+
+    do {
+      if (_pcmdQueue->empty()) {
+        break;
+      }
+      SnakeCommand cmd = _pcmdQueue->get();
+      action = cmd.action();
+      if (action==SNAKE_NOTHING) {
+        break;
+      }
+      //screen.xy(1,8).show(UString::toString(queue_.size()) + " ");
+    } while(action==_lastAction);
+
+    if (action==SNAKE_NOTHING) {
+      action = _lastAction;
+    }
+
+    if (action==SNAKE_EXIT) {
+      return;
+    }
+    if (action==SNAKE_UP) {
+      moved = true;
+      _y=_y-1;
+    } else if (action==SNAKE_DOWN) {
+      moved = true;
+      _y=_y+1;
+    } else if (action==SNAKE_LEFT) {
+      moved = true;
+      _x=_x-1;
+    } else if (action==SNAKE_RIGHT) {
+      moved = true;
+      _x=_x+1;
+    }
+    
+    if (_y<=0) {
+      _y=YMAX-1;
+    }
+    if (_y>=YMAX) {
+      _y=0;
+    }
+    if (_x<=0) {
+      _x=XMAX-1;
+    }
+    if (_x>=XMAX) {
+      _x=0;
+    }
+
+    if (moved) {
+      _layer.text(_x, _y, 0, 0, 'X');
+      _layer.text(xLast, yLast, 0, 0, ' ');
+      _lastAction = action;
+    }
+    printf("%d,%d ", _x,_y);
+
+  }
+
+  function<SNAKEACTION(KEY, char)> _fnKeyActionMap;
+  SyncQueue<SnakeCommand>* _pcmdQueue;
+private:
+  Layer& _layer;
+  int _x;
+  int _y;
+  SNAKEACTION _lastAction;
+};
+
+
+class SnakeGame {
+public:
+  SnakeGame() {
+    START();
+    _exit = false;    
+
+    Layer& layer0 = _screen.createLayer(0,0,0);
+    layer0.text(1,1,0,0,'K');
+    _screen.render();
+
+    Layer& layer1 = _screen.createLayer(0, 0, 0);
+    Snake& snake1 = createSnake(layer1);
+    snake1._fnKeyActionMap = snake1KeyActionMap;
+    snake1._pcmdQueue = new SyncQueue<SnakeCommand>;
+
+    Layer& layer2 = _screen.createLayer(0, 0, 0);
+    Snake& snake2 = createSnake(layer2);
+    snake2._fnKeyActionMap = snake2KeyActionMap;
+    snake2._pcmdQueue = new SyncQueue<SnakeCommand>;
+    END("");
+  }
+
+  //Snake& createSnake(Layer& layer_, (SNAKEACTION)(KEY, char) fnKeyActionMap_) {
+  Snake& createSnake(Layer& layer_) {
+    _vSnakes.push_back(Snake(layer_));
+    Snake& snake = _vSnakes.back();
+    //snake.setLayer(layer_);
+    //snake._fnKeyActionMap = fnKeyActionMap_;
+    return snake;
+  } 
+
+  void evaluateLoop() {
+    START("");
+    do {
+      //printf("evaluateLoop");
+
+      if (_exit || g_exit) {
+        break;
+      }   
+      for (auto& snake: _vSnakes) {
+        snake.evaluate();
+      } 
+      this_thread::sleep_for(std::chrono::milliseconds(100));
+    } while (true);
+    END("");
+  }
+
+  void listenCommandLoop() {
+    START("");
+    do {
+      //printf("listenCommandLoop");
+
+      if (_exit || g_exit) {
+        break;
+      }   
+
+      KEY key;
+      char ch;      
+      _keyboard.getKey(key, ch);
+
+      for (auto& snake: _vSnakes) {
+        snake.listenCommand(key, ch);
+      } 
+      
+      if (ch=='x') {
+        _exit = true;
+        break;
+      }
+    
+
+    } while (true);
+    END("");
+  }
+
+  void renderLoop() {
+
+    START("");
+    do {
+      //printf("renderLoop");
+      if (_exit || g_exit) {
+        break;
+      }   
+      _screen.render();
+      this_thread::sleep_for(std::chrono::milliseconds(100));
+    } while (true);
+    END("");
+  }
+  
+
+  void startThreads() {
+    START("");
+    thread t1(&SnakeGame::listenCommandLoop, this);
+    thread t2(&SnakeGame::renderLoop, this);
+    thread t3(&SnakeGame::evaluateLoop, this);
 
     t1.join();
     t2.join();
+    t3.join();
+    END("");
+  }
+
+  //Screen& screen() { return screen_; }
+
+private:
+  bool _exit;
+  Screen _screen;
+  Keyboard _keyboard;
+  vector<Snake> _vSnakes;
+};
+
+int main() {
+  START("start");
+  initialize();
+  
+  SnakeGame game;
+  game.startThreads();
+
+  try {
   } catch (...) {
     ERR("main exception") << LEND;
   }
