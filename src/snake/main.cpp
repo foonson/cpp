@@ -11,6 +11,10 @@
 #include <csignal> //std:signal
 #include <cstdlib> //std::exit
 #include "screen/screen.h"
+#include "util/syncQueue"
+#include "util/UString"
+#include "snakeCommand.h"
+
 //#include <sys/select.h>
 
 
@@ -20,57 +24,79 @@ bool g_exit=false;
 class Snake {
 };
 
-enum COMMAND {
-  UP=1,
-  DOWN,
-  LEFT,
-  RIGHT
-};
-
-class Command {
-public:
-  COMMAND _action;
-};
-
-template<typename T> {
-class CommandQueue {
-
-public:
-  void put(const T& cmd_);
-  T get();
-private:
-  vector<T> _queue;
-};
-
 void signalHandler(int signum) {
   printf("signal %d\n", signum);
   if (signum==SIGINT) {
     printf("SIGINT\n");
-    ERR("SIGINT");
+    ERR("SIGINT") << LEND;
     //std::exit(-1);
     g_exit = true;
   }
   if (signum==SIGQUIT) {  // core
     printf("SIGQUIT\n");
-    ERR("SIGQIUT");
+    ERR("SIGQIUT") << LEND;
     g_exit = true;
   }
   if (signum==SIGSEGV) {  // segmentation
     printf("SIGSEGV\n");
-    ERR("SIGSEGV");
+    ERR("SIGSEGV") << LEND;
     //_log.flush();
     std::exit(-1);
     g_exit = true;
   }
 }
 
-void threadReadKey(Screeen& screen_, CommandQueue& cqueue_) {
+void threadListenCommand(Screen& screen_, SyncQueue<SnakeCommand>& queue_) {
+  START("threadListenCommand");
 
+  do {
 
+    if (g_exit) {
+      break;
+    }    
+    
+    //FD_ZERO(&readfds);
+    //FD_SET(STDIN_FILENO, &readfds);
+    //int iResult = select(1, &readfds, NULL, NULL, NULL);
+    //if (iResult==-1 && errno!=EINTR) {
+    //} else {
+    //  if (FD_ISSET(STDIN_FILENO, &readfds)) {
+    //    printf("%d", iResult);
+    //  }
+    //}
+
+    char ch=getchar();
+    if (ch==27) {
+      ch=getchar();
+      if (ch==91) {
+        ch=getchar();
+        if (ch==65) {
+          queue_.put(SnakeCommand(SNAKE_UP));
+        } else if (ch==66) {
+          queue_.put(SnakeCommand(SNAKE_DOWN));
+        } else if (ch==68) {
+          queue_.put(SnakeCommand(SNAKE_LEFT));
+        } else if (ch==67) {
+          queue_.put(SnakeCommand(SNAKE_RIGHT));
+        }
+      }
+      
+    } else if (ch=='i') {
+     queue_.put(SnakeCommand(SNAKE_UP));
+    } else if (ch=='x') {
+     queue_.put(SnakeCommand(SNAKE_EXIT));
+     break;
+    }
+    
+    screen_.xy(1,8).show(UString::toString(queue_.size()));
+
+  } while (true);
+  END("");
 }
 
 
-void threadMove(Screen& screen_, CommandQueue& cqueue_) {
+void threadMove(Screen& screen_, SyncQueue<SnakeCommand>& queue_) {
+  START("threadMove");
 
   try {
 
@@ -78,52 +104,75 @@ void threadMove(Screen& screen_, CommandQueue& cqueue_) {
     int yLast=0;  
     int x=10;
     int y=10;
+    SNAKEACTION lastAction = SNAKE_NOTHING;
     do {
 
-      //if (x==15) {
-      //  int* p = NULL;
-      //  *p = 10;
-      //}
       if (g_exit) {
         return;
       }
-      if (cqueue_._ch=='x') {
+      bool moved = false;
+      SNAKEACTION action = SNAKE_NOTHING;
+
+      do {
+        if (queue_.empty()) {
+          break;
+        }
+        SnakeCommand cmd = queue_.get();
+        action = cmd.action();
+        if (action==SNAKE_NOTHING) {
+          break;
+        }
+        screen_.xy(1,8).show(UString::toString(queue_.size()) + " ");
+      } while(action==lastAction);
+
+      if (action==SNAKE_NOTHING) {
+        action = lastAction;
+      }
+      if (action==SNAKE_EXIT) {
         return;
       }
-      if (cqueue_._ch=='i' || cqueue_._ch==0x4427D) {
-        cqueue_._ch = ' ';
-        xLast = x;
-        yLast = y;
+      if (action==SNAKE_UP) {
+        moved = true;
         y=y-1;
-      }
-      if (cqueue_._ch=='m') {
-        cqueue_._ch = ' ';
-        xLast = x;
-        yLast = y;
+      } else if (action==SNAKE_DOWN) {
+        moved = true;
         y=y+1;
+      } else if (action==SNAKE_LEFT) {
+        moved = true;
+        x=x-1;
+      } else if (action==SNAKE_RIGHT) {
+        moved = true;
+        x=x+1;
       }
       if (y<=0) {
-        y=1;
+        y=40;
       }
-      if (y>20) {
+      if (y>40) {
         y=0;
-        x+=1;
+      }
+      if (x<=0) {
+        x=80;
+      }
+      if (x>80) {
+        x=0;
       }
 
-      if (y!=yLast) {
+      if (moved) {
         //using namespace std::literals;
         screen_.xy(x, y).color(GREEN).show("X");
         screen_.xy(xLast, yLast).colorDefault().show(" ");
-        this_thread::sleep_for(std::chrono::milliseconds(10));
+        this_thread::sleep_for(std::chrono::milliseconds(500));
+        xLast = x;
+        yLast = y;
+        lastAction = action;
       }
 
     } while (true);
   } catch (...) {
-    printf("threadMove exception");
-    ERR("threadMove exception")
+    ERR("threadMove exception") << LEND;
   }
+  END("");
 }
-
 
 void initialize() {
   std::signal(SIGINT, signalHandler);
@@ -135,65 +184,22 @@ void initialize() {
 }
 
 int main() {
-  LOG("start");
+  START("start");
   initialize();
 
   Screen screen;
-  CommandQueue cqueue;
+  SyncQueue<SnakeCommand> queue1;
 
   try {
-    thread t1(threadMove, std::ref(screen), std::ref(cqueue));
-
-    
-    //fd_set readfds;
-    //int sd;
-    do {
-
-      //char ch = getchar();
-      //string s = "";
-      //s[0] = ch;
-      //screen.xy(1,20).show("i");
-      //cqueue._ch = ch;
-      if (g_exit) {
-        break;
-      }    
-      
-      //FD_ZERO(&readfds);
-      //FD_SET(STDIN_FILENO, &readfds);
-      //int iResult = select(1, &readfds, NULL, NULL, NULL);
-      //if (iResult==-1 && errno!=EINTR) {
-      //} else {
-      //  if (FD_ISSET(STDIN_FILENO, &readfds)) {
-      //    printf("%d", iResult);
-      //  }
-      //}
-
-
-      char ch=getchar();
-      if (ch==27) {
-        ch=getchar();
-        if (ch==91) {
-          ch=getchar();
-          if (ch==65) {
-            cqueue._ch = 'i';
-          } else if (ch==) {
-          }
-        }
-        
-      } else {
-        cqueue._ch = ch;
-      }
-
-      printf("%ld",ch);
- 
- 
-    } while (true);
-
+    thread t1(threadMove, std::ref(screen), std::ref(queue1));
+    thread t2(threadListenCommand, std::ref(screen), std::ref(queue1));
 
     t1.join();
+    t2.join();
   } catch (...) {
-    printf("main exception");
-    ERR("main exception")
+    ERR("main exception") << LEND;
   }
+  END("");
+
 }
 

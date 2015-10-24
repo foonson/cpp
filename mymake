@@ -2,9 +2,11 @@ CC=g++
 CFLAGS="-pthread -std=c++11"
 INC="-Isrc"
 CCC="$CC $CFLAGS $INC"
+LD="$CC $INC"
 
 
 $CCC -c src/util/log.cpp -o lib/log.o
+#$CCC -c src/util/syncQueue -o lib/syncQueue.o
 $CCC -c src/screen/screen.cpp -o lib/screen.o
 $CCC lib/* src/snake/main.cpp -o snake.x
 

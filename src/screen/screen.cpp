@@ -2,7 +2,7 @@
 #include <unistd.h>
 
 Screen::Screen() {
-  LOG("Screen::Screen");
+  START("");
   setbuf(stdout, NULL);
   // hide cursor
   printf("\e[?25l");
@@ -12,14 +12,16 @@ Screen::Screen() {
   term.c_lflag &= ~ICANON;
   term.c_lflag &= ~ECHO;
   tcsetattr(STDIN_FILENO, TCSANOW, &term);
+  END("");
 }
 
 Screen::~Screen() {
-  LOG("Screen::~Screen");
+  START("");
   colorDefault();
   // show cursor
   printf("\e[?25h");
   tcsetattr(STDIN_FILENO, TCSANOW, &_term);
+  END("");
 }
 
 Screen& Screen::xy(int x, int y) {

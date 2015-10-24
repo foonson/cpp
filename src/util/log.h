@@ -9,16 +9,25 @@ class Log {
 public:
   Log(const string& pathname_);
   ~Log();
-  void log(const string& s_);
+  ostream& log(const string& s_);
   void flush();
+  ostream& operator<<(const string& s_) {
+    _logs << s_;
+    return _logs;
+  }
 
 private:
   fstream _logs;
 };
 
 extern Log g_log;
-#define LOG(x) g_log.log((x));
-#define ERR(x) g_log.log((x));
+#define LEND "\n"
+#define LSTART ""
+#define LOG(x) g_log << LSTART << (x)
+#define ERR(x) LOG("ERROR:") << (x)
+#define START(x) LOG(__PRETTY_FUNCTION__) << "{" << LEND
+#define END(x) LOG(__PRETTY_FUNCTION__) << "}" << LEND
+
 #define INITLOG(pathname) Log g_log((pathname));
 
 #endif

@@ -1,0 +1,45 @@
+#ifndef _UTIL_SYNCQUEUE
+#define _UTIL_SYNCQUEUE
+
+#include "util/pch.h"
+#include <deque>
+
+#include <thread>
+#include <mutex>
+
+template<typename T> 
+class SyncQueue {
+
+public:
+  void put(const T& cmd_);
+  T get();
+  bool empty();
+  size_t size();
+private:
+  deque<T> _queue;
+  mutex _mutex;
+};
+
+
+template<typename T>
+bool SyncQueue<T>::empty() { return _queue.empty(); }
+
+template<typename T>
+size_t SyncQueue<T>::size() { return _queue.size(); }
+
+template<typename T>
+void SyncQueue<T>::put(const T& cmd_) {
+  lock_guard<mutex> lock(_mutex);
+  _queue.push_back(cmd_);
+}
+
+template<typename T>
+T SyncQueue<T>::get() {
+  lock_guard<mutex> lock(_mutex);
+  if (_queue.empty()) return T();
+  T node = _queue.front();
+  _queue.pop_front();
+  return node;
+}
+
+#endif
