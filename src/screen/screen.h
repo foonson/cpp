@@ -6,6 +6,11 @@
 
 #define ESC33 "\033["
 
+
+enum {
+  TRANSPARENT=0
+};
+
 enum COLOR {
   RED=31,
   GREEN=32,
@@ -54,7 +59,7 @@ public:
   Pixel() {
     fgColor = 0;
     bgColor = 0;
-    ch = 0;
+    ch = TRANSPARENT;
   }
   int fgColor;
   int bgColor;
@@ -63,7 +68,7 @@ public:
 
 class ILayer {
 public:
-  virtual bool text(int x_, int y_, int fgc_, int bgc_, char ch_) =0;
+  virtual void text(int x_, int y_, int fgc_, int bgc_, char ch_) =0;
   //virtual ILayer& color(int clr) =0;
   //virtual ILayer& colorDefault() =0;
   //virtual ILayer& show(const string& s) =0;
@@ -73,30 +78,62 @@ public:
 class Layer : public ILayer {
 public:
   Layer() {
+    START("");
     _xOffset = 0;
     _yOffset = 0;
     _zOrder = 0;
+    LOGFN << toString() << LEND;
+    END("");
   }
 
+  /*
+  Layer(const Layer& layer_) {
+    START("");
+    LOGFN << layer_.toString() << LEND;
+    LOGFN << toString() << LEND;
+    END("");
+  }
+  Layer(const Layer&& layer_) {
+    START("");
+    LOGFN << layer_.toString() << LEND;
+    LOGFN << toString() << LEND;
+    END("");
+  }
+  */
+
   Layer(int xOffset_, int yOffset_, int zOrder_) {
+    START("");
     _xOffset = xOffset_;
     _yOffset = yOffset_;
     _zOrder = zOrder_;
+    LOGFN << toString() << LEND;
+    END("");
   }
 
   virtual ~Layer() {
   }
-  bool text(int x_, int y_, int fgc_, int bgc_, char ch_) {
+  void text(int x_, int y_, int fgc_, int bgc_, char ch_) {
+    LOGFN << toString() << " " << x_ << "," << y_ << " " << ch_ << LEND; 
     _pixels[x_][y_].ch = ch_;
-    return true;
   }
-  bool text(int x_, int y_, const Pixel& pixel_) {
+  void text(int x_, int y_, const Pixel& pixel_) {
+    LOGFN << toString() << " " << x_ << "," << y_ << " " << pixel_.ch << LEND; 
     _pixels[x_][y_] = pixel_;
-    return true;
   }
   Pixel& pixel(int x_, int y_) {
     return _pixels[x_][y_];
   }
+  string toString() const {
+    string s;
+    s = "zOrder=";
+    s += UString::toString(_zOrder);
+    s += " ";
+    s += UString::toHexString((unsigned long long)(this));
+    return s;
+  }
+  int zOrder() { return _zOrder; }
+  int xOffset() { return _xOffset; }
+  int yOffset() { return _yOffset; }
 
 private:
   Pixel _pixels[XMAX][YMAX];
@@ -106,31 +143,42 @@ private:
   
 };
 
+typedef shared_ptr<Layer> SPLayer;
+
 class Screen : public ILayer{
 public:
   Screen();
   ~Screen();
-  bool text(int x_, int y_, int fgc_, int bgc_, char ch_) {
+  void text(int x_, int y_, int fgc_, int bgc_, char ch_) {
     xy(x_, y_).show(ch_);
   }
 
-  bool text(int x_, int y_, const Pixel& pixel_) {
+  void text(int x_, int y_, const Pixel& pixel_) {
     xy(x_, y_).show(pixel_.ch);
   }
 
-  Layer& createLayer(int xOffset_, int yOffset_, int zOrder_) {
-    _vLayers.push_back(Layer(xOffset_, yOffset_, zOrder_));
-    return _vLayers.back();
+  SPLayer createLayer(int xOffset_, int yOffset_, int zOrder_) {
+    START("");
+    SPLayer pLayer = make_shared<Layer>(xOffset_, yOffset_, zOrder_);
+    _vpLayers.push_back(pLayer);
+    //LOGFN << l1.toString() << LEND;
+    //Layer& l=_vpLayers->back();
+    //LOGFN << l.toString() << LEND;
+    END("");
+    return pLayer;
   }
 
-  bool render() {
+  void render() {
     Layer target;
-    for (Layer& layer : _vLayers) {
+    for (auto & pLayer : _vpLayers) {
+LOGFN  << pLayer->toString() << LEND; 
       for (int x=0;x<XMAX;x++) {
         for (int y=0;y<YMAX;y++) {
-          Pixel& p = layer.pixel(x,y);
+          Pixel& p = pLayer->pixel(x,y);
           Pixel& t = target.pixel(x,y);
-          if (p.ch!=t.ch) {
+LOGFN << pLayer->toString() << " " << x << "," << y << " " << p.ch << LEND;
+          if (p.ch!=TRANSPARENT && p.ch!=t.ch) {
+            LOG("") << x << "," << y << " " << p.ch << LEND;
             target.text(x, y, p);
           }   
         }
@@ -141,6 +189,7 @@ public:
       for (int y=0;y<YMAX;y++) {
         Pixel& p = target.pixel(x,y);
         if (p.ch!=0) {
+          LOG("") << "render screen:" << x << "," << y << " " << p.ch << LEND;
           text(x, y, p);
         }   
       }
@@ -157,7 +206,7 @@ public:
 
 private:
   termios _term; 
-  vector<Layer> _vLayers;
+  vector<shared_ptr<Layer>> _vpLayers;
 };
 
 #endif

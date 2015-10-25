@@ -12,7 +12,7 @@
 #include <cstdlib> //std::exit
 #include "screen/screen.h"
 #include "util/syncQueue"
-#include "util/UString"
+//#include "util/UString"
 #include "snakeCommand.h"
 
 
@@ -92,15 +92,30 @@ void initialize() {
 
 class Snake {
 public:
+  /*
+  Snake(const Snake& snake_) : _layer(snake_._layer) {
+    START("");
+    
+    _x = snake_._x;
+    _y = snake_._y;
+    _lastAction = snake_._lastAction;
+    _fnKeyActionMap = snake_._fnKeyActionMap;
+    LOG("") << _pLayer->toString() << LEND;
 
-  Snake(Layer& layer_) : _layer(layer_) {
+    END("");
+  }
+  */
+  Snake(shared_ptr<Layer> pLayer_) : _pLayer(pLayer_) {
+    START("");
+    _x = XMAX/2+_pLayer->zOrder();
+    _y = YMAX/2+_pLayer->zOrder();
     _lastAction = SNAKE_NOTHING;
-    _x = 10;
-    _y = 10;
-    _layer.text(_x,_y,0,0,'X');
+    _pLayer->text(_x,_y,0,0,'X');
+    LOGFN << _pLayer->toString() << LEND;
+    END("");
   }
 
-  bool listenCommand(KEY key_, char ch_) {
+  void listenCommand(KEY key_, char ch_) {
     SNAKEACTION action = _fnKeyActionMap(key_, ch_);
     if (action!=SNAKE_NOTHING) {
       _pcmdQueue->put(SnakeCommand(action));
@@ -162,18 +177,19 @@ public:
     }
 
     if (moved) {
-      _layer.text(_x, _y, 0, 0, 'X');
-      _layer.text(xLast, yLast, 0, 0, ' ');
+      _pLayer->text(_x, _y, 0, 0, 'X');
+      _pLayer->text(xLast, yLast, 0, 0, ' ');
       _lastAction = action;
+      LOGFN << _pLayer->toString() << _x << "," << _y << LEND;
     }
-    printf("%d,%d ", _x,_y);
+    //printf("%d,%d ", _x,_y);
 
   }
 
   function<SNAKEACTION(KEY, char)> _fnKeyActionMap;
   SyncQueue<SnakeCommand>* _pcmdQueue;
 private:
-  Layer& _layer;
+  shared_ptr<Layer> _pLayer;
   int _x;
   int _y;
   SNAKEACTION _lastAction;
@@ -183,28 +199,30 @@ private:
 class SnakeGame {
 public:
   SnakeGame() {
-    START();
+    START("");
     _exit = false;    
 
-    Layer& layer0 = _screen.createLayer(0,0,0);
-    layer0.text(1,1,0,0,'K');
+    shared_ptr<Layer> pLayer0 = _screen.createLayer(0,0,0);
+    pLayer0->text(1,1,0,0,'K');
     _screen.render();
 
-    Layer& layer1 = _screen.createLayer(0, 0, 0);
-    Snake& snake1 = createSnake(layer1);
+    shared_ptr<Layer> pLayer1 = _screen.createLayer(0, 0, 1);
+    Snake& snake1 = createSnake(pLayer1);
     snake1._fnKeyActionMap = snake1KeyActionMap;
     snake1._pcmdQueue = new SyncQueue<SnakeCommand>;
+    //printf("%s\n", pLayer1->toString().c_str());
 
-    Layer& layer2 = _screen.createLayer(0, 0, 0);
-    Snake& snake2 = createSnake(layer2);
+    shared_ptr<Layer> pLayer2 = _screen.createLayer(0, 0, 2);
+    Snake& snake2 = createSnake(pLayer2);
     snake2._fnKeyActionMap = snake2KeyActionMap;
     snake2._pcmdQueue = new SyncQueue<SnakeCommand>;
+    //printf("%s\n", layer2.toString().c_str());
     END("");
   }
 
   //Snake& createSnake(Layer& layer_, (SNAKEACTION)(KEY, char) fnKeyActionMap_) {
-  Snake& createSnake(Layer& layer_) {
-    _vSnakes.push_back(Snake(layer_));
+  Snake& createSnake(SPLayer pLayer_) {
+    _vSnakes.push_back(Snake(pLayer_));
     Snake& snake = _vSnakes.back();
     //snake.setLayer(layer_);
     //snake._fnKeyActionMap = fnKeyActionMap_;
