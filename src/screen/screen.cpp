@@ -30,7 +30,9 @@ Screen& Screen::xy(int x, int y) {
 }
 
 Screen& Screen::color(int clr) {
-  printf(ESC33"0;%dm", clr);
+  int i=clr/100;
+  int j=clr%100;
+  printf(ESC33"0%d;%dm", i,j);
   return *this;
 }
 
@@ -52,4 +54,47 @@ Screen& Screen::show(char ch_) {
 Screen& Screen::flush() {
   fflush(stdout);
   return *this;
+}
+
+void Screen::text(int x_, int y_, int fgc_, int bgc_, char ch_) {
+  xy(x_, y_).color(fgc_).show(ch_);
+}
+
+void Screen::text(int x_, int y_, const Pixel& pixel_) {
+  xy(x_, y_).color(pixel_.fgColor).show(pixel_.ch);
+}
+
+SPLayer Screen::createLayer(int xOffset_, int yOffset_, int zOrder_) {
+  START("");
+  SPLayer pLayer = make_shared<Layer>(xOffset_, yOffset_, zOrder_);
+  _vpLayers.push_back(pLayer);
+  END("");
+  return pLayer;
+}
+
+void Screen::render() {
+  Layer target;
+  for (auto & pLayer : _vpLayers) {
+    for (int x=0;x<XMAX;x++) {
+      for (int y=0;y<YMAX;y++) {
+        Pixel& p = pLayer->pixel(x,y);
+        Pixel& t = target.pixel(x,y);
+        if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND && p.ch!=t.ch) {
+          target.text(x, y, p);
+        }
+      }
+    }
+  }
+  
+  for (int x=0;x<XMAX;x++) {
+    for (int y=0;y<YMAX;y++) {
+      Pixel& p = target.pixel(x,y);
+      if (p.ch!=TRANSPARENT) {
+        //LOG("") << "render screen:" << x << "," << y << " " << p.ch << LEND;
+        text(x, y, p);
+      } else {
+        text(x, y, 0, 0, ' ');
+      }
+    }
+  }
 }

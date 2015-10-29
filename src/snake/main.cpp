@@ -11,19 +11,18 @@
 #include <csignal> //std:signal
 #include <cstdlib> //std::exit
 #include "screen/screen.h"
+#include "screen/keyboard.h"
 #include "util/syncQueue"
 //#include "util/UString"
 #include "snakeCommand.h"
-
+#include "snake.h"
 
 #include <functional> // std:function
 
 //#include <sys/select.h>
 
-
 INITLOG("./snake.log");
 bool g_exit=false;
-
 
 void signalHandler(int signum) {
   printf("signal %d\n", signum);
@@ -47,40 +46,6 @@ void signalHandler(int signum) {
   }
 }
 
-
-SNAKEACTION commonKeyActionMap(KEY key_, char ch_) {
-  if (ch_=='x') {
-    return SNAKE_EXIT;
-  }
-  return SNAKE_NOTHING;
-}
-
-SNAKEACTION snake1KeyActionMap(KEY key_, char ch_) {
-  if (key_==KEY_UP) {
-    return SNAKE_UP;
-  } else if (key_==KEY_DOWN) {
-    return SNAKE_DOWN;
-  } else if (key_==KEY_LEFT) {
-    return SNAKE_LEFT;
-  } else if (key_==KEY_RIGHT) {
-    return SNAKE_RIGHT;
-  }
-  return commonKeyActionMap(key_, ch_);
-}
-
-SNAKEACTION snake2KeyActionMap(KEY key_, char ch_) {
-  if (ch_=='w') {
-    return SNAKE_UP;
-  } else if (ch_=='z') {
-    return SNAKE_DOWN;
-  } else if (ch_=='a') {
-    return SNAKE_LEFT;
-  } else if (ch_=='s') {
-    return SNAKE_RIGHT;
-  }
-  return commonKeyActionMap(key_, ch_);
-}
-
 void initialize() {
   std::signal(SIGINT, signalHandler);
   std::signal(SIGTERM, signalHandler);
@@ -90,132 +55,32 @@ void initialize() {
   std::signal(SIGFPE, signalHandler);
 }
 
-class Snake {
-public:
-  /*
-  Snake(const Snake& snake_) : _layer(snake_._layer) {
-    START("");
-    
-    _x = snake_._x;
-    _y = snake_._y;
-    _lastAction = snake_._lastAction;
-    _fnKeyActionMap = snake_._fnKeyActionMap;
-    LOG("") << _pLayer->toString() << LEND;
-
-    END("");
-  }
-  */
-  Snake(shared_ptr<Layer> pLayer_) : _pLayer(pLayer_) {
-    START("");
-    _x = XMAX/2+_pLayer->zOrder();
-    _y = YMAX/2+_pLayer->zOrder();
-    _lastAction = SNAKE_NOTHING;
-    _pLayer->text(_x,_y,0,0,'X');
-    LOGFN << _pLayer->toString() << LEND;
-    END("");
-  }
-
-  void listenCommand(KEY key_, char ch_) {
-    SNAKEACTION action = _fnKeyActionMap(key_, ch_);
-    if (action!=SNAKE_NOTHING) {
-      _pcmdQueue->put(SnakeCommand(action));
-    }
-  }
-
-  void evaluate() {
-
-    int xLast = _x;
-    int yLast = _y;
-
-    SNAKEACTION action = SNAKE_NOTHING;
-    bool moved = false;
-
-    do {
-      if (_pcmdQueue->empty()) {
-        break;
-      }
-      SnakeCommand cmd = _pcmdQueue->get();
-      action = cmd.action();
-      if (action==SNAKE_NOTHING) {
-        break;
-      }
-      //screen.xy(1,8).show(UString::toString(queue_.size()) + " ");
-    } while(action==_lastAction);
-
-    if (action==SNAKE_NOTHING) {
-      action = _lastAction;
-    }
-
-    if (action==SNAKE_EXIT) {
-      return;
-    }
-    if (action==SNAKE_UP) {
-      moved = true;
-      _y=_y-1;
-    } else if (action==SNAKE_DOWN) {
-      moved = true;
-      _y=_y+1;
-    } else if (action==SNAKE_LEFT) {
-      moved = true;
-      _x=_x-1;
-    } else if (action==SNAKE_RIGHT) {
-      moved = true;
-      _x=_x+1;
-    }
-    
-    if (_y<=0) {
-      _y=YMAX-1;
-    }
-    if (_y>=YMAX) {
-      _y=0;
-    }
-    if (_x<=0) {
-      _x=XMAX-1;
-    }
-    if (_x>=XMAX) {
-      _x=0;
-    }
-
-    if (moved) {
-      _pLayer->text(_x, _y, 0, 0, 'X');
-      _pLayer->text(xLast, yLast, 0, 0, ' ');
-      _lastAction = action;
-      LOGFN << _pLayer->toString() << _x << "," << _y << LEND;
-    }
-    //printf("%d,%d ", _x,_y);
-
-  }
-
-  function<SNAKEACTION(KEY, char)> _fnKeyActionMap;
-  SyncQueue<SnakeCommand>* _pcmdQueue;
-private:
-  shared_ptr<Layer> _pLayer;
-  int _x;
-  int _y;
-  SNAKEACTION _lastAction;
-};
-
-
 class SnakeGame {
 public:
   SnakeGame() {
     START("");
     _exit = false;    
 
-    shared_ptr<Layer> pLayer0 = _screen.createLayer(0,0,0);
-    pLayer0->text(1,1,0,0,'K');
-    _screen.render();
+    _pLayer = _screen.createLayer(0,0,0);
+    //pLayer0->text(1,1,0,0,'K');
+    //_screen.render();
 
     shared_ptr<Layer> pLayer1 = _screen.createLayer(0, 0, 1);
     Snake& snake1 = createSnake(pLayer1);
     snake1._fnKeyActionMap = snake1KeyActionMap;
     snake1._pcmdQueue = new SyncQueue<SnakeCommand>;
+    snake1._body = Pixel(0,0,YELLOW,BLACK,'X');
+    snake1._length = 2;
+    snake1._id = 1;
     //printf("%s\n", pLayer1->toString().c_str());
 
     shared_ptr<Layer> pLayer2 = _screen.createLayer(0, 0, 2);
     Snake& snake2 = createSnake(pLayer2);
     snake2._fnKeyActionMap = snake2KeyActionMap;
     snake2._pcmdQueue = new SyncQueue<SnakeCommand>;
+    snake2._body = Pixel(0,0,LBLUE,BLACK,'O');
+    snake2._length = 2;
+    snake2._id = 2;
     //printf("%s\n", layer2.toString().c_str());
     END("");
   }
@@ -229,16 +94,40 @@ public:
     return snake;
   } 
 
+  void evaluate(Snake& snake_) {
+    if (_counter%100==0) {
+      _pLayer->text(XMAX/2,YMAX/2,RED,BLACK,'*');
+    }
+
+    int x = snake_._x;
+    int y = snake_._y;
+    if (x==XMAX/2 && y==YMAX/2) {
+      snake_.increaseLength(2);
+      _pLayer->clear();
+    }
+
+    for (auto& other: _vSnakes) {
+      if (snake_._id==other._id) {
+        continue;
+      }
+      if (other.isTouched(x,y)) {
+        snake_.increaseLength(-2);
+      }
+ 
+    } 
+  }
+
   void evaluateLoop() {
     START("");
     do {
-      //printf("evaluateLoop");
+      _counter++;
 
       if (_exit || g_exit) {
         break;
       }   
       for (auto& snake: _vSnakes) {
         snake.evaluate();
+        evaluate(snake);
       } 
       this_thread::sleep_for(std::chrono::milliseconds(100));
     } while (true);
@@ -306,6 +195,9 @@ private:
   Screen _screen;
   Keyboard _keyboard;
   vector<Snake> _vSnakes;
+  SPLayer _pLayer;
+  vector<SnakeNode> _fruits;
+  long long _counter;
 };
 
 int main() {
