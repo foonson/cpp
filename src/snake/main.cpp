@@ -72,6 +72,8 @@ public:
     snake1._body = Pixel(0,0,YELLOW,BLACK,'X');
     snake1._length = 2;
     snake1._id = 1;
+    snake1._head = SnakeNode(10,10);
+    snake1.init();
     //printf("%s\n", pLayer1->toString().c_str());
 
     shared_ptr<Layer> pLayer2 = _screen.createLayer(0, 0, 2);
@@ -81,6 +83,8 @@ public:
     snake2._body = Pixel(0,0,LBLUE,BLACK,'O');
     snake2._length = 2;
     snake2._id = 2;
+    snake2._head = SnakeNode(20,20);
+    snake2.init();
     //printf("%s\n", layer2.toString().c_str());
     END("");
   }
@@ -99,9 +103,7 @@ public:
       _pLayer->text(XMAX/2,YMAX/2,RED,BLACK,'*');
     }
 
-    int x = snake_._x;
-    int y = snake_._y;
-    if (x==XMAX/2 && y==YMAX/2) {
+    if (snake_._head.touching(XMAX/2, YMAX/2)) {
       snake_.increaseLength(2);
       _pLayer->clear();
     }
@@ -110,7 +112,7 @@ public:
       if (snake_._id==other._id) {
         continue;
       }
-      if (other.isTouched(x,y)) {
+      if (other.touching(snake_._head)) {
         snake_.increaseLength(-2);
       }
  
@@ -129,7 +131,8 @@ public:
         snake.evaluate();
         evaluate(snake);
       } 
-      this_thread::sleep_for(std::chrono::milliseconds(100));
+      _screen.render();
+      //this_thread::sleep_for(std::chrono::milliseconds(100));
     } while (true);
     END("");
   }
@@ -146,6 +149,7 @@ public:
       KEY key;
       char ch;      
       _keyboard.getKey(key, ch);
+      LOGFN << ch << LEND;
 
       for (auto& snake: _vSnakes) {
         snake.listenCommand(key, ch);
@@ -170,7 +174,7 @@ public:
         break;
       }   
       _screen.render();
-      this_thread::sleep_for(std::chrono::milliseconds(100));
+      //this_thread::sleep_for(std::chrono::milliseconds(100));
     } while (true);
     END("");
   }
@@ -179,11 +183,11 @@ public:
   void startThreads() {
     START("");
     thread t1(&SnakeGame::listenCommandLoop, this);
-    thread t2(&SnakeGame::renderLoop, this);
+    //thread t2(&SnakeGame::renderLoop, this);
     thread t3(&SnakeGame::evaluateLoop, this);
 
     t1.join();
-    t2.join();
+    //t2.join();
     t3.join();
     END("");
   }

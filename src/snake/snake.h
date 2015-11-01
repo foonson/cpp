@@ -17,14 +17,14 @@ SNAKEACTION snake1KeyActionMap(KEY key_, char ch_);
 SNAKEACTION snake2KeyActionMap(KEY key_, char ch_); 
 SNAKEACTION commonKeyActionMap(KEY key_, char ch_); 
 
-class SnakeNode {
+class SnakeNode : public XY {
 public:
-  SnakeNode(int x_, int y_) {
-    _x = x_;
-    _y = y_;
+  SnakeNode() : XY() {
   }
-  int _x;
-  int _y;
+  SnakeNode(int x_,int y_) : XY(x_, y_) {
+  }
+  SnakeNode(const SnakeNode& node_) : XY((XY)node_) {
+  }
 };
 
 class Snake {
@@ -32,25 +32,29 @@ public:
   
   //Snake(const Snake& snake_) : _layer(snake_._layer); 
   Snake(shared_ptr<Layer> pLayer_);
+  void init();
+
   void listenCommand(KEY key_, char ch_);
   void evaluate();
+  bool evalMove();
   void fullRender();
   void increaseLength(int inc_);
 
-  bool isTouched(int x_, int y_);
+  bool touching(const XY& xy_);
 
   function<SNAKEACTION(KEY, char)> _fnKeyActionMap;
   SyncQueue<SnakeCommand>* _pcmdQueue;
   Pixel _body;
-  int _x;
-  int _y;
+  SnakeNode _head;
   int _length;
   int _id;
 private:
   SPLayer _pLayer;
+
+  std::chrono::time_point<std::chrono::system_clock> _lastMoveEvaluation;
   
   deque<SnakeNode> _snakeNodes; 
-  SNAKEACTION _lastAction;
+  SNAKEACTION _direct;
 };
 
 #endif

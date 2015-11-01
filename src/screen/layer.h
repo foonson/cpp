@@ -4,6 +4,37 @@
 #include "util/pch.h"
 #include "sconstant.h"
 
+
+class XY {
+public:
+  XY() {};
+  XY(int x_, int y_);
+  XY(const XY& xy_);
+  void xy(int x_, int y_);
+  bool touching(const XY& xy_);
+  bool touching(int x_, int y_);
+
+  string toString() const;
+
+  int _x;
+  int _y;
+};
+
+class XYZ {
+public:
+  XYZ(int x_, int y_, int z_);
+  XYZ(const XYZ& xyz_);
+  void xyz(int x_, int y_, int z_);
+  bool touching(const XYZ& xyz_);
+  bool touching(int x_, int y_, int z_);
+  bool touchingXY(int x_, int y_);
+  bool touchingXY(const XY& xy_);
+
+  int _x;
+  int _y;
+  int _z;
+};
+
 class Pixel {
 public:
   Pixel() {

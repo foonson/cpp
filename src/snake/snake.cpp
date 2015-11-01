@@ -1,5 +1,6 @@
 #include "snake.h"
 
+
 SNAKEACTION commonKeyActionMap(KEY key_, char ch_) {
   if (ch_=='x') {
     return SNAKE_EXIT;
@@ -38,7 +39,7 @@ Snake::Snake(const Snake& snake_) : _layer(snake_._layer) {
   
   _x = snake_._x;
   _y = snake_._y;
-  _lastAction = snake_._lastAction;
+  _direct = snake_._direct;
   _fnKeyActionMap = snake_._fnKeyActionMap;
   LOG("") << _pLayer->toString() << LEND;
 
@@ -47,12 +48,16 @@ Snake::Snake(const Snake& snake_) : _layer(snake_._layer) {
 */
 Snake::Snake(shared_ptr<Layer> pLayer_) : _pLayer(pLayer_) {
   START("");
-  _x = XMAX/2+_pLayer->zOrder();
-  _y = YMAX/2+_pLayer->zOrder();
-  _lastAction = SNAKE_NOTHING;
+  //_head.xy(XMAX/2+_pLayer->zOrder(), YMAX/2+_pLayer->zOrder());
+  _direct = SNAKE_NOTHING;
   //_pLayer->text(_x, _y);
   //LOGFN << _pLayer->toString() << LEND;
   END("");
+}
+
+void Snake::init() {
+  _lastMoveEvaluation = std::chrono::system_clock::now(); 
+  fullRender();
 }
 
 void Snake::listenCommand(KEY key_, char ch_) {
@@ -62,70 +67,101 @@ void Snake::listenCommand(KEY key_, char ch_) {
   }
 }
 
+//bool Snake::evalDirect(SNAKEACTION action_) {
+//}
+
+bool Snake::evalMove() {
+  bool moved = false;
+  std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+  std::chrono::milliseconds ms100(300);
+  std::chrono::duration<double, std::milli> d = now - _lastMoveEvaluation;
+
+  //LOGFN << "1" << LEND;
+  //LOGFN << d.count() << LEND;
+
+  if (d < ms100) {
+    return false;
+  }
+
+  //LOGFN << "2" << LEND;
+
+  if (_direct==SNAKE_UP) {
+    moved = true;
+    _head._y -= 1;
+  } else if (_direct==SNAKE_DOWN) {
+    moved = true;
+    _head._y += 1;
+  } else if (_direct==SNAKE_LEFT) {
+    moved = true;
+    _head._x -= 1;
+  } else if (_direct==SNAKE_RIGHT) {
+    moved = true;
+    _head._x += 1;
+  }
+  //LOGFN << "2" << LEND;
+  //LOGFN << _head.toString() << LEND;
+  _lastMoveEvaluation = now;
+  return true;
+}
+
 void Snake::evaluate() {
 
   //int xLast = _x;
   //int yLast = _y;
   SNAKEACTION action = SNAKE_NOTHING;
-  bool moved = false;
+  bool draw = false;
 
-  do {
-    if (_pcmdQueue->empty()) {
-      break;
-    }
+  //do {
+    //if (_pcmdQueue->empty()) {
+    //  break;
+    //}
     SnakeCommand cmd = _pcmdQueue->get();
     action = cmd.action();
-    if (action==SNAKE_NOTHING) {
-      break;
-    }
-  } while(action==_lastAction);
+    //if (action==SNAKE_NOTHING) {
+    //  break;
+    //}
+  //} while(action==_lastAction);
 
-  if (action==SNAKE_NOTHING) {
-    action = _lastAction;
-  }
+  //if (action==SNAKE_NOTHING) {
+  //  action = _lastAction;
+  //}
 
   if (action==SNAKE_EXIT) {
     return;
   }
-  if (action==SNAKE_UP) {
-    moved = true;
-    _y=_y-1;
-  } else if (action==SNAKE_DOWN) {
-    moved = true;
-    _y=_y+1;
-  } else if (action==SNAKE_LEFT) {
-    moved = true;
-    _x=_x-1;
-  } else if (action==SNAKE_RIGHT) {
-    moved = true;
-    _x=_x+1;
-  }
-  
-  if (_y<=0) {
-    _y=YMAX-1;
-  }
-  if (_y>=YMAX) {
-    _y=0;
-  }
-  if (_x<=0) {
-    _x=XMAX-1;
-  }
-  if (_x>=XMAX) {
-    _x=0;
+  if (cmd.isMovement()) {
+    _direct = cmd.action();
+    draw = true;
   }
 
-  if (moved) {
-    _snakeNodes.push_front(SnakeNode(_x, _y));
+  draw = evalMove()||draw;
+  
+  if (_head._y<0) {
+    _head._y=YMAX-1;
+  }
+  if (_head._y>=YMAX) {
+    _head._y=0;
+  }
+  if (_head._x<0) {
+    _head._x=XMAX-1;
+  }
+  if (_head._x>=XMAX) {
+    _head._x=0;
+  }
+
+  if (draw) {
+    //LOGFN << "" << LEND;
+    _snakeNodes.push_front(SnakeNode(_head._x, _head._y));
     if (_snakeNodes.size()>_length) {
       //SnakeNode n = _snakeNodes.back();
       _snakeNodes.pop_back();
       //_pLayer->text(n._x, n._y, 0, 0, ' ');
     }
+    
     fullRender();
 
     //_pLayer->text(_x, _y, 0, 0, 'X');
     //_pLayer->text(xLast, yLast, 0, 0, ' ');
-    _lastAction = action;
     //LOGFN << _pLayer->toString() << _x << "," << _y << LEND;
   }
 
@@ -138,13 +174,15 @@ void Snake::increaseLength(int inc_) {
 void Snake::fullRender() {
   _pLayer->clear();
   for (auto& i: _snakeNodes) {
+//LOGFN << i._x << i._y << LEND;
     _pLayer->text(i._x, i._y, _body);
   }
+  _pLayer->text(_head._x, _head._y, _body.fgColor, _body.bgColor, SnakeCommand::toChar(_direct));
 }
 
-bool Snake::isTouched(int x_, int y_) {
+bool Snake::touching(const XY& xy_) {
   for (auto& i: _snakeNodes) {
-    if (i._x==x_ && i._y==y_) {
+    if (i.touching(xy_)) {
       return true;
     }
   }
