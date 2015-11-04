@@ -1,7 +1,14 @@
 #include <string>
 #include <vector>
+#include <map>
 #include <stdio.h>
 #include <memory> // std::shared_ptr
+#include <experimental/optional>
+
+//typedef std::experimental::optional optional;
+
+using namespace std::experimental;
+
 using namespace std;
 
 #include "util/log.h"

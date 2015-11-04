@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS="-pthread -std=c++11 -Wall -g"
+CFLAGS="-pthread -std=c++14 -Wall -g"
 INC="-Isrc"
 CCC="$CC $CFLAGS $INC"
 LD="$CC $INC"
@@ -8,6 +8,7 @@ LD="$CC $INC"
 $CCC -c src/util/log.cpp -o lib/log.o
 $CCC -c src/util/UString.cpp -o lib/UString.o
 #$CCC -c src/util/syncQueue -o lib/syncQueue.o
+$CCC -c src/screen/pixel.cpp -o lib/pixel.o
 $CCC -c src/screen/layer.cpp -o lib/layer.o
 $CCC -c src/screen/screen.cpp -o lib/screen.o
 $CCC -c src/screen/keyboard.cpp -o lib/keyboard.o

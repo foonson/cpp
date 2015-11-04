@@ -60,8 +60,8 @@ void Screen::text(int x_, int y_, int fgc_, int bgc_, char ch_) {
   xy(x_, y_).color(fgc_).show(ch_);
 }
 
-void Screen::text(int x_, int y_, const Pixel& pixel_) {
-  xy(x_, y_).color(pixel_.fgColor).show(pixel_.ch);
+void Screen::text(const Pixel& pixel_) {
+  xy(pixel_._x, pixel_._y).color(pixel_.fgColor).show(pixel_.ch);
 }
 
 SPLayer Screen::createLayer(int xOffset_, int yOffset_, int zOrder_) {
@@ -73,28 +73,58 @@ SPLayer Screen::createLayer(int xOffset_, int yOffset_, int zOrder_) {
 }
 
 void Screen::render() {
-  Layer target;
+  _target.clear();
   for (auto & pLayer : _vpLayers) {
-    for (int x=0;x<XMAX;x++) {
-      for (int y=0;y<YMAX;y++) {
-        Pixel& p = pLayer->pixel(x,y);
-        Pixel& t = target.pixel(x,y);
-        if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND && p.ch!=t.ch) {
-          target.text(x, y, p);
-        }
+    for (auto & pp: *pLayer) {
+      //const XY& xy = pp.first;
+      const Pixel& p = pp.second;
+      //Pixel& t = _target.pixel(xy);
+      //if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND && p.ch!=t.ch) {
+      if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND) {
+        _target.text(p);
       }
+    }
+    //for (int x=0;x<XMAX;x++) {
+    //  for (int y=0;y<YMAX;y++) {
+    //    Pixel& p = pLayer->pixel(x,y);
+    //    Pixel& t = target.pixel(x,y);
+    //    if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND && p.ch!=t.ch) {
+    //      target.text(x, y, p);
+    //    }
+    //  }
+    //}
+  }
+
+
+  for (auto & pp: _current) {
+    const XY& xy = pp.first;
+    if (!_target.pixel(xy)) {
+      Pixel p(xy, BLACK, BLACK, ' ');
+      _target.text(p);
     }
   }
   
-  for (int x=0;x<XMAX;x++) {
-    for (int y=0;y<YMAX;y++) {
-      Pixel& p = target.pixel(x,y);
-      if (p.ch!=TRANSPARENT) {
-        //LOG("") << "render screen:" << x << "," << y << " " << p.ch << LEND;
-        text(x, y, p);
-      } else {
-        text(x, y, 0, 0, ' ');
-      }
+  for (auto & pp: _target) {
+    const XY& xy = pp.first;
+    const Pixel& p = pp.second;
+    //Pixel& t = target.pixel(xy);
+    if (p.ch!=TRANSPARENT) {
+      text(p);
+    } else {
+      text(xy._x, xy._y, 0, 0, ' ');
     }
   }
+  _current = _target;
+  
+  //for (int x=0;x<XMAX;x++) {
+  //  for (int y=0;y<YMAX;y++) {
+  //    Pixel& p = target.pixel(x,y);
+  //    if (p.ch!=TRANSPARENT) {
+  //      //LOG("") << "render screen:" << x << "," << y << " " << p.ch << LEND;
+  //      text(x, y, p);
+  //    } else {
+  //      text(x, y, 0, 0, ' ');
+  //    }
+  //  }
+  //}
 }

@@ -3,54 +3,7 @@
 
 #include "util/pch.h"
 #include "sconstant.h"
-
-
-class XY {
-public:
-  XY() {};
-  XY(int x_, int y_);
-  XY(const XY& xy_);
-  void xy(int x_, int y_);
-  bool touching(const XY& xy_);
-  bool touching(int x_, int y_);
-
-  string toString() const;
-
-  int _x;
-  int _y;
-};
-
-class XYZ {
-public:
-  XYZ(int x_, int y_, int z_);
-  XYZ(const XYZ& xyz_);
-  void xyz(int x_, int y_, int z_);
-  bool touching(const XYZ& xyz_);
-  bool touching(int x_, int y_, int z_);
-  bool touchingXY(int x_, int y_);
-  bool touchingXY(const XY& xy_);
-
-  int _x;
-  int _y;
-  int _z;
-};
-
-class Pixel {
-public:
-  Pixel() {
-    fgColor = RED;
-    bgColor = BLACK;
-    ch = TRANSPARENT;
-  }
-  Pixel(int x_, int y_, int fgc_, int bgc_, char ch_) {
-    fgColor = fgc_;
-    bgColor = bgc_;
-    ch = ch_;
-  }
-  int fgColor;
-  int bgColor;
-  char ch;
-};
+#include "pixel.h"
 
 class ILayer {
 public:
@@ -61,28 +14,32 @@ public:
   //virtaul ILayer& flush() =0;
 };
 
+typedef map<XY, Pixel> PixelMap;
+
 class Layer : public ILayer {
 public:
   Layer();
   Layer(int xOffset_, int yOffset_, int zOrder_);
   virtual ~Layer();
+  string toString() const;
+  virtual void clear();
   void text(int x_, int y_, int fgc_, int bgc_, char ch_);
   void text(int x_, int y_, const Pixel& pixel_);
-  Pixel& pixel(int x_, int y_); 
-  string toString() const;
-  virtual void clear() {
-    for (int x=0;x<XMAX;x++) {
-      for (int y=0;y<YMAX;y++) {
-        _pixels[x][y].ch = TRANSPARENT;
-      }
-    }
-  }
+  void text(const XY& xy_, const Pixel& pixel_);
+  void text(const Pixel& pixel_);
+  //const Pixel& pixel(int x_, int y_); 
+  optional<Pixel> pixel(const XY& xy_); 
+
+  PixelMap::iterator begin();  
+  PixelMap::iterator end();  
+
   int zOrder() { return _zOrder; }
   int xOffset() { return _xOffset; }
   int yOffset() { return _yOffset; }
 
 private:
-  Pixel _pixels[XMAX][YMAX];
+  PixelMap _pixels;
+  //Pixel _pixels[XMAX][YMAX];
   int _xOffset;
   int _yOffset;
   int _zOrder;

@@ -10,7 +10,7 @@ public:
   Screen();
   ~Screen();
   void text(int x_, int y_, int fgc_, int bgc_, char ch_);
-  void text(int x_, int y_, const Pixel& pixel_);
+  void text(const Pixel& pixel_);
   SPLayer createLayer(int xOffset_, int yOffset_, int zOrder_);
   void render(); 
   Screen& xy(int x, int y);
@@ -22,6 +22,8 @@ public:
 
 private:
   termios _term; 
+  Layer _current;
+  Layer _target;
   vector<shared_ptr<Layer>> _vpLayers;
 };
 

@@ -41,7 +41,7 @@ Snake::Snake(const Snake& snake_) : _layer(snake_._layer) {
   _y = snake_._y;
   _direct = snake_._direct;
   _fnKeyActionMap = snake_._fnKeyActionMap;
-  LOG("") << _pLayer->toString() << LEND;
+  LOG << _pLayer->toString() << LEND;
 
   END("");
 }
@@ -73,7 +73,7 @@ void Snake::listenCommand(KEY key_, char ch_) {
 bool Snake::evalMove() {
   bool moved = false;
   std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-  std::chrono::milliseconds ms100(300);
+  std::chrono::milliseconds ms100(600);
   std::chrono::duration<double, std::milli> d = now - _lastMoveEvaluation;
 
   //LOGFN << "1" << LEND;

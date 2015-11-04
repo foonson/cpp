@@ -28,18 +28,18 @@ void signalHandler(int signum) {
   printf("signal %d\n", signum);
   if (signum==SIGINT) {
     printf("SIGINT\n");
-    ERR("SIGINT") << LEND;
+    ERR << "SIGINT" << LEND;
     //std::exit(-1);
     g_exit = true;
   }
   if (signum==SIGQUIT) {  // core
     printf("SIGQUIT\n");
-    ERR("SIGQUIT") << LEND;
+    ERR << "SIGQUIT" << LEND;
     g_exit = true;
   }
   if (signum==SIGSEGV) {  // segmentation
     printf("SIGSEGV\n");
-    ERR("SIGSEGV") << LEND;
+    ERR << "SIGSEGV" << LEND;
     //_log.flush();
     std::exit(-1);
     g_exit = true;
@@ -149,7 +149,7 @@ public:
       KEY key;
       char ch;      
       _keyboard.getKey(key, ch);
-      LOGFN << ch << LEND;
+      LOG << ch << LEND;
 
       for (auto& snake: _vSnakes) {
         snake.listenCommand(key, ch);
@@ -213,7 +213,7 @@ int main() {
 
   try {
   } catch (...) {
-    ERR("main exception") << LEND;
+    ERR << "main exception" << LEND;
   }
   END("");
 
