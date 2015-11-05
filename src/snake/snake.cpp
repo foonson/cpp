@@ -67,23 +67,8 @@ void Snake::listenCommand(KEY key_, char ch_) {
   }
 }
 
-//bool Snake::evalDirect(SNAKEACTION action_) {
-//}
-
 bool Snake::evalMove() {
   bool moved = false;
-  std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-  std::chrono::milliseconds ms100(600);
-  std::chrono::duration<double, std::milli> d = now - _lastMoveEvaluation;
-
-  //LOGFN << "1" << LEND;
-  //LOGFN << d.count() << LEND;
-
-  if (d < ms100) {
-    return false;
-  }
-
-  //LOGFN << "2" << LEND;
 
   if (_direct==SNAKE_UP) {
     moved = true;
@@ -98,9 +83,30 @@ bool Snake::evalMove() {
     moved = true;
     _head._x += 1;
   }
+
+  if (_head._y<0) {
+    _head._y=YMAX-1;
+  }
+  if (_head._y>=YMAX) {
+    _head._y=0;
+  }
+  if (_head._x<0) {
+    _head._x=XMAX-1;
+  }
+  if (_head._x>=XMAX) {
+    _head._x=0;
+  }
+
+  _snakeNodes.push_front(SnakeNode(_head._x, _head._y));
+  if (_snakeNodes.size()>_length) {
+    //SnakeNode n = _snakeNodes.back();
+    _snakeNodes.pop_back();
+    //_pLayer->text(n._x, n._y, 0, 0, ' ');
+  }
+
   //LOGFN << "2" << LEND;
   //LOGFN << _head.toString() << LEND;
-  _lastMoveEvaluation = now;
+  //_lastMoveEvaluation = now;
   return true;
 }
 
@@ -134,30 +140,16 @@ void Snake::evaluate() {
     draw = true;
   }
 
-  draw = evalMove()||draw;
-  
-  if (_head._y<0) {
-    _head._y=YMAX-1;
-  }
-  if (_head._y>=YMAX) {
-    _head._y=0;
-  }
-  if (_head._x<0) {
-    _head._x=XMAX-1;
-  }
-  if (_head._x>=XMAX) {
-    _head._x=0;
-  }
+  std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+  std::chrono::milliseconds ms100(600);
+  std::chrono::duration<double, std::milli> d = now - _lastMoveEvaluation;
 
+  if (d > ms100) {
+    _lastMoveEvaluation = now;
+    draw = evalMove()||draw;
+  }
+  
   if (draw) {
-    //LOGFN << "" << LEND;
-    _snakeNodes.push_front(SnakeNode(_head._x, _head._y));
-    if (_snakeNodes.size()>_length) {
-      //SnakeNode n = _snakeNodes.back();
-      _snakeNodes.pop_back();
-      //_pLayer->text(n._x, n._y, 0, 0, ' ');
-    }
-    
     fullRender();
 
     //_pLayer->text(_x, _y, 0, 0, 'X');
@@ -174,7 +166,6 @@ void Snake::increaseLength(int inc_) {
 void Snake::fullRender() {
   _pLayer->clear();
   for (auto& i: _snakeNodes) {
-//LOGFN << i._x << i._y << LEND;
     _pLayer->text(i._x, i._y, _body);
   }
   _pLayer->text(_head._x, _head._y, _body.fgColor, _body.bgColor, SnakeCommand::toChar(_direct));
