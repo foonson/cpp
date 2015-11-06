@@ -3,24 +3,22 @@
 
 Screen::Screen() {
   START("");
-  setbuf(stdout, NULL);
-  // hide cursor
-  printf("\e[?25l");
-
-  tcgetattr(STDIN_FILENO, &_term);
-  termios term = _term;
-  term.c_lflag &= ~ICANON;
-  term.c_lflag &= ~ECHO;
-  tcsetattr(STDIN_FILENO, TCSANOW, &term);
+  _disposed = false;
   END("");
 }
 
 Screen::~Screen() {
   START("");
-  colorDefault();
-  // show cursor
-  printf("\e[?25h");
-  tcsetattr(STDIN_FILENO, TCSANOW, &_term);
+  dispose();
+  END("");
+}
+
+void Screen::dispose() {
+  START("");
+  if (!_disposed) {
+    colorDefault();
+    _disposed = true;
+  }
   END("");
 }
 

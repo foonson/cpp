@@ -38,11 +38,6 @@ Layer::~Layer() {
 
 void Layer::clear() {
   _pixels.clear();
-  //for (int x=0;x<XMAX;x++) {
-  //  for (int y=0;y<YMAX;y++) {
-  //    _pixels[x][y].ch = TRANSPARENT;
-  //  }
-  //}
 }
 
 void Layer::text(int x_, int y_, int fgc_, int bgc_, char ch_) {
@@ -54,6 +49,14 @@ void Layer::text(int x_, int y_, int fgc_, int bgc_, char ch_) {
   p.fgColor = fgc_;
   p.bgColor = bgc_;
   text(p);
+}
+
+void Layer::text(int x_, int y_, int fgc_, int bgc_, const string& s_) {
+  int x = x_;
+  for (auto& ch:s_) {
+    text(x, y_, fgc_, bgc_, ch);
+    x++;
+  }
 }
 
 void Layer::text(int x_, int y_, const Pixel& pixel_) {

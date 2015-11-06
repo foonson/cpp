@@ -24,6 +24,7 @@ public:
   string toString() const;
   virtual void clear();
   void text(int x_, int y_, int fgc_, int bgc_, char ch_);
+  void text(int x_, int y_, int fgc_, int bgc_, const string& s_);
   void text(int x_, int y_, const Pixel& pixel_);
   void text(const XY& xy_, const Pixel& pixel_);
   void text(const Pixel& pixel_);

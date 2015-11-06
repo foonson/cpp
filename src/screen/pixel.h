@@ -12,10 +12,9 @@ public:
   friend bool operator<(const XY& l_, const XY& r_) {
     if (l_._y < r_._y) return true;
     if (l_._y > r_._y) return false;
-    if (l_._y == r_._y) return (l_._x < r_._x);
-    
+    return (l_._x < r_._x);
   }
-  void xy(int x_, int y_);
+  //void xy(int x_, int y_);
   bool touching(const XY& xy_);
   bool touching(int x_, int y_);
 

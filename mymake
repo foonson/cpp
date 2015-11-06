@@ -12,6 +12,8 @@ $CCC -c src/screen/pixel.cpp -o lib/pixel.o
 $CCC -c src/screen/layer.cpp -o lib/layer.o
 $CCC -c src/screen/screen.cpp -o lib/screen.o
 $CCC -c src/screen/keyboard.cpp -o lib/keyboard.o
+$CCC -c src/screen/application.cpp -o lib/application.o
 $CCC -c src/snake/snake.cpp -o lib/snake.o
+$CCC -c src/snake/snakeGame.cpp -o lib/snakeGame.o
 $CCC lib/* src/snake/main.cpp -o snake.x
 

@@ -4,9 +4,10 @@
 #include "pch.h"
 
 namespace UString {
-  string toString(int i);
-  string toString(unsigned long long ull);
-  string toHexString(unsigned long long ull);
+  string toString(int i_);
+  string toString(unsigned long long ull_);
+  string toString(long long ll_);
+  string toHexString(unsigned long long ull_);
 }
 
 #endif

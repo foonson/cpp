@@ -8,7 +8,8 @@
 class Log {
 public:
   Log(const string& pathname_);
-  ~Log();
+  virtual ~Log();
+  virtual void dispose();
   ostream& log(const string& s_);
   void flush();
   ostream& operator<<(const string& s_) {
@@ -18,6 +19,7 @@ public:
 
 private:
   fstream _logs;
+  bool _disposed;
 };
 
 extern Log g_log;

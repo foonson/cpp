@@ -1,17 +1,21 @@
 #include "log.h"
 
 Log::Log(const string& pathname_) {
+  _disposed = false;
   _logs.open(pathname_, std::ios_base::app);
-  //if (_logs.good()) {
-  //  _logs.seekg(0, _logs.end);
-  //}
-
   log("open log:") << pathname_ << LEND;
 }
 
 Log::~Log() {
-  log("close log") << LEND;
-  _logs.close();
+  dispose();
+}
+
+void Log::dispose() {
+  if (!_disposed) {
+    log("close log") << LEND;
+    _logs.close();
+    _disposed = true;
+  }
 }
 
 ostream& Log::log(const string& s_) {

@@ -1,5 +1,38 @@
 #include "keyboard.h"
 
+Keyboard::Keyboard() {
+  START("");
+  _disposed = false;
+  setbuf(stdout, NULL);
+  // hide cursor
+  printf("\e[?25l");
+
+  tcgetattr(STDIN_FILENO, &_term);
+  termios term = _term;
+  term.c_lflag &= ~ICANON;
+  term.c_lflag &= ~ECHO;
+  tcsetattr(STDIN_FILENO, TCSANOW, &term);
+  END("");
+}
+
+Keyboard::~Keyboard() {
+  START("");
+  dispose();
+  END("");
+}
+
+void Keyboard::dispose() {
+  START("");
+  if (!_disposed) {
+    // show cursor
+    printf("\e[?25h");
+    tcsetattr(STDIN_FILENO, TCSANOW, &_term);
+    _disposed = true;
+  }
+  END("");
+}
+
+
 bool Keyboard::getKey(KEY& key_, char& ch_) {
   char ch=getchar();
   if (ch==27) {
