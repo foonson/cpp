@@ -12,6 +12,19 @@ XY::XY(const XY& xy_) {
   _y = xy_._y;
 }
 
+void XY::xy(int x_, int y_) {
+  _x = x_;
+  _y = y_;
+}
+
+int XY::x() const {
+  return _x;
+}
+
+int XY::y() const {
+  return _y;
+}
+
 bool XY::touching(const XY& xy_) {
   return (xy_._x==_x) && (xy_._y==_y);
 }

@@ -1,6 +1,7 @@
 #include "layer.h"
+#include "screen.h"
 
-Layer::Layer() {
+Layer::Layer(const Screen& screen_) : _screen(screen_) {
   //START("");
   _xOffset = 0;
   _yOffset = 0;
@@ -8,7 +9,6 @@ Layer::Layer() {
   //LOG << toString() << LEND;
   //END("");
 }
-
   /*
   Layer(const Layer& layer_) {
     START("");
@@ -24,13 +24,19 @@ Layer::Layer() {
   }
   */
 
-Layer::Layer(int xOffset_, int yOffset_, int zOrder_) {
+Layer::Layer(const Screen& screen_, int xOffset_, int yOffset_, int zOrder_) :
+  _screen(screen_)
+{
   //START("");
   _xOffset = xOffset_;
   _yOffset = yOffset_;
   _zOrder = zOrder_;
   //LOG << toString() << LEND;
   //END("");
+}
+
+XY Layer::maxXY() const {
+  return _screen.maxXY();
 }
 
 Layer::~Layer() {

@@ -15,6 +15,8 @@
 SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   START("");
 
+  _maxFruit = 4;
+
   _pLayer = _app.screen().createLayer(0,0,0);
   //pLayer0->text(1,1,0,0,'K');
   //_screen.render();
@@ -26,7 +28,7 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   snake1._body = Pixel(0,0,YELLOW,BLACK,'X');
   snake1._length = 2;
   snake1._id = 1;
-  snake1._head = SnakeNode(10,10);
+  snake1._head = SnakeNode(10, 10, SN_BODY);
   snake1.init();
 
   shared_ptr<Layer> pLayer2 = _app.screen().createLayer(0, 0, 2);
@@ -36,7 +38,7 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   snake2._body = Pixel(0,0,LBLUE,BLACK,'O');
   snake2._length = 2;
   snake2._id = 2;
-  snake2._head = SnakeNode(20,20);
+  snake2._head = SnakeNode(20, 20, SN_BODY);
   snake2.init();
   END("");
 }
@@ -50,15 +52,42 @@ Snake& SnakeGame::createSnake(SPLayer pLayer_) {
   return snake;
 } 
 
-void SnakeGame::evaluate(Snake& snake_) {
-  if (_counter%100==0) {
-    _pLayer->text(XMAX/2,YMAX/2,RED,BLACK,'*');
+SnakeNode SnakeGame::getNode(const XY& xy_) {
+  for (auto& snake: _vSnakes) {
+    SnakeNode n = snake.getNode(xy_);
+    if (n._type!=SN_NOTHING) {
+      return n;
+    }
+  } 
+
+  for (auto& fruit: _vFruits) {
+    if (fruit.touching(xy_)) {
+      return fruit;
+    }
   }
 
-  if (snake_._head.touching(XMAX/2, YMAX/2)) {
-    snake_.increaseLength(2);
-    _pLayer->clear();
-  }
+  return SnakeNode(xy_, SN_NOTHING);
+
+}
+
+void SnakeGame::evalFruit() {
+  if (_vFruits.size()>=_maxFruit) {
+    return;
+  } 
+
+  
+}
+
+void SnakeGame::evalSnake(Snake& snake_) {
+  XY max = _app.screen().maxXY();
+  //if (_counter%100==0) {
+  //  _pLayer->text(max.x_/2, max.y_/2, RED,BLACK,'*');
+  //}
+
+  //if (snake_._head.touching(XMAX/2, YMAX/2)) {
+  //  snake_.increaseLength(2);
+  //  _pLayer->clear();
+  //}
 
   for (auto& other: _vSnakes) {
     if (snake_._id==other._id) {
@@ -81,9 +110,12 @@ void SnakeGame::evaluateLoop() {
     if (_app._exit) {
       break;
     }   
+
+    evalFruit();
+
     for (auto& snake: _vSnakes) {
       snake.evaluate();
-      evaluate(snake);
+      evalSnake(snake);
     } 
     _app.screen().render();
     //this_thread::sleep_for(std::chrono::milliseconds(100));

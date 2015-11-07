@@ -15,7 +15,11 @@ class SnakeGame {
 public:
   SnakeGame(SnakeApp& app_);
   Snake& createSnake(SPLayer pLayer_);
-  void evaluate(Snake& snake_);
+
+  SnakeNode getNode(const XY& xy_);
+
+  void evalSnake(Snake& snake_);
+  void evalFruit();
   void evaluateLoop();
   void listenCommandLoop();
   void renderLoop();
@@ -24,10 +28,12 @@ public:
 private:
   SnakeApp& _app;
   //bool _exit;
-  vector<Snake> _vSnakes;
   SPLayer _pLayer;
-  vector<SnakeNode> _fruits;
+  vector<Snake> _vSnakes;
+  vector<SnakeNode> _vFruits;
   long long _counter;
+
+  int _maxFruit;
 };
 
 #endif

@@ -4,10 +4,14 @@
 #include "util/pch.h"
 #include "sconstant.h"
 #include "pixel.h"
+//#include "screen.h"
+
+class Screen;
 
 class ILayer {
 public:
   virtual void text(int x_, int y_, int fgc_, int bgc_, char ch_) =0;
+  virtual XY maxXY() const =0 ;
   //virtual ILayer& color(int clr) =0;
   //virtual ILayer& colorDefault() =0;
   //virtual ILayer& show(const string& s) =0;
@@ -18,11 +22,14 @@ typedef map<XY, Pixel> PixelMap;
 
 class Layer : public ILayer {
 public:
-  Layer();
-  Layer(int xOffset_, int yOffset_, int zOrder_);
+  Layer(const Screen& screen_);
+  Layer(const Screen& screen_, int xOffset_, int yOffset_, int zOrder_);
   virtual ~Layer();
   string toString() const;
   virtual void clear();
+
+  XY maxXY() const;
+
   void text(int x_, int y_, int fgc_, int bgc_, char ch_);
   void text(int x_, int y_, int fgc_, int bgc_, const string& s_);
   void text(int x_, int y_, const Pixel& pixel_);
@@ -38,6 +45,7 @@ public:
   int xOffset() { return _xOffset; }
   int yOffset() { return _yOffset; }
 
+  const Screen& _screen;
 private:
   PixelMap _pixels;
   //Pixel _pixels[XMAX][YMAX];

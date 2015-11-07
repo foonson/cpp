@@ -1,35 +1,35 @@
 #include "snake.h"
 
 
-SNAKEACTION commonKeyActionMap(KEY key_, char ch_) {
+SnakeAction commonKeyActionMap(KEY key_, char ch_) {
   if (ch_=='x') {
-    return SNAKE_EXIT;
+    return SA_EXIT;
   }
-  return SNAKE_NOTHING;
+  return SA_NOTHING;
 }
 
-SNAKEACTION snake1KeyActionMap(KEY key_, char ch_) {
+SnakeAction snake1KeyActionMap(KEY key_, char ch_) {
   if (key_==KEY_UP) {
-    return SNAKE_UP;
+    return SA_UP;
   } else if (key_==KEY_DOWN) {
-    return SNAKE_DOWN;
+    return SA_DOWN;
   } else if (key_==KEY_LEFT) {
-    return SNAKE_LEFT;
+    return SA_LEFT;
   } else if (key_==KEY_RIGHT) {
-    return SNAKE_RIGHT;
+    return SA_RIGHT;
   }
   return commonKeyActionMap(key_, ch_);
 }
 
-SNAKEACTION snake2KeyActionMap(KEY key_, char ch_) {
+SnakeAction snake2KeyActionMap(KEY key_, char ch_) {
   if (ch_=='w') {
-    return SNAKE_UP;
+    return SA_UP;
   } else if (ch_=='z') {
-    return SNAKE_DOWN;
+    return SA_DOWN;
   } else if (ch_=='a') {
-    return SNAKE_LEFT;
+    return SA_LEFT;
   } else if (ch_=='s') {
-    return SNAKE_RIGHT;
+    return SA_RIGHT;
   }
   return commonKeyActionMap(key_, ch_);
 }
@@ -49,7 +49,7 @@ Snake::Snake(const Snake& snake_) : _layer(snake_._layer) {
 Snake::Snake(shared_ptr<Layer> pLayer_) : _pLayer(pLayer_) {
   START("");
   //_head.xy(XMAX/2+_pLayer->zOrder(), YMAX/2+_pLayer->zOrder());
-  _direct = SNAKE_NOTHING;
+  _direct = SA_NOTHING;
   //_pLayer->text(_x, _y);
   //LOGFN << _pLayer->toString() << LEND;
   END("");
@@ -61,8 +61,8 @@ void Snake::init() {
 }
 
 void Snake::listenCommand(KEY key_, char ch_) {
-  SNAKEACTION action = _fnKeyActionMap(key_, ch_);
-  if (action!=SNAKE_NOTHING) {
+  SnakeAction action = _fnKeyActionMap(key_, ch_);
+  if (action!=SA_NOTHING) {
     _pcmdQueue->put(SnakeCommand(action));
   }
 }
@@ -70,43 +70,43 @@ void Snake::listenCommand(KEY key_, char ch_) {
 bool Snake::evalMove() {
   bool moved = false;
 
-  if (_direct==SNAKE_UP) {
+  XY max = _pLayer->maxXY();
+  int x = _head.x();
+  int y = _head.y();
+
+  if (_direct==SA_UP) {
     moved = true;
-    _head._y -= 1;
-  } else if (_direct==SNAKE_DOWN) {
+    y -= 1;
+  } else if (_direct==SA_DOWN) {
     moved = true;
-    _head._y += 1;
-  } else if (_direct==SNAKE_LEFT) {
+    y += 1;
+  } else if (_direct==SA_LEFT) {
     moved = true;
-    _head._x -= 1;
-  } else if (_direct==SNAKE_RIGHT) {
+    x -= 1;
+  } else if (_direct==SA_RIGHT) {
     moved = true;
-    _head._x += 1;
+    x += 1;
   }
 
-  if (_head._y<0) {
-    _head._y=YMAX-1;
+  if (y<1) {
+    y=max.y();
+  } else if (y>=max.y()) {
+    y=1;
   }
-  if (_head._y>=YMAX) {
-    _head._y=0;
+  if (x<1) {
+    x=max.x();
+  } else if (x>=max.x()) {
+    x=1;
   }
-  if (_head._x<0) {
-    _head._x=XMAX-1;
-  }
-  if (_head._x>=XMAX) {
-    _head._x=0;
-  }
+  _head.xy(x,y);
 
-  _snakeNodes.push_front(SnakeNode(_head._x, _head._y));
+  _snakeNodes.push_front(_head);
   if (_snakeNodes.size()>_length) {
     //SnakeNode n = _snakeNodes.back();
     _snakeNodes.pop_back();
     //_pLayer->text(n._x, n._y, 0, 0, ' ');
   }
 
-  //LOGFN << "2" << LEND;
-  //LOGFN << _head.toString() << LEND;
-  //_lastMoveEvaluation = now;
   return true;
 }
 
@@ -114,7 +114,7 @@ void Snake::evaluate() {
 
   //int xLast = _x;
   //int yLast = _y;
-  SNAKEACTION action = SNAKE_NOTHING;
+  SnakeAction action = SA_NOTHING;
   bool draw = false;
 
   //do {
@@ -132,7 +132,7 @@ void Snake::evaluate() {
   //  action = _lastAction;
   //}
 
-  if (action==SNAKE_EXIT) {
+  if (action==SA_EXIT) {
     return;
   }
   if (cmd.isMovement()) {
@@ -178,5 +178,15 @@ bool Snake::touching(const XY& xy_) {
     }
   }
   return false;
+}
+
+SnakeNode Snake::getNode(const XY& xy_) {
+  for (auto& i: _snakeNodes) {
+    if (i.touching(xy_)) {
+      return i;
+    }
+  }
+  return SnakeNode(xy_, SN_NOTHING);
+
 }
 

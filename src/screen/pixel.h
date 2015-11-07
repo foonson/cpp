@@ -14,11 +14,13 @@ public:
     if (l_._y > r_._y) return false;
     return (l_._x < r_._x);
   }
-  //void xy(int x_, int y_);
+  void xy(int x_, int y_);
   bool touching(const XY& xy_);
   bool touching(int x_, int y_);
 
   string toString() const;
+  int x() const;
+  int y() const;
 
   int _x;
   int _y;

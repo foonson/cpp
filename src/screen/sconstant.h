@@ -3,9 +3,6 @@
 
 #define ESC33 "\033["
 
-#define XMAX 80
-#define YMAX 24
-
 enum {
   TRANSPARENT=0,
   BACKGROUND=1

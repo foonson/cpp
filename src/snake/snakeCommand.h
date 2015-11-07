@@ -3,42 +3,42 @@
 
 #include "util/pch.h"
 
-enum SNAKEACTION {
-  SNAKE_NOTHING=0,
-  SNAKE_UP=1,
-  SNAKE_DOWN,
-  SNAKE_LEFT,
-  SNAKE_RIGHT,
-  SNAKE_EXIT=999
+enum SnakeAction {
+  SA_NOTHING=0,
+  SA_UP=1,
+  SA_DOWN,
+  SA_LEFT,
+  SA_RIGHT,
+  SA_EXIT=999
 };
 
 class SnakeCommand {
 public:
   SnakeCommand() {
-    _action = SNAKE_NOTHING;
+    _action = SA_NOTHING;
   }
-  SnakeCommand(SNAKEACTION action_) {
+  SnakeCommand(SnakeAction action_) {
     _action = action_;
   }
-  SNAKEACTION action() { return _action; } 
+  SnakeAction action() { return _action; } 
 
   bool isMovement() {
-   return  _action==SNAKE_UP || 
-           _action==SNAKE_DOWN ||
-           _action==SNAKE_LEFT ||
-           _action==SNAKE_RIGHT;
+   return  _action==SA_UP || 
+           _action==SA_DOWN ||
+           _action==SA_LEFT ||
+           _action==SA_RIGHT;
   }
 
-  static char toChar(SNAKEACTION action_) {
-    if (action_==SNAKE_UP)    return '^';
-    if (action_==SNAKE_DOWN)  return 'v';
-    if (action_==SNAKE_LEFT)  return '<';
-    if (action_==SNAKE_RIGHT) return '>';
+  static char toChar(SnakeAction action_) {
+    if (action_==SA_UP)    return '^';
+    if (action_==SA_DOWN)  return 'v';
+    if (action_==SA_LEFT)  return '<';
+    if (action_==SA_RIGHT) return '>';
     return ' ';
   }
 
 private:
-  SNAKEACTION _action;
+  SnakeAction _action;
 };
 
 #endif

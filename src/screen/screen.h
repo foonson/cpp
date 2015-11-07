@@ -9,6 +9,8 @@ public:
   Screen();
   virtual ~Screen();
   virtual void dispose();
+  XY maxXY() const;
+
   void text(int x_, int y_, int fgc_, int bgc_, char ch_);
   void text(const Pixel& pixel_);
   SPLayer createLayer(int xOffset_, int yOffset_, int zOrder_);
@@ -20,11 +22,18 @@ public:
   Screen& show(char s);
   Screen& flush();
 
+  Layer& current();
+  Layer& target();
+  void switchFrame();
+
 private:
   bool _disposed;
-  Layer _current;
-  Layer _target;
+  int _currentFrame;
+  int _frameInterval;
+  Layer _frame0;
+  Layer _frame1;
   vector<shared_ptr<Layer>> _vpLayers;
+  std::chrono::time_point<std::chrono::system_clock> _lastRender;
 };
 
 #endif

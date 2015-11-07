@@ -1,9 +1,10 @@
 #include "screen.h"
 #include <unistd.h>
 
-Screen::Screen() {
+Screen::Screen() : _frame0(*this), _frame1(*this) {
   START("");
   _disposed = false;
+  _frameInterval = 50;
   END("");
 }
 
@@ -20,6 +21,10 @@ void Screen::dispose() {
     _disposed = true;
   }
   END("");
+}
+
+XY Screen::maxXY() const {
+  return XY(80,30);
 }
 
 Screen& Screen::xy(int x, int y) {
@@ -64,38 +69,66 @@ void Screen::text(const Pixel& pixel_) {
 
 SPLayer Screen::createLayer(int xOffset_, int yOffset_, int zOrder_) {
   START("");
-  SPLayer pLayer = make_shared<Layer>(xOffset_, yOffset_, zOrder_);
+  SPLayer pLayer = make_shared<Layer>(*this, xOffset_, yOffset_, zOrder_);
   _vpLayers.push_back(pLayer);
   END("");
   return pLayer;
 }
 
+Layer& Screen::current() {
+  if (_currentFrame%2==0) {
+    return _frame0;
+  } else {
+    return _frame1;
+  } 
+}
+
+Layer& Screen::target() {
+  if (_currentFrame%2==0) {
+    return _frame1;
+  } else {
+    return _frame0;
+  } 
+}
+
+void Screen::switchFrame() {
+  _currentFrame = (_currentFrame+1)%2;
+}
+
 void Screen::render() {
-  _target.clear();
+
+  if (!UTime::pass(_lastRender, _frameInterval)) return;
+  _lastRender = UTime::now(); 
+
+  Layer& cur = current();
+  Layer& tar = target();
+  switchFrame();
+
+  tar.clear();
   for (auto & pLayer : _vpLayers) {
     for (auto & pp: *pLayer) {
       //const XY& xy = pp.first;
       const Pixel& p = pp.second;
       //if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND && p.ch!=t.ch) {
       if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND) {
-        _target.text(p);
+        tar.text(p);
       }
     }
   }
 
-  for (auto & pp: _current) {
+  for (auto & pp: cur) {
     const XY& xy = pp.first;
-    if (!_target.pixel(xy)) {
+    if (!tar.pixel(xy)) {
       Pixel p(xy, BLACK, BLACK, ' ');
-      _target.text(p);
+      tar.text(p);
     }
   }
   
-  for (auto & pp: _target) {
+  for (auto & pp: tar) {
     const XY& xy = pp.first;
     const Pixel& p = pp.second;
     if (p.ch!=TRANSPARENT) {
-      auto cp = _current.pixel(xy);
+      auto cp = cur.pixel(xy);
       if (cp) {
         if (cp->ch!=p.ch) {
           text(p);
@@ -107,6 +140,5 @@ void Screen::render() {
       //text(xy._x, xy._y, 0, 0, ' ');
     }
   }
-  _current = _target;
   
 }
