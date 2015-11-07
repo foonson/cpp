@@ -9,6 +9,7 @@ enum SnakeAction {
   SA_DOWN,
   SA_LEFT,
   SA_RIGHT,
+  SA_DEAD,
   SA_EXIT=999
 };
 
@@ -27,6 +28,14 @@ public:
            _action==SA_DOWN ||
            _action==SA_LEFT ||
            _action==SA_RIGHT;
+  }
+
+  static SnakeAction randomDirect() {
+    int x = rand() % 4;
+    if (x==0) return SA_UP;
+    if (x==1) return SA_DOWN;
+    if (x==2) return SA_LEFT;
+    return SA_RIGHT;
   }
 
   static char toChar(SnakeAction action_) {

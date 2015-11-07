@@ -1,5 +1,6 @@
 #include <csignal> //std:signal
 #include <cstdlib> //std::exit
+#include <time.h>
 
 #include "Application.h"
 
@@ -7,6 +8,7 @@ Application* Application::_pApp = NULL;
 
 Application::Application() {
   START("");
+  srand(time(NULL));
   _pApp = this;
   _disposed = false;
   _exit = false;

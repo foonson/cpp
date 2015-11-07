@@ -1,5 +1,5 @@
 #include "snake.h"
-
+#include "snakeGame.h"
 
 SnakeAction commonKeyActionMap(KEY key_, char ch_) {
   if (ch_=='x') {
@@ -46,17 +46,20 @@ Snake::Snake(const Snake& snake_) : _layer(snake_._layer) {
   END("");
 }
 */
-Snake::Snake(shared_ptr<Layer> pLayer_) : _pLayer(pLayer_) {
+Snake::Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_) : _game(game_), _pLayer(pLayer_) {
   START("");
-  //_head.xy(XMAX/2+_pLayer->zOrder(), YMAX/2+_pLayer->zOrder());
   _direct = SA_NOTHING;
-  //_pLayer->text(_x, _y);
-  //LOGFN << _pLayer->toString() << LEND;
   END("");
 }
 
 void Snake::init() {
+  _head.xy(_game.randomEmptyXY());
+  _direct = SnakeCommand::randomDirect();
   _lastMoveEvaluation = std::chrono::system_clock::now(); 
+  _msMove = 500;
+  _snakeNodes.clear();  
+  _length = 2;
+  
   fullRender();
 }
 
@@ -140,12 +143,8 @@ void Snake::evaluate() {
     draw = true;
   }
 
-  std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-  std::chrono::milliseconds ms100(600);
-  std::chrono::duration<double, std::milli> d = now - _lastMoveEvaluation;
-
-  if (d > ms100) {
-    _lastMoveEvaluation = now;
+  if (UTime::pass(_lastMoveEvaluation, _msMove)) {
+    _lastMoveEvaluation = UTime::now();
     draw = evalMove()||draw;
   }
   
@@ -161,6 +160,13 @@ void Snake::evaluate() {
 
 void Snake::increaseLength(int inc_) {
   _length += inc_;
+}
+
+void Snake::speedup() {
+  _msMove = _msMove * 19 / 20;
+  if (_msMove < 50) {
+    _msMove = 50;
+  }
 }
 
 void Snake::fullRender() {
@@ -180,6 +186,18 @@ bool Snake::touching(const XY& xy_) {
   return false;
 }
 
+bool Snake::touchingBody(const XY& xy_) {
+  for (auto& i: _snakeNodes) {
+    if (i.touching(_head)) {
+      continue;
+    }
+    if (i.touching(xy_)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 SnakeNode Snake::getNode(const XY& xy_) {
   for (auto& i: _snakeNodes) {
     if (i.touching(xy_)) {
@@ -187,6 +205,10 @@ SnakeNode Snake::getNode(const XY& xy_) {
     }
   }
   return SnakeNode(xy_, SN_NOTHING);
+}
 
+void Snake::dead() {
+  init();
+  
 }
 

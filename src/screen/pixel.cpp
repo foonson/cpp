@@ -1,4 +1,5 @@
 #include "pixel.h"
+#include <stdlib.h>
 
 XY::XY(int x_, int y_) {
   //LOG << x_ << "," << y_ << LEND;
@@ -17,6 +18,10 @@ void XY::xy(int x_, int y_) {
   _y = y_;
 }
 
+void XY::xy(const XY& xy_) {
+  xy( xy_.x(), xy_.y() );
+}
+
 int XY::x() const {
   return _x;
 }
@@ -26,7 +31,7 @@ int XY::y() const {
 }
 
 bool XY::touching(const XY& xy_) {
-  return (xy_._x==_x) && (xy_._y==_y);
+  return touching(xy_.x(), xy_.y()) ;
 }
 
 bool XY::touching(int x_, int y_) {
@@ -38,6 +43,19 @@ string XY::toString() const {
   s += ",";
   s += UString::toString(_y);
   return s;
+}
+
+
+XY XY::random(const XY& max_) {
+  int x = rand()%max_.x();
+  int y = rand()%max_.y();
+  return XY(x,y);
+}
+
+XY XY::random(const XY& min_, const XY& max_) {
+  int x = rand()%(max_.x()-min_.x()) + min_.x();
+  int y = rand()%(max_.y()-min_.y()) + min_.y();
+  return XY(x,y);
 }
 
 XYZ::XYZ(int x_, int y_, int z_) {

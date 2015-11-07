@@ -17,6 +17,9 @@ public:
   Snake& createSnake(SPLayer pLayer_);
 
   SnakeNode getNode(const XY& xy_);
+  
+  Pixel createFruitPixel(const XY& xy_);
+  XY randomEmptyXY();
 
   void evalSnake(Snake& snake_);
   void evalFruit();
@@ -28,11 +31,13 @@ public:
 private:
   SnakeApp& _app;
   //bool _exit;
-  SPLayer _pLayer;
+  SPLayer _pScreen;
+  SPLayer _pBoard;
   vector<Snake> _vSnakes;
   vector<SnakeNode> _vFruits;
   long long _counter;
 
+  std::chrono::time_point<std::chrono::system_clock> _lastShuffleFruit;
   int _maxFruit;
 };
 

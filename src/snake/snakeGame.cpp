@@ -1,42 +1,40 @@
 #include "snakeGame.h"
 
 #include <thread>
-#include <chrono>
+//#include <chrono>
 #include "screen/application.h"
 #include "screen/screen.h"
 #include "screen/keyboard.h"
 #include "util/syncQueue"
-//#include "util/UString"
 #include "snakeCommand.h"
 #include "snake.h"
+#include <stdlib.h>  // rand
 
 #include <functional> // std:function
 
 SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   START("");
 
-  _maxFruit = 4;
+  _maxFruit = 10;
 
-  _pLayer = _app.screen().createLayer(0,0,0);
-  //pLayer0->text(1,1,0,0,'K');
+  _pScreen = _app.screen().createLayer(0,0,0);
+  _pBoard = _app.screen().createLayer(0,1,0);
   //_screen.render();
 
-  shared_ptr<Layer> pLayer1 = _app.screen().createLayer(0, 0, 1);
+  shared_ptr<Layer> pLayer1 = _app.screen().createLayer(0, 1, 1);
   Snake& snake1 = createSnake(pLayer1);
   snake1._fnKeyActionMap = snake1KeyActionMap;
   snake1._pcmdQueue = new SyncQueue<SnakeCommand>;
   snake1._body = Pixel(0,0,YELLOW,BLACK,'X');
-  snake1._length = 2;
   snake1._id = 1;
   snake1._head = SnakeNode(10, 10, SN_BODY);
   snake1.init();
 
-  shared_ptr<Layer> pLayer2 = _app.screen().createLayer(0, 0, 2);
+  shared_ptr<Layer> pLayer2 = _app.screen().createLayer(0, 1, 2);
   Snake& snake2 = createSnake(pLayer2);
   snake2._fnKeyActionMap = snake2KeyActionMap;
   snake2._pcmdQueue = new SyncQueue<SnakeCommand>;
   snake2._body = Pixel(0,0,LBLUE,BLACK,'O');
-  snake2._length = 2;
   snake2._id = 2;
   snake2._head = SnakeNode(20, 20, SN_BODY);
   snake2.init();
@@ -45,7 +43,7 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
 
 //Snake& createSnake(Layer& layer_, (SNAKEACTION)(KEY, char) fnKeyActionMap_) {
 Snake& SnakeGame::createSnake(SPLayer pLayer_) {
-  _vSnakes.push_back(Snake(pLayer_));
+  _vSnakes.push_back(Snake(*this, pLayer_));
   Snake& snake = _vSnakes.back();
   //snake.setLayer(layer_);
   //snake._fnKeyActionMap = fnKeyActionMap_;
@@ -55,7 +53,7 @@ Snake& SnakeGame::createSnake(SPLayer pLayer_) {
 SnakeNode SnakeGame::getNode(const XY& xy_) {
   for (auto& snake: _vSnakes) {
     SnakeNode n = snake.getNode(xy_);
-    if (n._type!=SN_NOTHING) {
+    if (n.type()!=SN_NOTHING) {
       return n;
     }
   } 
@@ -70,16 +68,64 @@ SnakeNode SnakeGame::getNode(const XY& xy_) {
 
 }
 
+Pixel SnakeGame::createFruitPixel(const XY& xy_) {
+  return Pixel(xy_, RED, BLACK, '@');
+}
+
+XY SnakeGame::randomEmptyXY() {
+  
+  XY max = _app.screen().maxXY();
+  XY min = XY(1,1);
+
+  do {
+    XY xy = XY::random(min, max);
+
+    if (getNode(xy).type()==SN_NOTHING) {
+      return xy;
+    }
+
+  } while(true);
+  
+  // never reach
+}
+
 void SnakeGame::evalFruit() {
+ 
+
+  if (UTime::pass(_lastShuffleFruit, 3000)) {
+    //_vFruits.clear();
+    _lastShuffleFruit = UTime::now();
+    
+    if (!_vFruits.empty()) {
+      _vFruits.erase(_vFruits.begin());
+    }
+  }
+
   if (_vFruits.size()>=_maxFruit) {
     return;
   } 
 
+  _pBoard->clear();
+
+  XY xy = randomEmptyXY();
   
+  SnakeNode n = SnakeNode(xy, SN_FRUIT);
+  _vFruits.push_back(n);
+
+  int i=0;
+  for (auto& fruit : _vFruits) {
+    i++;
+    //if (i>_maxFruit/2) {
+    //  fruit.type(SN_BIGFRUIT);
+    //} else {
+    //  fruit.type(SN_FRUIT);
+    //}
+    _pBoard->text(createFruitPixel(fruit));
+  }
+ 
 }
 
 void SnakeGame::evalSnake(Snake& snake_) {
-  XY max = _app.screen().maxXY();
   //if (_counter%100==0) {
   //  _pLayer->text(max.x_/2, max.y_/2, RED,BLACK,'*');
   //}
@@ -89,12 +135,28 @@ void SnakeGame::evalSnake(Snake& snake_) {
   //  _pLayer->clear();
   //}
 
+  SnakeNode& head = snake_._head;
+
+  for (auto it=_vFruits.begin();it!=_vFruits.end();it++) {
+  //for (auto& fruit: _vFruits) {
+    SnakeNode& fruit = *it;
+    if (head.touching(fruit)) {
+      _vFruits.erase(it);
+      snake_.increaseLength(2);
+      snake_.speedup();
+      break;
+    }
+  }
+
   for (auto& other: _vSnakes) {
     if (snake_._id==other._id) {
-      continue;
-    }
-    if (other.touching(snake_._head)) {
-      snake_.increaseLength(-2);
+      if (other.touchingBody(head)) {
+        snake_.dead();
+      }
+    } else {
+      if (other.touching(head)) {
+        snake_.dead();
+      }
     }
 
   } 
@@ -105,18 +167,18 @@ void SnakeGame::evaluateLoop() {
   do {
     _counter++;
     
-    _pLayer->text(50, 1, WHITE, BLACK, UString::toString(_counter));
+    _pScreen->text(50, 1, WHITE, BLACK, UString::toString(_counter));
 
     if (_app._exit) {
       break;
     }   
 
-    evalFruit();
-
     for (auto& snake: _vSnakes) {
       snake.evaluate();
       evalSnake(snake);
     } 
+    evalFruit();
+
     _app.screen().render();
     //this_thread::sleep_for(std::chrono::milliseconds(100));
   } while (true);

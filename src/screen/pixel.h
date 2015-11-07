@@ -15,6 +15,7 @@ public:
     return (l_._x < r_._x);
   }
   void xy(int x_, int y_);
+  void xy(const XY& xy_);
   bool touching(const XY& xy_);
   bool touching(int x_, int y_);
 
@@ -22,8 +23,12 @@ public:
   int x() const;
   int y() const;
 
+  static XY random(const XY& max);
+  static XY random(const XY& min, const XY& max);
+
   int _x;
   int _y;
+
 };
 
 

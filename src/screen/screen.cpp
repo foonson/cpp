@@ -108,7 +108,9 @@ void Screen::render() {
   for (auto & pLayer : _vpLayers) {
     for (auto & pp: *pLayer) {
       //const XY& xy = pp.first;
-      const Pixel& p = pp.second;
+      Pixel p = pp.second;
+      p._x += pLayer->xOffset();
+      p._y += pLayer->yOffset();
       //if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND && p.ch!=t.ch) {
       if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND) {
         tar.text(p);
