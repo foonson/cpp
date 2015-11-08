@@ -19,7 +19,6 @@ SnakeAction commonKeyActionMap(KEY key_, char ch_);
 
 class SnakeGame;
 
-
 enum SnakeNodeType {
   SN_NOTHING = 0,
   SN_BODY = 1,
@@ -60,6 +59,7 @@ public:
   void listenCommand(KEY key_, char ch_);
   void evaluate();
   bool evalMove();
+  bool evalAnimateFruit();
   void fullRender();
 
   void increaseLength(int inc_);
@@ -74,14 +74,20 @@ public:
   SyncQueue<SnakeCommand>* _pcmdQueue;
   Pixel _body;
   SnakeNode _head;
+  int _life;
   int _length;
+  int _score;
   int _id;
   int _msMove;
+  int _msAnimateFruit;
+  int _animateFruitIndex;
+
 private:
   SnakeGame& _game;
   SPLayer _pLayer;
 
   std::chrono::time_point<std::chrono::system_clock> _lastMoveEvaluation;
+  std::chrono::time_point<std::chrono::system_clock> _lastEvalAnimateFruit;
   
   deque<SnakeNode> _snakeNodes; 
   SnakeAction _direct;

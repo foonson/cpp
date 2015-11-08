@@ -15,28 +15,33 @@
 SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   START("");
 
+
+  XY boardOffset(0,2);
+
   _maxFruit = 10;
 
-  _pScreen = _app.screen().createLayer(0,0,0);
-  _pBoard = _app.screen().createLayer(0,1,0);
+  _pScreen = _app.screen().createLayer(0, 0, 0);
+  _pBoard = _app.screen().createLayer(boardOffset.x(), boardOffset.y(), 0);
   //_screen.render();
 
-  shared_ptr<Layer> pLayer1 = _app.screen().createLayer(0, 1, 1);
+  shared_ptr<Layer> pLayer1 = _app.screen().createLayer(boardOffset.x(), boardOffset.y(), 1);
   Snake& snake1 = createSnake(pLayer1);
   snake1._fnKeyActionMap = snake1KeyActionMap;
   snake1._pcmdQueue = new SyncQueue<SnakeCommand>;
   snake1._body = Pixel(0,0,YELLOW,BLACK,'X');
   snake1._id = 1;
   snake1._head = SnakeNode(10, 10, SN_BODY);
+  snake1._life = 3;
   snake1.init();
 
-  shared_ptr<Layer> pLayer2 = _app.screen().createLayer(0, 1, 2);
+  shared_ptr<Layer> pLayer2 = _app.screen().createLayer(boardOffset.x(), boardOffset.y(), 2);
   Snake& snake2 = createSnake(pLayer2);
   snake2._fnKeyActionMap = snake2KeyActionMap;
   snake2._pcmdQueue = new SyncQueue<SnakeCommand>;
   snake2._body = Pixel(0,0,LBLUE,BLACK,'O');
   snake2._id = 2;
   snake2._head = SnakeNode(20, 20, SN_BODY);
+  snake2._life = 3;
   snake2.init();
   END("");
 }
@@ -126,14 +131,6 @@ void SnakeGame::evalFruit() {
 }
 
 void SnakeGame::evalSnake(Snake& snake_) {
-  //if (_counter%100==0) {
-  //  _pLayer->text(max.x_/2, max.y_/2, RED,BLACK,'*');
-  //}
-
-  //if (snake_._head.touching(XMAX/2, YMAX/2)) {
-  //  snake_.increaseLength(2);
-  //  _pLayer->clear();
-  //}
 
   SnakeNode& head = snake_._head;
 
@@ -144,6 +141,7 @@ void SnakeGame::evalSnake(Snake& snake_) {
       _vFruits.erase(it);
       snake_.increaseLength(2);
       snake_.speedup();
+      snake_._animateFruitIndex = 0;
       break;
     }
   }
@@ -168,14 +166,23 @@ void SnakeGame::evaluateLoop() {
     _counter++;
     
     _pScreen->text(50, 1, WHITE, BLACK, UString::toString(_counter));
+    
 
     if (_app._exit) {
       break;
     }   
 
+    int row = 1;
     for (auto& snake: _vSnakes) {
+      string s = "Life:" + UString::toString(snake._life);
+      _pScreen->text(1, row, snake._body.fgColor, BLACK, s);
+      s = "Length:" + UString::toString(snake._length);
+      _pScreen->text(10, row, snake._body.fgColor, BLACK, s);
+      s = "Score:" + UString::toString(snake._score);
+      _pScreen->text(20, row, snake._body.fgColor, BLACK, s);
       snake.evaluate();
       evalSnake(snake);
+      row++; 
     } 
     evalFruit();
 
@@ -197,13 +204,13 @@ void SnakeGame::listenCommandLoop() {
     KEY key;
     char ch;      
     _app.keyboard().getKey(key, ch);
-    LOG << ch << LEND;
+    //LOG << ch << LEND;
 
     for (auto& snake: _vSnakes) {
       snake.listenCommand(key, ch);
     } 
     
-    if (ch=='x') {
+    if (ch=='X') {
       _app._exit = true;
       break;
     }

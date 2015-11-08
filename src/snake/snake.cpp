@@ -24,11 +24,11 @@ SnakeAction snake1KeyActionMap(KEY key_, char ch_) {
 SnakeAction snake2KeyActionMap(KEY key_, char ch_) {
   if (ch_=='w') {
     return SA_UP;
-  } else if (ch_=='z') {
+  } else if (ch_=='s') {
     return SA_DOWN;
   } else if (ch_=='a') {
     return SA_LEFT;
-  } else if (ch_=='s') {
+  } else if (ch_=='d') {
     return SA_RIGHT;
   }
   return commonKeyActionMap(key_, ch_);
@@ -49,6 +49,7 @@ Snake::Snake(const Snake& snake_) : _layer(snake_._layer) {
 Snake::Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_) : _game(game_), _pLayer(pLayer_) {
   START("");
   _direct = SA_NOTHING;
+  _score = 0;
   END("");
 }
 
@@ -57,6 +58,7 @@ void Snake::init() {
   _direct = SnakeCommand::randomDirect();
   _lastMoveEvaluation = std::chrono::system_clock::now(); 
   _msMove = 500;
+  _msAnimateFruit = 50;
   _snakeNodes.clear();  
   _length = 2;
   
@@ -68,6 +70,10 @@ void Snake::listenCommand(KEY key_, char ch_) {
   if (action!=SA_NOTHING) {
     _pcmdQueue->put(SnakeCommand(action));
   }
+}
+
+bool Snake::evalAnimateFruit() {
+  _animateFruitIndex++;
 }
 
 bool Snake::evalMove() {
@@ -115,8 +121,8 @@ bool Snake::evalMove() {
 
 void Snake::evaluate() {
 
-  //int xLast = _x;
-  //int yLast = _y;
+  if (_life<=0) return;
+
   SnakeAction action = SA_NOTHING;
   bool draw = false;
 
@@ -143,27 +149,34 @@ void Snake::evaluate() {
     draw = true;
   }
 
+  // move
   if (UTime::pass(_lastMoveEvaluation, _msMove)) {
     _lastMoveEvaluation = UTime::now();
     draw = evalMove()||draw;
   }
-  
+
+  // animate fruit
+  if (_animateFruitIndex!=-1) { 
+    if (UTime::pass(_lastEvalAnimateFruit, _msAnimateFruit)) {
+      _lastEvalAnimateFruit = UTime::now();
+      evalAnimateFruit();
+      draw = true;
+    }
+  }
+    
   if (draw) {
     fullRender();
-
-    //_pLayer->text(_x, _y, 0, 0, 'X');
-    //_pLayer->text(xLast, yLast, 0, 0, ' ');
-    //LOGFN << _pLayer->toString() << _x << "," << _y << LEND;
   }
 
 }
 
 void Snake::increaseLength(int inc_) {
   _length += inc_;
+  _score += inc_;
 }
 
 void Snake::speedup() {
-  _msMove = _msMove * 19 / 20;
+  _msMove = _msMove * 29 / 30;
   if (_msMove < 50) {
     _msMove = 50;
   }
@@ -171,8 +184,18 @@ void Snake::speedup() {
 
 void Snake::fullRender() {
   _pLayer->clear();
+  int n = 0;
+  if (_animateFruitIndex>=_snakeNodes.size()) {
+    _animateFruitIndex = -1;
+  }
+
   for (auto& i: _snakeNodes) {
-    _pLayer->text(i._x, i._y, _body);
+    if (n==_animateFruitIndex) {
+      _pLayer->text(i._x, i._y, RED, BLACK, '@');
+    } else {
+      _pLayer->text(i._x, i._y, _body);
+    } 
+    n++;
   }
   _pLayer->text(_head._x, _head._y, _body.fgColor, _body.bgColor, SnakeCommand::toChar(_direct));
 }
@@ -208,7 +231,7 @@ SnakeNode Snake::getNode(const XY& xy_) {
 }
 
 void Snake::dead() {
+  _life--;
   init();
-  
 }
 
