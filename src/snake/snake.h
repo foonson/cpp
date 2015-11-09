@@ -12,10 +12,11 @@
 #include <functional> // std:function
 #include <deque>
 
+#include "snake/snakeAnimation.h"
+
 SnakeAction snake1KeyActionMap(KEY key_, char ch_); 
 SnakeAction snake2KeyActionMap(KEY key_, char ch_); 
 SnakeAction commonKeyActionMap(KEY key_, char ch_); 
-
 
 class SnakeGame;
 
@@ -50,17 +51,18 @@ private:
 };
 
 class Snake {
+  friend class FruitInSnakeAnimation;
+  friend class SnakeDeathAnimation;
+
 public:
-  
-  //Snake(const Snake& snake_) : _layer(snake_._layer); 
   Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_);
   void init();
 
   void listenCommand(KEY key_, char ch_);
-  void evaluate();
+  bool evaluate();
   bool evalMove();
-  bool evalAnimateFruit();
-  void fullRender();
+  bool evalAnimation();
+  void render();
 
   void increaseLength(int inc_);
   void speedup();
@@ -69,6 +71,10 @@ public:
   SnakeNode getNode(const XY& xy_);
   bool touching(const XY& xy_);
   bool touchingBody(const XY& xy_);
+
+  bool eatFruit(const SnakeNode& fruit);
+
+  SnakeNode& head();
 
   function<SnakeAction(KEY, char)> _fnKeyActionMap;
   SyncQueue<SnakeCommand>* _pcmdQueue;
@@ -79,18 +85,17 @@ public:
   int _score;
   int _id;
   int _msMove;
-  int _msAnimateFruit;
-  int _animateFruitIndex;
+  vector<shared_ptr<IRender>> _vpAnimations;
 
 private:
   SnakeGame& _game;
   SPLayer _pLayer;
 
   std::chrono::time_point<std::chrono::system_clock> _lastMoveEvaluation;
-  std::chrono::time_point<std::chrono::system_clock> _lastEvalAnimateFruit;
   
   deque<SnakeNode> _snakeNodes; 
   SnakeAction _direct;
+  SnakeAction _status;
 };
 
 #endif

@@ -1,8 +1,9 @@
 #include "snake.h"
 #include "snakeGame.h"
 
+
 SnakeAction commonKeyActionMap(KEY key_, char ch_) {
-  if (ch_=='x') {
+  if (ch_=='X') {
     return SA_EXIT;
   }
   return SA_NOTHING;
@@ -33,19 +34,7 @@ SnakeAction snake2KeyActionMap(KEY key_, char ch_) {
   }
   return commonKeyActionMap(key_, ch_);
 }
-/*
-Snake::Snake(const Snake& snake_) : _layer(snake_._layer) {
-  START("");
-  
-  _x = snake_._x;
-  _y = snake_._y;
-  _direct = snake_._direct;
-  _fnKeyActionMap = snake_._fnKeyActionMap;
-  LOG << _pLayer->toString() << LEND;
 
-  END("");
-}
-*/
 Snake::Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_) : _game(game_), _pLayer(pLayer_) {
   START("");
   _direct = SA_NOTHING;
@@ -53,16 +42,21 @@ Snake::Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_) : _game(game_), _pLaye
   END("");
 }
 
+SnakeNode& Snake::head() {
+  return _head;
+}
+
 void Snake::init() {
   _head.xy(_game.randomEmptyXY());
   _direct = SnakeCommand::randomDirect();
   _lastMoveEvaluation = std::chrono::system_clock::now(); 
-  _msMove = 500;
-  _msAnimateFruit = 50;
+  //_msMove = 500;
+  _msMove = 50;
   _snakeNodes.clear();  
-  _length = 2;
-  
-  fullRender();
+  _length = 20;
+  _status = SA_LIFE;
+
+  render();
 }
 
 void Snake::listenCommand(KEY key_, char ch_) {
@@ -72,8 +66,13 @@ void Snake::listenCommand(KEY key_, char ch_) {
   }
 }
 
-bool Snake::evalAnimateFruit() {
-  _animateFruitIndex++;
+bool Snake::evalAnimation() {
+  bool draw = false;
+  for(auto & pAnimation : _vpAnimations) {
+    draw = pAnimation->evaluate()||draw;
+  }
+  
+  return draw;
 }
 
 bool Snake::evalMove() {
@@ -111,20 +110,18 @@ bool Snake::evalMove() {
 
   _snakeNodes.push_front(_head);
   if (_snakeNodes.size()>_length) {
-    //SnakeNode n = _snakeNodes.back();
     _snakeNodes.pop_back();
-    //_pLayer->text(n._x, n._y, 0, 0, ' ');
   }
 
-  return true;
+  return moved;
 }
 
-void Snake::evaluate() {
+bool Snake::evaluate() {
 
-  if (_life<=0) return;
+  bool draw = false;
+  if (_life<=0) return draw;
 
   SnakeAction action = SA_NOTHING;
-  bool draw = false;
 
   //do {
     //if (_pcmdQueue->empty()) {
@@ -142,7 +139,7 @@ void Snake::evaluate() {
   //}
 
   if (action==SA_EXIT) {
-    return;
+    return draw;
   }
   if (cmd.isMovement()) {
     _direct = cmd.action();
@@ -150,24 +147,50 @@ void Snake::evaluate() {
   }
 
   // move
-  if (UTime::pass(_lastMoveEvaluation, _msMove)) {
-    _lastMoveEvaluation = UTime::now();
-    draw = evalMove()||draw;
+  if (_status==SA_LIFE) {
+    if (UTime::pass(_lastMoveEvaluation, _msMove)) {
+      _lastMoveEvaluation = UTime::now();
+      draw = evalMove()||draw;
+    }
   }
 
   // animate fruit
-  if (_animateFruitIndex!=-1) { 
-    if (UTime::pass(_lastEvalAnimateFruit, _msAnimateFruit)) {
-      _lastEvalAnimateFruit = UTime::now();
-      evalAnimateFruit();
-      draw = true;
-    }
-  }
-    
-  if (draw) {
-    fullRender();
+  for (auto& pAnimation: _vpAnimations) {
+    draw = pAnimation->evaluate()||draw;
   }
 
+  //remove_if(_vpAnimations.begin(), _vpAnimations.end(), [](auto& x){return x->completed();} );
+
+  for (auto it=_vpAnimations.begin();it!=_vpAnimations.end();it++) {
+    auto& n = *it;
+    if (n->completed()) {
+      _vpAnimations.erase(it);
+      break;
+    }
+  }
+
+  if (draw) {
+    render();
+  }
+
+  return draw;
+
+}
+
+bool Snake::eatFruit(const SnakeNode& fruit) {
+  FruitInSnakeAnimation* pAnimation = new FruitInSnakeAnimation(*this);
+  _vpAnimations.push_back(shared_ptr<FruitInSnakeAnimation>(pAnimation));
+
+  increaseLength(2);
+  speedup();
+}
+
+void Snake::dead() {
+  _status = SA_DYING;
+  _life--;
+  SnakeDeathAnimation* pAnimation = new SnakeDeathAnimation(*this);
+  _vpAnimations.push_back(shared_ptr<SnakeDeathAnimation>(pAnimation));  
+  //init();
 }
 
 void Snake::increaseLength(int inc_) {
@@ -182,22 +205,23 @@ void Snake::speedup() {
   }
 }
 
-void Snake::fullRender() {
+void Snake::render() {
   _pLayer->clear();
-  int n = 0;
-  if (_animateFruitIndex>=_snakeNodes.size()) {
-    _animateFruitIndex = -1;
+
+  // Body
+  for (auto& i: _snakeNodes) {
+    _pLayer->text(i._x, i._y, _body);
   }
 
-  for (auto& i: _snakeNodes) {
-    if (n==_animateFruitIndex) {
-      _pLayer->text(i._x, i._y, RED, BLACK, '@');
-    } else {
-      _pLayer->text(i._x, i._y, _body);
-    } 
-    n++;
+  // Animation
+  for (auto& pAnimation: _vpAnimations) {
+    pAnimation->render(_pLayer);
   }
-  _pLayer->text(_head._x, _head._y, _body.fgColor, _body.bgColor, SnakeCommand::toChar(_direct));
+
+  // Head
+  if (_status==SA_LIFE) {
+    _pLayer->text(_head._x, _head._y, _body.fgColor, _body.bgColor, SnakeCommand::toChar(_direct));
+  }
 }
 
 bool Snake::touching(const XY& xy_) {
@@ -230,8 +254,4 @@ SnakeNode Snake::getNode(const XY& xy_) {
   return SnakeNode(xy_, SN_NOTHING);
 }
 
-void Snake::dead() {
-  _life--;
-  init();
-}
 

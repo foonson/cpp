@@ -138,10 +138,8 @@ void SnakeGame::evalSnake(Snake& snake_) {
   //for (auto& fruit: _vFruits) {
     SnakeNode& fruit = *it;
     if (head.touching(fruit)) {
+      snake_.eatFruit(fruit);
       _vFruits.erase(it);
-      snake_.increaseLength(2);
-      snake_.speedup();
-      snake_._animateFruitIndex = 0;
       break;
     }
   }
@@ -167,7 +165,6 @@ void SnakeGame::evaluateLoop() {
     
     _pScreen->text(50, 1, WHITE, BLACK, UString::toString(_counter));
     
-
     if (_app._exit) {
       break;
     }   

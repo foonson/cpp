@@ -2,7 +2,8 @@
 #include <vector>
 #include <map>
 #include <stdio.h>
-#include <memory> // std::shared_ptr
+#include <memory> // std::shared_ptr 
+#include <algorithm> // std::remove_if
 #include <experimental/optional>
 
 //typedef std::experimental::optional optional;

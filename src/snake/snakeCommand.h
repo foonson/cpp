@@ -9,6 +9,8 @@ enum SnakeAction {
   SA_DOWN,
   SA_LEFT,
   SA_RIGHT,
+  SA_LIFE,
+  SA_DYING,
   SA_DEAD,
   SA_EXIT=999
 };
@@ -44,6 +46,22 @@ public:
     if (action_==SA_LEFT)  return '<';
     if (action_==SA_RIGHT) return '>';
     return ' ';
+  }
+  
+  static SnakeAction clockwise(SnakeAction action_) {
+    if (action_==SA_UP)    return SA_RIGHT;
+    if (action_==SA_DOWN)  return SA_LEFT;
+    if (action_==SA_LEFT)  return SA_UP;
+    if (action_==SA_RIGHT) return SA_DOWN;
+    return action_;
+  }
+
+  static SnakeAction antiClockwise(SnakeAction action_) {
+    if (action_==SA_UP)    return SA_LEFT;
+    if (action_==SA_DOWN)  return SA_RIGHT;
+    if (action_==SA_LEFT)  return SA_DOWN;
+    if (action_==SA_RIGHT) return SA_UP;
+    return action_;
   }
 
 private:
