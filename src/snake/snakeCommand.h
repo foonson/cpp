@@ -9,7 +9,7 @@ enum SnakeAction {
   SA_DOWN,
   SA_LEFT,
   SA_RIGHT,
-  SA_LIFE,
+  SA_LIVE,
   SA_DYING,
   SA_DEAD,
   SA_EXIT=999

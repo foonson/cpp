@@ -15,16 +15,15 @@
 SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   START("");
 
-
   XY boardOffset(0,2);
 
   _maxFruit = 10;
 
-  _pScreen = _app.screen().createLayer(0, 0, 0);
-  _pBoard = _app.screen().createLayer(boardOffset.x(), boardOffset.y(), 0);
+  _pScreen = _app.screen().createLayer(XY(0,0), 0);
+  _pBoard = _app.screen().createLayer(boardOffset, 0);
   //_screen.render();
 
-  shared_ptr<Layer> pLayer1 = _app.screen().createLayer(boardOffset.x(), boardOffset.y(), 1);
+  shared_ptr<Layer> pLayer1 = _app.screen().createLayer(boardOffset, 1);
   Snake& snake1 = createSnake(pLayer1);
   snake1._fnKeyActionMap = snake1KeyActionMap;
   snake1._pcmdQueue = new SyncQueue<SnakeCommand>;
@@ -34,7 +33,7 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   snake1._life = 3;
   snake1.init();
 
-  shared_ptr<Layer> pLayer2 = _app.screen().createLayer(boardOffset.x(), boardOffset.y(), 2);
+  shared_ptr<Layer> pLayer2 = _app.screen().createLayer(boardOffset, 2);
   Snake& snake2 = createSnake(pLayer2);
   snake2._fnKeyActionMap = snake2KeyActionMap;
   snake2._pcmdQueue = new SyncQueue<SnakeCommand>;
@@ -43,6 +42,9 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   snake2._head = SnakeNode(20, 20, SN_BODY);
   snake2._life = 3;
   snake2.init();
+
+  _pAnimationLayer = _app.screen().createLayer(boardOffset, 3);
+
   END("");
 }
 
@@ -96,7 +98,6 @@ XY SnakeGame::randomEmptyXY() {
 
 void SnakeGame::evalFruit() {
  
-
   if (UTime::pass(_lastShuffleFruit, 3000)) {
     //_vFruits.clear();
     _lastShuffleFruit = UTime::now();
@@ -134,6 +135,11 @@ void SnakeGame::evalSnake(Snake& snake_) {
 
   SnakeNode& head = snake_._head;
 
+  if (snake_.status()!=SA_LIVE) {
+    return;
+  }
+
+  // evaluate eat fruit
   for (auto it=_vFruits.begin();it!=_vFruits.end();it++) {
   //for (auto& fruit: _vFruits) {
     SnakeNode& fruit = *it;
@@ -144,14 +150,19 @@ void SnakeGame::evalSnake(Snake& snake_) {
     }
   }
 
+  // evaluate touch
   for (auto& other: _vSnakes) {
     if (snake_._id==other._id) {
       if (other.touchingBody(head)) {
-        snake_.dead();
+        if (other.status()==SA_LIVE) {
+          snake_.dead();
+        }
       }
     } else {
       if (other.touching(head)) {
-        snake_.dead();
+        if (other.status()==SA_LIVE) {
+          snake_.dead();
+        }
       }
     }
 
@@ -165,7 +176,8 @@ void SnakeGame::evaluateLoop() {
     
     _pScreen->text(50, 1, WHITE, BLACK, UString::toString(_counter));
     
-    if (_app._exit) {
+    animationLayer()->clear();
+    if (app()._exit) {
       break;
     }   
 
@@ -183,7 +195,7 @@ void SnakeGame::evaluateLoop() {
     } 
     evalFruit();
 
-    _app.screen().render();
+    app().screen().render();
     //this_thread::sleep_for(std::chrono::milliseconds(100));
   } while (true);
   END("");

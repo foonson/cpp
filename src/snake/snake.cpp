@@ -1,7 +1,6 @@
 #include "snake.h"
 #include "snakeGame.h"
 
-
 SnakeAction commonKeyActionMap(KEY key_, char ch_) {
   if (ch_=='X') {
     return SA_EXIT;
@@ -50,11 +49,11 @@ void Snake::init() {
   _head.xy(_game.randomEmptyXY());
   _direct = SnakeCommand::randomDirect();
   _lastMoveEvaluation = std::chrono::system_clock::now(); 
+  _msMove = 100;
   //_msMove = 500;
-  _msMove = 50;
   _snakeNodes.clear();  
   _length = 20;
-  _status = SA_LIFE;
+  _status = SA_LIVE;
 
   render();
 }
@@ -116,12 +115,70 @@ bool Snake::evalMove() {
   return moved;
 }
 
+bool Snake::evalDying() {
+  //if (_snakeNodes.empty()) {
+  //  _status = SA_DEAD;
+  //}
+  return false;
+}
+
+bool Snake::evalDead() {
+  if (_life>0) {
+    init();
+    return true;
+  }
+
+  return false;
+}
+
 bool Snake::evaluate() {
 
   bool draw = false;
-  if (_life<=0) return draw;
+
+  if (_status==SA_LIVE) {
+    draw = evalLive()||draw;
+  }
+
+  if (_status==SA_DYING) {
+    draw = evalDying()||draw;
+  }
+
+  if (_status==SA_DEAD) {
+    draw = evalDead()||draw;
+    if (_life<=0) return draw;
+  }
+
+  // animation
+  for (auto& pAnimation: _vpAnimations) {
+    draw = pAnimation->evaluate()||draw;
+  }
+  LOG << "draw=" << draw << LEND;
+
+  if (draw) {
+    render();
+  }
+
+  //for (auto it=_vpAnimations.begin();it!=_vpAnimations.end();it++) {
+  auto it = _vpAnimations.begin();
+  while(it!=_vpAnimations.end()) {
+    auto& n = *it;
+    if (n->completed()) {
+      n->onComplete();
+      it = _vpAnimations.erase(it);
+      LOG << "_vpAnumations.erase" << LEND;
+      //break;
+    } else {
+      it++;
+    }
+  }
+
+  return draw;
+}
+
+bool Snake::evalLive() {
 
   SnakeAction action = SA_NOTHING;
+  bool draw = false;
 
   //do {
     //if (_pcmdQueue->empty()) {
@@ -147,48 +204,30 @@ bool Snake::evaluate() {
   }
 
   // move
-  if (_status==SA_LIFE) {
-    if (UTime::pass(_lastMoveEvaluation, _msMove)) {
-      _lastMoveEvaluation = UTime::now();
-      draw = evalMove()||draw;
-    }
-  }
-
-  // animate fruit
-  for (auto& pAnimation: _vpAnimations) {
-    draw = pAnimation->evaluate()||draw;
+  if (UTime::pass(_lastMoveEvaluation, _msMove)) {
+    _lastMoveEvaluation = UTime::now();
+    draw = evalMove()||draw;
   }
 
   //remove_if(_vpAnimations.begin(), _vpAnimations.end(), [](auto& x){return x->completed();} );
-
-  for (auto it=_vpAnimations.begin();it!=_vpAnimations.end();it++) {
-    auto& n = *it;
-    if (n->completed()) {
-      _vpAnimations.erase(it);
-      break;
-    }
-  }
-
-  if (draw) {
-    render();
-  }
 
   return draw;
 
 }
 
 bool Snake::eatFruit(const SnakeNode& fruit) {
-  FruitInSnakeAnimation* pAnimation = new FruitInSnakeAnimation(*this);
+  FruitInSnakeAnimation* pAnimation = new FruitInSnakeAnimation(game().animationLayer(), *this);
   _vpAnimations.push_back(shared_ptr<FruitInSnakeAnimation>(pAnimation));
 
   increaseLength(2);
   speedup();
+  return true;
 }
 
 void Snake::dead() {
   _status = SA_DYING;
   _life--;
-  SnakeDeathAnimation* pAnimation = new SnakeDeathAnimation(*this);
+  SnakeDeathAnimation* pAnimation = new SnakeDeathAnimation(game().animationLayer(), *this);
   _vpAnimations.push_back(shared_ptr<SnakeDeathAnimation>(pAnimation));  
   //init();
 }
@@ -215,11 +254,11 @@ void Snake::render() {
 
   // Animation
   for (auto& pAnimation: _vpAnimations) {
-    pAnimation->render(_pLayer);
+    pAnimation->render();
   }
 
   // Head
-  if (_status==SA_LIFE) {
+  if (_status==SA_LIVE) {
     _pLayer->text(_head._x, _head._y, _body.fgColor, _body.bgColor, SnakeCommand::toChar(_direct));
   }
 }

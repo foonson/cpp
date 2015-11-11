@@ -61,6 +61,9 @@ public:
   void listenCommand(KEY key_, char ch_);
   bool evaluate();
   bool evalMove();
+  bool evalLive();
+  bool evalDying();
+  bool evalDead();
   bool evalAnimation();
   void render();
 
@@ -75,6 +78,8 @@ public:
   bool eatFruit(const SnakeNode& fruit);
 
   SnakeNode& head();
+  SnakeAction status() { return _status; }
+  SnakeGame& game() { return _game; }
 
   function<SnakeAction(KEY, char)> _fnKeyActionMap;
   SyncQueue<SnakeCommand>* _pcmdQueue;
@@ -86,7 +91,8 @@ public:
   int _id;
   int _msMove;
   vector<shared_ptr<IRender>> _vpAnimations;
-
+  
+  SnakeAction _status;
 private:
   SnakeGame& _game;
   SPLayer _pLayer;
@@ -95,7 +101,6 @@ private:
   
   deque<SnakeNode> _snakeNodes; 
   SnakeAction _direct;
-  SnakeAction _status;
 };
 
 #endif

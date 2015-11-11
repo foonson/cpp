@@ -67,9 +67,9 @@ void Screen::text(const Pixel& pixel_) {
   xy(pixel_._x, pixel_._y).color(pixel_.fgColor).show(pixel_.ch);
 }
 
-SPLayer Screen::createLayer(int xOffset_, int yOffset_, int zOrder_) {
+SPLayer Screen::createLayer(const XY& offset_, int zOrder_) {
   START("");
-  SPLayer pLayer = make_shared<Layer>(*this, xOffset_, yOffset_, zOrder_);
+  SPLayer pLayer = make_shared<Layer>(*this, offset_, zOrder_);
   _vpLayers.push_back(pLayer);
   END("");
   return pLayer;
@@ -109,8 +109,8 @@ void Screen::render() {
     for (auto & pp: *pLayer) {
       //const XY& xy = pp.first;
       Pixel p = pp.second;
-      p._x += pLayer->xOffset();
-      p._y += pLayer->yOffset();
+      p._x += pLayer->offset().x();
+      p._y += pLayer->offset().y();
       //if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND && p.ch!=t.ch) {
       if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND) {
         tar.text(p);

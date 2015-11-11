@@ -23,7 +23,7 @@ typedef map<XY, Pixel> PixelMap;
 class Layer : public ILayer {
 public:
   Layer(const Screen& screen_);
-  Layer(const Screen& screen_, int xOffset_, int yOffset_, int zOrder_);
+  Layer(const Screen& screen_, const XY& offset_, int zOrder_);
   virtual ~Layer();
   string toString() const;
   virtual void clear();
@@ -41,16 +41,13 @@ public:
   PixelMap::iterator begin();  
   PixelMap::iterator end();  
 
+  const XY& offset() { return _offset; }
   int zOrder() { return _zOrder; }
-  int xOffset() { return _xOffset; }
-  int yOffset() { return _yOffset; }
 
-  const Screen& _screen;
 private:
+  const Screen& _screen;
   PixelMap _pixels;
-  //Pixel _pixels[XMAX][YMAX];
-  int _xOffset;
-  int _yOffset;
+  XY _offset;
   int _zOrder;
   
 };

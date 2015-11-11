@@ -14,6 +14,7 @@ public:
   void text(int x_, int y_, int fgc_, int bgc_, char ch_);
   void text(const Pixel& pixel_);
   SPLayer createLayer(int xOffset_, int yOffset_, int zOrder_);
+  SPLayer createLayer(const XY& offset_, int zOrder_);
   void render(); 
   Screen& xy(int x, int y);
   Screen& color(int clr);

@@ -3,10 +3,8 @@
 
 Layer::Layer(const Screen& screen_) : _screen(screen_) {
   //START("");
-  _xOffset = 0;
-  _yOffset = 0;
+  _offset = XY(0,0);
   _zOrder = 0;
-  //LOG << toString() << LEND;
   //END("");
 }
   /*
@@ -24,14 +22,12 @@ Layer::Layer(const Screen& screen_) : _screen(screen_) {
   }
   */
 
-Layer::Layer(const Screen& screen_, int xOffset_, int yOffset_, int zOrder_) :
-  _screen(screen_)
+Layer::Layer(const Screen& screen_, const XY& offset_, int zOrder_) :
+  _screen(screen_),
+  _offset(offset_)
 {
   //START("");
-  _xOffset = xOffset_;
-  _yOffset = yOffset_;
   _zOrder = zOrder_;
-  //LOG << toString() << LEND;
   //END("");
 }
 
@@ -84,11 +80,6 @@ void Layer::text(const Pixel& pixel_) {
   //}
 }
 
-//const Pixel& Layer::pixel(int x_, int y_) {
-//  XY xy(x_, y_);
-//  return pixel(xy);
-//}
-
 optional<Pixel> Layer::pixel(const XY& xy_) {
   if (_pixels.find(xy_)==_pixels.end()) {
     return std::experimental::nullopt;
@@ -112,10 +103,4 @@ PixelMap::iterator Layer::begin() {
 PixelMap::iterator Layer::end() {
   return _pixels.end();
 } 
-
-/*
-int Layer::zOrder() { return _zOrder; }
-int Layer::xOffset() { return _xOffset; }
-int Layer::yOffset() { return _yOffset; }
-*/
 

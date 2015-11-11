@@ -9,7 +9,7 @@ class Snake;
 
 class SnakeAnimation : public IRender {
 public:
-  SnakeAnimation(Snake& snake_);
+  SnakeAnimation(SPLayer pLayer_, Snake& snake_);
 protected:
   bool pass();
   std::chrono::time_point<std::chrono::system_clock> _lastEval;
@@ -19,10 +19,11 @@ protected:
 
 class FruitInSnakeAnimation : public SnakeAnimation {
 public:
-  FruitInSnakeAnimation(Snake& snake_);
+  FruitInSnakeAnimation(SPLayer pLayer_, Snake& snake_);
   bool evaluate();
   bool completed();
-  void render(SPLayer pLayer_);
+  void render();
+  bool onComplete();
 
 private:
   int _fruitIndex;
@@ -31,13 +32,16 @@ private:
 
 class SnakeDeathAnimation : public SnakeAnimation {
 public:
-  SnakeDeathAnimation(Snake& snake_);
+  SnakeDeathAnimation(SPLayer pLayer_, Snake& snake_);
   bool evaluate();
   bool completed();
-  void render(SPLayer pLayer_);
+  void render();
+  bool onComplete();
 
 private:
   SnakeAction _direct;
+  size_t _originalLength;
+  size_t _round;
 };
 
 

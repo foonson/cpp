@@ -28,11 +28,15 @@ public:
   void renderLoop();
   void startThreads();
 
+  SPLayer animationLayer() { return _pAnimationLayer; }
+  SnakeApp& app() { return _app; }
+
 private:
   SnakeApp& _app;
   //bool _exit;
   SPLayer _pScreen;
   SPLayer _pBoard;
+  SPLayer _pAnimationLayer;
   vector<Snake> _vSnakes;
   vector<SnakeNode> _vFruits;
   long long _counter;
