@@ -26,8 +26,8 @@ extern Log g_log;
 #define LEND "\n"
 #define LSTART UTime::snow()
 #define LOGRAW g_log
-#define LOG    g_log << LSTART << __PRETTY_FUNCTION__ << " (line" << __LINE__ << ")"
-#define ERR    g_log << LSTART << "ERROR:" << __PRETTY_FUNCTION__ << " (line" << __LINE__ << ")"
+#define LOG    g_log << LSTART << __PRETTY_FUNCTION__ << " (line" << __LINE__ << ") "
+#define ERR    g_log << LSTART << "ERROR:" << __PRETTY_FUNCTION__ << " (line" << __LINE__ << ") "
 #define START(x) LOG << " { " << LEND
 #define END(x)   LOG << " } " << LEND
 

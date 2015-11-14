@@ -57,6 +57,7 @@ class Snake {
 public:
   Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_);
   void init();
+  string toString() const;
 
   void listenCommand(KEY key_, char ch_);
   bool evaluate();

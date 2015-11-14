@@ -9,6 +9,7 @@ public:
   XY() {};
   XY(int x_, int y_);
   XY(const XY& xy_);
+
   friend bool operator<(const XY& l_, const XY& r_) {
     if (l_._y < r_._y) return true;
     if (l_._y > r_._y) return false;
@@ -19,7 +20,7 @@ public:
   bool touching(const XY& xy_);
   bool touching(int x_, int y_);
 
-  string toString() const;
+  virtual string toString() const;
   int x() const;
   int y() const;
 
@@ -30,8 +31,6 @@ public:
   int _y;
 
 };
-
-
 
 class XYZ {
 public:

@@ -41,6 +41,12 @@ Snake::Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_) : _game(game_), _pLaye
   END("");
 }
 
+
+string Snake::toString() const {
+  string s = "Snake#" + UString::toString(_id) + " " + _head.toString();
+  return s;
+}
+
 SnakeNode& Snake::head() {
   return _head;
 }
@@ -68,13 +74,15 @@ void Snake::listenCommand(KEY key_, char ch_) {
 bool Snake::evalAnimation() {
   bool draw = false;
   for(auto & pAnimation : _vpAnimations) {
-    draw = pAnimation->evaluate()||draw;
+    bool e = pAnimation->evaluate();
+    draw = e||draw;
   }
   
   return draw;
 }
 
 bool Snake::evalMove() {
+  LOG << toString() << LEND;
   bool moved = false;
 
   XY max = _pLayer->maxXY();
@@ -136,24 +144,28 @@ bool Snake::evaluate() {
   bool draw = false;
 
   if (_status==SA_LIVE) {
-    draw = evalLive()||draw;
+    bool e = evalLive();
+    draw = e||draw;
   }
 
   if (_status==SA_DYING) {
-    draw = evalDying()||draw;
+    bool e = evalDying();
+    draw = e||draw;
   }
 
   if (_status==SA_DEAD) {
-    draw = evalDead()||draw;
+    bool e = evalDead();
     if (_life<=0) return draw;
   }
 
   // animation
   for (auto& pAnimation: _vpAnimations) {
-    draw = pAnimation->evaluate()||draw;
+    bool e = pAnimation->evaluate();
+    draw = e||draw;
   }
-  LOG << "draw=" << draw << LEND;
 
+
+  //LOG << "draw=" << draw << LEND;
   if (draw) {
     render();
   }
@@ -216,6 +228,8 @@ bool Snake::evalLive() {
 }
 
 bool Snake::eatFruit(const SnakeNode& fruit) {
+  LOG << toString() << LEND;
+
   FruitInSnakeAnimation* pAnimation = new FruitInSnakeAnimation(game().animationLayer(), *this);
   _vpAnimations.push_back(shared_ptr<FruitInSnakeAnimation>(pAnimation));
 
@@ -225,6 +239,8 @@ bool Snake::eatFruit(const SnakeNode& fruit) {
 }
 
 void Snake::dead() {
+  LOG << toString() << LEND;
+
   _status = SA_DYING;
   _life--;
   SnakeDeathAnimation* pAnimation = new SnakeDeathAnimation(game().animationLayer(), *this);
@@ -245,6 +261,7 @@ void Snake::speedup() {
 }
 
 void Snake::render() {
+  LOG << toString() << LEND;
   _pLayer->clear();
 
   // Body
