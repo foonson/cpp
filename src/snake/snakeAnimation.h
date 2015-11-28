@@ -2,25 +2,32 @@
 #define _SNAKE_SNAKEANIMATION
 
 #include "util/pch.h"
-#include "screen/irender.h"
+#include "screen/ieval.h"
 #include "snakeCommand.h"
+#include "snake.h"
 
-class Snake;
+//class Snake;
 
-class SnakeAnimation : public IRender {
+class SnakeAnimation : public IEval {
 public:
-  SnakeAnimation(SPLayer pLayer_, Snake& snake_);
+  SnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
 protected:
-  bool pass();
-  std::chrono::time_point<std::chrono::system_clock> _lastEval;
-  int _msEval;
-  Snake& _snake;
+  SPSnake _pSnake;
+};
+
+class SnakeEvaluation : public SnakeAnimation {
+public:
+  SnakeEvaluation(SPLayer pLayer_, SPSnake pSnake_);
+  bool evaluateImpl();
+  bool completed();
+  void render();
+  bool onComplete();
 };
 
 class FruitInSnakeAnimation : public SnakeAnimation {
 public:
-  FruitInSnakeAnimation(SPLayer pLayer_, Snake& snake_);
-  bool evaluate();
+  FruitInSnakeAnimation(SPLayer pLayer_, SPSnake pSnake_);
+  bool evaluateImpl();
   bool completed();
   void render();
   bool onComplete();
@@ -32,8 +39,8 @@ private:
 
 class SnakeDeathAnimation : public SnakeAnimation {
 public:
-  SnakeDeathAnimation(SPLayer pLayer_, Snake& snake_);
-  bool evaluate();
+  SnakeDeathAnimation(SPLayer pLayer_, SPSnake pSnake_);
+  bool evaluateImpl();
   bool completed();
   void render();
   bool onComplete();

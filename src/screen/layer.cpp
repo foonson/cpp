@@ -39,6 +39,7 @@ Layer::~Layer() {
 }
 
 void Layer::clear() {
+  LOG << LEND;
   _pixels.clear();
 }
 
@@ -89,10 +90,10 @@ optional<Pixel> Layer::pixel(const XY& xy_) {
 
 string Layer::toString() const {
   string s;
-  s = "zOrder=";
-  s += UString::toString(_zOrder);
-  s += " ";
-  s += UString::toHexString((unsigned long long)(this));
+  s = "zOrder=" + UString::toString(_zOrder) 
+      + " " + UString::toHexString((unsigned long long)(this))
+      + " len=" + UString::toString(_pixels.size())
+  ;
   return s;
 }
 

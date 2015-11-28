@@ -3,6 +3,7 @@
 
 #include "util/pch.h"
 
+#include "screen/IEval.h"
 #include "screen/screen.h"
 #include "screen/layer.h"
 #include "screen/keyboard.h"
@@ -12,7 +13,6 @@
 #include <functional> // std:function
 #include <deque>
 
-#include "snake/snakeAnimation.h"
 
 SnakeAction snake1KeyActionMap(KEY key_, char ch_); 
 SnakeAction snake2KeyActionMap(KEY key_, char ch_); 
@@ -91,7 +91,7 @@ public:
   int _score;
   int _id;
   int _msMove;
-  vector<shared_ptr<IRender>> _vpAnimations;
+  vector<SPEval> _vpAnimations;
   
   SnakeAction _status;
 private:
@@ -103,5 +103,7 @@ private:
   deque<SnakeNode> _snakeNodes; 
   SnakeAction _direct;
 };
+
+typedef shared_ptr<Snake> SPSnake;
 
 #endif

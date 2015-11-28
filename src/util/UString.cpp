@@ -7,6 +7,18 @@ namespace UString {
     string r = buffer;
     return r; 
   }
+  string toString(unsigned int i_) {
+    char buffer[50];
+    sprintf(buffer, "%d", i_);
+    string r = buffer;
+    return r; 
+  }
+  string toString(unsigned long i_) {
+    char buffer[50];
+    sprintf(buffer, "%lu", i_);
+    string r = buffer;
+    return r;
+  }
   string toString(unsigned long long ull_) {
     char buffer[100];
     sprintf(buffer, "%llu", ull_);

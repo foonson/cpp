@@ -8,6 +8,7 @@
 #include "util/syncQueue"
 #include "snakeCommand.h"
 #include "snake.h"
+#include "snakeAnimation.h"
 #include <stdlib.h>  // rand
 
 #include <functional> // std:function
@@ -24,24 +25,27 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   //_screen.render();
 
   shared_ptr<Layer> pLayer1 = _app.screen().createLayer(boardOffset, 1);
-  Snake& snake1 = createSnake(pLayer1);
-  snake1._fnKeyActionMap = snake1KeyActionMap;
-  snake1._pcmdQueue = new SyncQueue<SnakeCommand>;
-  snake1._body = Pixel(0,0,YELLOW,BLACK,'X');
-  snake1._id = 1;
-  snake1._head = SnakeNode(10, 10, SN_BODY);
-  snake1._life = 3;
-  snake1.init();
+  SPSnake pSnake1 = createSnake(pLayer1);
+  pSnake1->_fnKeyActionMap = snake1KeyActionMap;
+  pSnake1->_pcmdQueue = new SyncQueue<SnakeCommand>;
+  pSnake1->_body = Pixel(0,0,YELLOW,BLACK,'X');
+  pSnake1->_id = 1;
+  pSnake1->_head = SnakeNode(10, 10, SN_BODY);
+  pSnake1->_life = 3;
+  pSnake1->init();
 
   shared_ptr<Layer> pLayer2 = _app.screen().createLayer(boardOffset, 2);
-  Snake& snake2 = createSnake(pLayer2);
-  snake2._fnKeyActionMap = snake2KeyActionMap;
-  snake2._pcmdQueue = new SyncQueue<SnakeCommand>;
-  snake2._body = Pixel(0,0,LBLUE,BLACK,'O');
-  snake2._id = 2;
-  snake2._head = SnakeNode(20, 20, SN_BODY);
-  snake2._life = 3;
-  snake2.init();
+  SPSnake pSnake2 = createSnake(pLayer2);
+  pSnake2->_fnKeyActionMap = snake2KeyActionMap;
+  pSnake2->_pcmdQueue = new SyncQueue<SnakeCommand>;
+  pSnake2->_body = Pixel(0,0,LBLUE,BLACK,'O');
+  pSnake2->_id = 2;
+  pSnake2->_head = SnakeNode(20, 20, SN_BODY);
+  pSnake2->_life = 3;
+  pSnake2->init();
+
+  _vpEvaluations.push_back(make_shared<SnakeEvaluation>(pLayer1, 100, pSnake1));
+  _vpEvaluations.push_back(make_shared<SnakeEvaluation>(pLayer2, 100, pSnake2));
 
   _pAnimationLayer = _app.screen().createLayer(boardOffset, 3);
 
@@ -49,17 +53,18 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
 }
 
 //Snake& createSnake(Layer& layer_, (SNAKEACTION)(KEY, char) fnKeyActionMap_) {
-Snake& SnakeGame::createSnake(SPLayer pLayer_) {
-  _vSnakes.push_back(Snake(*this, pLayer_));
-  Snake& snake = _vSnakes.back();
-  //snake.setLayer(layer_);
-  //snake._fnKeyActionMap = fnKeyActionMap_;
-  return snake;
+SPSnake SnakeGame::createSnake(SPLayer pLayer_) {
+  auto pSnake = make_shared<Snake>(*this, pLayer_);
+  _vpSnakes.push_back(pSnake);
+  //Snake& snake = _vpSnakes.back();
+  //pSnake->setLayer(layer_);
+  //pSnake->_fnKeyActionMap = fnKeyActionMap_;
+  return pSnake;
 } 
 
 SnakeNode SnakeGame::getNode(const XY& xy_) {
-  for (auto& snake: _vSnakes) {
-    SnakeNode n = snake.getNode(xy_);
+  for (auto& pSnake: _vpSnakes) {
+    SnakeNode n = pSnake->getNode(xy_);
     if (n.type()!=SN_NOTHING) {
       return n;
     }
@@ -131,11 +136,11 @@ void SnakeGame::evalFruit() {
  
 }
 
-void SnakeGame::evalSnake(Snake& snake_) {
+void SnakeGame::evalSnake(SPSnake pSnake_) {
 
-  SnakeNode& head = snake_._head;
+  SnakeNode& head = pSnake_->_head;
 
-  if (snake_.status()!=SA_LIVE) {
+  if (pSnake_->status()!=SA_LIVE) {
     return;
   }
 
@@ -144,24 +149,24 @@ void SnakeGame::evalSnake(Snake& snake_) {
   //for (auto& fruit: _vFruits) {
     SnakeNode& fruit = *it;
     if (head.touching(fruit)) {
-      snake_.eatFruit(fruit);
+      pSnake_->eatFruit(fruit);
       _vFruits.erase(it);
       break;
     }
   }
 
   // evaluate touch
-  for (auto& other: _vSnakes) {
-    if (snake_._id==other._id) {
-      if (other.touchingBody(head)) {
-        if (other.status()==SA_LIVE) {
-          snake_.dead();
+  for (auto& pOther: _vpSnakes) {
+    if (pSnake_->_id==pOther->_id) {
+      if (pOther->touchingBody(head)) {
+        if (pOther->status()==SA_LIVE) {
+          pSnake_->dead();
         }
       }
     } else {
-      if (other.touching(head)) {
-        if (other.status()==SA_LIVE) {
-          snake_.dead();
+      if (pOther->touching(head)) {
+        if (pOther->status()==SA_LIVE) {
+          pSnake_->dead();
         }
       }
     }
@@ -176,21 +181,26 @@ void SnakeGame::evaluateLoop() {
     
     _pScreen->text(50, 1, WHITE, BLACK, UString::toString(_counter));
     
-    animationLayer()->clear();
+    //animationLayer()->clear();
     if (app()._exit) {
       break;
     }   
 
     int row = 1;
-    for (auto& snake: _vSnakes) {
-      string s = "Life:" + UString::toString(snake._life);
-      _pScreen->text(1, row, snake._body.fgColor, BLACK, s);
-      s = "Length:" + UString::toString(snake._length);
-      _pScreen->text(10, row, snake._body.fgColor, BLACK, s);
-      s = "Score:" + UString::toString(snake._score);
-      _pScreen->text(20, row, snake._body.fgColor, BLACK, s);
-      snake.evaluate();
-      evalSnake(snake);
+
+    for (auto& eval: _vpEvaluations) {
+      eval->evaluate();
+    }
+
+    for (auto& pSnake: _vpSnakes) {
+      string s = "Life:" + UString::toString(pSnake->_life);
+      _pScreen->text(1, row, pSnake->_body.fgColor, BLACK, s);
+      s = "Length:" + UString::toString(pSnake->_length);
+      _pScreen->text(10, row, pSnake->_body.fgColor, BLACK, s);
+      s = "Score:" + UString::toString(pSnake->_score);
+      _pScreen->text(20, row, pSnake->_body.fgColor, BLACK, s);
+      //pSnake->evaluate();
+      evalSnake(pSnake);
       row++; 
     } 
     evalFruit();
@@ -211,12 +221,12 @@ void SnakeGame::listenCommandLoop() {
     }   
 
     KEY key;
-    char ch;      
+    char ch;
     _app.keyboard().getKey(key, ch);
     //LOG << ch << LEND;
 
-    for (auto& snake: _vSnakes) {
-      snake.listenCommand(key, ch);
+    for (auto& pSnake: _vpSnakes) {
+      pSnake->listenCommand(key, ch);
     } 
     
     if (ch=='X') {

@@ -1,104 +1,116 @@
 #include "snakeAnimation.h"
 #include "snake.h"
 
-SnakeAnimation::SnakeAnimation(SPLayer pLayer_, Snake& snake_) : IRender(pLayer_), _snake(snake_) {
-  _msEval = 50;
-  _lastEval = UTime::now();
+SnakeAnimation::SnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_) : IEval(pLayer_, interval_), _pSnake(pSnake_) {
 }
-
-bool SnakeAnimation::pass() {
-  bool draw = false;
-  if (UTime::pass(_lastEval, _msEval)) {
-    _lastEval = UTime::now();
-    draw = true;
-  }
-  return draw;
-}
-
 /////////////////////////////////////////////////
 
-FruitInSnakeAnimation::FruitInSnakeAnimation(SPLayer pLayer_, Snake& snake_) 
-  : SnakeAnimation(pLayer_, snake_) 
+SnakeEvaluation::SnakeEvaluation(SPLayer pLayer_, long interval_, SPSnake pSnake_) : SnakeAnimation(pLayer_, interval_, pSnake_) {
+}
+
+bool SnakeEvaluation::evaluateImpl() {
+  START("");
+  LOG << _pSnake->toString() << LEND;
+  bool b = _pSnake->evaluate();
+  END("");
+  return b;
+}
+
+void SnakeEvaluation::render() {
+  _pSnake->render();
+}
+
+bool SnakeEvaluation::completed() {
+  return false;
+}
+
+bool SnakeEvaluation::onComplete() {
+  return false;
+}
+
+FruitInSnakeAnimation::FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_) 
+  : SnakeAnimation(pLayer_, interval_, pSnake_) 
 {
   START("");
   _fruitIndex = 0;
   END("");
 }
 
-bool FruitInSnakeAnimation::evaluate() {
+bool FruitInSnakeAnimation::evaluateImpl() {
   //START("");
   bool draw = false;
-  if (pass()) {
+  //if (pass()) {
     _fruitIndex++;
     draw = true;
     LOG << "_fruitIndex=" << _fruitIndex << LEND;
-  }
+  //}
   //END("");
-  LOG << "draw=" << draw << LEND;
+  //LOG << "draw=" << draw << LEND;
   return draw;
 }
 
 bool FruitInSnakeAnimation::completed() {
-  return (_fruitIndex >= _snake._snakeNodes.size());
+  return (_fruitIndex >= _pSnake->_snakeNodes.size());
 }
 
 void FruitInSnakeAnimation::render() {
-  LOG << "completed()=" << completed() << LEND;
   if (completed()) return;
-  if (_snake._status!=SA_LIVE) return;
+  if (_pSnake->_status!=SA_LIVE) return;
+  LOG << "completed()=" << completed() << LEND;
+  LOG << _pLayer->toString() << LEND;
   LOG << "draw" << LEND;
-  SnakeNode& node = _snake._snakeNodes[_fruitIndex];
+  SnakeNode& node = _pSnake->_snakeNodes[_fruitIndex];
   _pLayer->text(node.x(), node.y(), RED, BLACK, '@');
 }
 
 bool FruitInSnakeAnimation::onComplete() {
   START("");
-  //_snake._status = SA_DEAD; 
   END("");
 }
 
 /////////////////////////////////////////////////
 
-SnakeDeathAnimation::SnakeDeathAnimation(SPLayer pLayer_, Snake& snake_) 
-  : SnakeAnimation(pLayer_, snake_) 
+SnakeDeathAnimation::SnakeDeathAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_) 
+  : SnakeAnimation(pLayer_, interval_, pSnake_) 
 {
-  _direct = snake_._direct;
-  _originalLength = snake_._snakeNodes.size();
+  _direct = pSnake_->_direct;
+  _originalLength = pSnake_->_snakeNodes.size();
   _round = 0;
 }
 
-bool SnakeDeathAnimation::evaluate() {
+bool SnakeDeathAnimation::evaluateImpl() {
   //START("");
   bool draw = false;
-  if (pass()) {
-    LOG << "len=" << _snake._snakeNodes.size() << LEND;
-    if (!_snake._snakeNodes.empty()) {
-      _snake._snakeNodes.pop_back();
+  //if (pass()) {
+    LOG << "len=" << _pSnake->_snakeNodes.size() << LEND;
+    if (!_pSnake->_snakeNodes.empty()) {
+      _pSnake->_snakeNodes.pop_back();
       _direct = SnakeCommand::clockwise(_direct);
       draw = true;
       _round++;
     }
-  }
+  //}
   //END("");
   return draw;
 }
 
 bool SnakeDeathAnimation::completed() {
-  return _round>=_originalLength;//_snake._snakeNodes.empty();
+  return _round>=_originalLength;//_pSnake->_snakeNodes.empty();
 }
 
 bool SnakeDeathAnimation::onComplete() {
   START("");
-  _snake._status = SA_DEAD; 
+  _pSnake->_status = SA_DEAD; 
   END("");
 }
 
 void SnakeDeathAnimation::render() {
   if (completed()) return;
-  LOG << "snakeNodes.size()" << _snake._snakeNodes.size() << LEND;
   START("");
-  //if (_snake._status!=SA_DYING) return;
-  SnakeNode& head = _snake.head();
+  LOG << "snakeNodes.size()" << _pSnake->_snakeNodes.size() << LEND;
+  LOG << _pLayer->toString() << LEND;
+  //if (_pSnake->_status!=SA_DYING) return;
+  SnakeNode& head = _pSnake->head();
   _pLayer->text(head.x(), head.y(), RED, BLACK, SnakeCommand::toChar(_direct));
   END("");
 }

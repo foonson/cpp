@@ -1,5 +1,6 @@
 #include "snake.h"
 #include "snakeGame.h"
+#include "snakeAnimation.h"
 
 SnakeAction commonKeyActionMap(KEY key_, char ch_) {
   if (ch_=='X') {
@@ -41,9 +42,12 @@ Snake::Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_) : _game(game_), _pLaye
   END("");
 }
 
-
 string Snake::toString() const {
-  string s = "Snake#" + UString::toString(_id) + " " + _head.toString();
+  string s = "Snake#" + UString::toString(_id) 
+      + " " + _head.toString()
+      + " len=" + UString::toString(_snakeNodes.size()) 
+      + " status=" + UString::toString(_status)
+    ;
   return s;
 }
 
@@ -216,10 +220,10 @@ bool Snake::evalLive() {
   }
 
   // move
-  if (UTime::pass(_lastMoveEvaluation, _msMove)) {
-    _lastMoveEvaluation = UTime::now();
+  //if (UTime::pass(_lastMoveEvaluation, _msMove)) {
+  //  _lastMoveEvaluation = UTime::now();
     draw = evalMove()||draw;
-  }
+  //}
 
   //remove_if(_vpAnimations.begin(), _vpAnimations.end(), [](auto& x){return x->completed();} );
 
@@ -230,7 +234,7 @@ bool Snake::evalLive() {
 bool Snake::eatFruit(const SnakeNode& fruit) {
   LOG << toString() << LEND;
 
-  FruitInSnakeAnimation* pAnimation = new FruitInSnakeAnimation(game().animationLayer(), *this);
+  FruitInSnakeAnimation* pAnimation = new FruitInSnakeAnimation(game().animationLayer(), SPSnake(this));
   _vpAnimations.push_back(shared_ptr<FruitInSnakeAnimation>(pAnimation));
 
   increaseLength(2);
@@ -243,7 +247,7 @@ void Snake::dead() {
 
   _status = SA_DYING;
   _life--;
-  SnakeDeathAnimation* pAnimation = new SnakeDeathAnimation(game().animationLayer(), *this);
+  SnakeDeathAnimation* pAnimation = new SnakeDeathAnimation(game().animationLayer(), SPSnake(this));
   _vpAnimations.push_back(shared_ptr<SnakeDeathAnimation>(pAnimation));  
   //init();
 }
@@ -261,6 +265,7 @@ void Snake::speedup() {
 }
 
 void Snake::render() {
+  START("");
   LOG << toString() << LEND;
   _pLayer->clear();
 
@@ -278,6 +283,8 @@ void Snake::render() {
   if (_status==SA_LIVE) {
     _pLayer->text(_head._x, _head._y, _body.fgColor, _body.bgColor, SnakeCommand::toChar(_direct));
   }
+  LOG << _pLayer->toString() << LEND;
+  END("");
 }
 
 bool Snake::touching(const XY& xy_) {
