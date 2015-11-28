@@ -8,6 +8,10 @@ SnakeAnimation::SnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_)
 SnakeEvaluation::SnakeEvaluation(SPLayer pLayer_, long interval_, SPSnake pSnake_) : SnakeAnimation(pLayer_, interval_, pSnake_) {
 }
 
+bool SnakeEvaluation::needEvaluate() {
+  return _pSnake->moveTick().pass();
+}
+
 bool SnakeEvaluation::evaluateImpl() {
   START("");
   LOG << _pSnake->toString() << LEND;
@@ -79,18 +83,13 @@ SnakeDeathAnimation::SnakeDeathAnimation(SPLayer pLayer_, long interval_, SPSnak
 }
 
 bool SnakeDeathAnimation::evaluateImpl() {
-  //START("");
-  bool draw = false;
-  //if (pass()) {
-    LOG << "len=" << _pSnake->_snakeNodes.size() << LEND;
-    if (!_pSnake->_snakeNodes.empty()) {
-      _pSnake->_snakeNodes.pop_back();
-      _direct = SnakeCommand::clockwise(_direct);
-      draw = true;
-      _round++;
-    }
-  //}
-  //END("");
+  LOG << "len=" << _pSnake->_snakeNodes.size() << LEND;
+  bool draw = true;
+  if (!_pSnake->_snakeNodes.empty()) {
+    _pSnake->_snakeNodes.pop_back();
+    _direct = SnakeCommand::clockwise(_direct);
+    _round++;
+  }
   return draw;
 }
 

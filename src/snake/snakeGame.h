@@ -52,6 +52,7 @@ private:
   long long _counter;
 
   vector<SPEval> _vpEvaluations;
+  Tick _moveTick;
 
   std::chrono::time_point<std::chrono::system_clock> _lastShuffleFruit;
   int _maxFruit;

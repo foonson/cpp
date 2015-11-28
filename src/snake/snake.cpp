@@ -59,10 +59,9 @@ void Snake::init() {
   _head.xy(_game.randomEmptyXY());
   _direct = SnakeCommand::randomDirect();
   _lastMoveEvaluation = std::chrono::system_clock::now(); 
-  _msMove = 100;
-  //_msMove = 500;
+  _moveTick.interval(300);
   _snakeNodes.clear();  
-  _length = 20;
+  _length = 2;
   _status = SA_LIVE;
 
   render();
@@ -75,15 +74,15 @@ void Snake::listenCommand(KEY key_, char ch_) {
   }
 }
 
-bool Snake::evalAnimation() {
-  bool draw = false;
-  for(auto & pAnimation : _vpAnimations) {
-    bool e = pAnimation->evaluate();
-    draw = e||draw;
-  }
-  
-  return draw;
-}
+//bool Snake::evalAnimation() {
+//  bool draw = false;
+//  for(auto & pAnimation : _vpAnimations) {
+//    bool e = pAnimation->evaluate();
+//    draw = e||draw;
+//  }
+//  
+//  return draw;
+//}
 
 bool Snake::evalMove() {
   LOG << toString() << LEND;
@@ -163,10 +162,10 @@ bool Snake::evaluate() {
   }
 
   // animation
-  for (auto& pAnimation: _vpAnimations) {
-    bool e = pAnimation->evaluate();
-    draw = e||draw;
-  }
+  //for (auto& pAnimation: _vpAnimations) {
+  //  bool e = pAnimation->evaluate();
+  //  draw = e||draw;
+  //}
 
 
   //LOG << "draw=" << draw << LEND;
@@ -175,6 +174,7 @@ bool Snake::evaluate() {
   }
 
   //for (auto it=_vpAnimations.begin();it!=_vpAnimations.end();it++) {
+  /*
   auto it = _vpAnimations.begin();
   while(it!=_vpAnimations.end()) {
     auto& n = *it;
@@ -187,6 +187,7 @@ bool Snake::evaluate() {
       it++;
     }
   }
+  */
 
   return draw;
 }
@@ -234,8 +235,9 @@ bool Snake::evalLive() {
 bool Snake::eatFruit(const SnakeNode& fruit) {
   LOG << toString() << LEND;
 
-  FruitInSnakeAnimation* pAnimation = new FruitInSnakeAnimation(game().animationLayer(), SPSnake(this));
-  _vpAnimations.push_back(shared_ptr<FruitInSnakeAnimation>(pAnimation));
+  //FruitInSnakeAnimation* pAnimation = new FruitInSnakeAnimation(game().animationLayer(), 10, SPSnake(this));
+  //_vpAnimations.push_back(shared_ptr<FruitInSnakeAnimation>(pAnimation));
+  //game().addSnakeEvaluation<FruitInSnakeAnimation>(game().animationLayer(), 10, *this);
 
   increaseLength(2);
   speedup();
@@ -247,8 +249,8 @@ void Snake::dead() {
 
   _status = SA_DYING;
   _life--;
-  SnakeDeathAnimation* pAnimation = new SnakeDeathAnimation(game().animationLayer(), SPSnake(this));
-  _vpAnimations.push_back(shared_ptr<SnakeDeathAnimation>(pAnimation));  
+  //SnakeDeathAnimation* pAnimation = new SnakeDeathAnimation(game().animationLayer(), 100, SPSnake(this));
+  //_vpAnimations.push_back(shared_ptr<SnakeDeathAnimation>(pAnimation));  
   //init();
 }
 
@@ -258,10 +260,13 @@ void Snake::increaseLength(int inc_) {
 }
 
 void Snake::speedup() {
-  _msMove = _msMove * 29 / 30;
-  if (_msMove < 50) {
-    _msMove = 50;
+  long l = _moveTick.interval();
+  l = l * 29 / 30;
+  //l = l * 2 / 3;
+  if (l < 50) {
+    l = 50;
   }
+  _moveTick.interval(l);
 }
 
 void Snake::render() {
@@ -275,9 +280,9 @@ void Snake::render() {
   }
 
   // Animation
-  for (auto& pAnimation: _vpAnimations) {
-    pAnimation->render();
-  }
+  //for (auto& pAnimation: _vpAnimations) {
+  //  pAnimation->render();
+  //}
 
   // Head
   if (_status==SA_LIVE) {
@@ -316,5 +321,4 @@ SnakeNode Snake::getNode(const XY& xy_) {
   }
   return SnakeNode(xy_, SN_NOTHING);
 }
-
 

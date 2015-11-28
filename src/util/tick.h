@@ -6,8 +6,10 @@
 
 class Tick {
 public:
+  Tick();
   Tick(long interval_);
   void interval(long interval_);
+  long interval();
   bool pass();
 
 private:

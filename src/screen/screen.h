@@ -2,6 +2,7 @@
 #define _SCREEN_SCREEN
 
 #include "util/pch.h"
+#include "util/tick.h"
 #include "layer.h"
 
 class Screen : public ILayer{
@@ -30,11 +31,10 @@ public:
 private:
   bool _disposed;
   int _currentFrame;
-  int _frameInterval;
   Layer _frame0;
   Layer _frame1;
   vector<shared_ptr<Layer>> _vpLayers;
-  std::chrono::time_point<std::chrono::system_clock> _lastRender;
+  Tick _tick;
 };
 
 #endif

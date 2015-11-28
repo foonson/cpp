@@ -90,11 +90,14 @@ public:
   int _length;
   int _score;
   int _id;
-  int _msMove;
-  vector<SPEval> _vpAnimations;
+  //int _msMove;
+  //vector<SPEval> _vpAnimations;
+  Tick& moveTick() { return _moveTick; }
   
   SnakeAction _status;
+
 private:
+  Tick _moveTick;
   SnakeGame& _game;
   SPLayer _pLayer;
 

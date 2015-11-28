@@ -150,6 +150,7 @@ void SnakeGame::evalSnake(SPSnake pSnake_) {
     SnakeNode& fruit = *it;
     if (head.touching(fruit)) {
       pSnake_->eatFruit(fruit);
+      addSnakeEvaluation<FruitInSnakeAnimation>(animationLayer(), 50, pSnake_);
       _vFruits.erase(it);
       break;
     }
@@ -161,12 +162,14 @@ void SnakeGame::evalSnake(SPSnake pSnake_) {
       if (pOther->touchingBody(head)) {
         if (pOther->status()==SA_LIVE) {
           pSnake_->dead();
+          addSnakeEvaluation<SnakeDeathAnimation>(animationLayer(), 100, pSnake_);
         }
       }
     } else {
       if (pOther->touching(head)) {
         if (pOther->status()==SA_LIVE) {
           pSnake_->dead();
+          addSnakeEvaluation<SnakeDeathAnimation>(animationLayer(), 100, pSnake_);
         }
       }
     }
@@ -181,7 +184,7 @@ void SnakeGame::evaluateLoop() {
     
     _pScreen->text(50, 1, WHITE, BLACK, UString::toString(_counter));
     
-    //animationLayer()->clear();
+    animationLayer()->clear();
     if (app()._exit) {
       break;
     }   
@@ -204,6 +207,24 @@ void SnakeGame::evaluateLoop() {
       row++; 
     } 
     evalFruit();
+
+    for (auto& eval: _vpEvaluations) {
+      eval->render();
+    }
+
+
+    auto it = _vpEvaluations.begin();
+    while(it!=_vpEvaluations.end()) {
+      auto& n = *it;
+      if (n->completed()) {
+        n->onComplete();
+        it = _vpEvaluations.erase(it);
+        LOG << "_vpEvaluations.erase" << LEND;
+        //break;
+      } else {
+        it++;
+      }
+    }
 
     app().screen().render();
     //this_thread::sleep_for(std::chrono::milliseconds(100));

@@ -17,8 +17,9 @@ protected:
 
 class SnakeEvaluation : public SnakeAnimation {
 public:
-  SnakeEvaluation(SPLayer pLayer_, SPSnake pSnake_);
+  SnakeEvaluation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
   bool evaluateImpl();
+  bool needEvaluate();
   bool completed();
   void render();
   bool onComplete();
@@ -26,7 +27,7 @@ public:
 
 class FruitInSnakeAnimation : public SnakeAnimation {
 public:
-  FruitInSnakeAnimation(SPLayer pLayer_, SPSnake pSnake_);
+  FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
   bool evaluateImpl();
   bool completed();
   void render();
@@ -39,7 +40,7 @@ private:
 
 class SnakeDeathAnimation : public SnakeAnimation {
 public:
-  SnakeDeathAnimation(SPLayer pLayer_, SPSnake pSnake_);
+  SnakeDeathAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
   bool evaluateImpl();
   bool completed();
   void render();
