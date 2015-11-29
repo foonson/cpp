@@ -8,7 +8,7 @@
 //#include "screen/keyboard.h"
 //#include "util/syncQueue"
 #include "snake.h"
-#include "snakeAnimation.h"
+#include "snakeEval.h"
 
 class SnakeApp : public Application {
 };

@@ -8,7 +8,7 @@
 #include "util/syncQueue"
 #include "snakeCommand.h"
 #include "snake.h"
-#include "snakeAnimation.h"
+#include "snakeEval.h"
 #include <stdlib.h>  // rand
 
 #include <functional> // std:function
@@ -44,8 +44,8 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   pSnake2->_life = 3;
   pSnake2->init();
 
-  _vpEvaluations.push_back(make_shared<SnakeEvaluation>(pLayer1, 100, pSnake1));
-  _vpEvaluations.push_back(make_shared<SnakeEvaluation>(pLayer2, 100, pSnake2));
+  _vpEvaluations.push_back(make_shared<SnakeEval>(pLayer1, 100, pSnake1));
+  _vpEvaluations.push_back(make_shared<SnakeEval>(pLayer2, 100, pSnake2));
 
   _pAnimationLayer = _app.screen().createLayer(boardOffset, 3);
 

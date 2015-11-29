@@ -1,5 +1,5 @@
-#ifndef _SNAKE_SNAKEANIMATION
-#define _SNAKE_SNAKEANIMATION
+#ifndef _SNAKE_SNAKEEVAL
+#define _SNAKE_SNAKEEVAL
 
 #include "util/pch.h"
 #include "screen/ieval.h"
@@ -8,16 +8,16 @@
 
 //class Snake;
 
-class SnakeAnimation : public IEval {
+class ISnakeEval : public IEval {
 public:
-  SnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
+  ISnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_);
 protected:
   SPSnake _pSnake;
 };
 
-class SnakeEvaluation : public SnakeAnimation {
+class SnakeEval : public ISnakeEval {
 public:
-  SnakeEvaluation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
+  SnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_);
   bool evaluateImpl();
   bool needEvaluate();
   bool completed();
@@ -25,7 +25,7 @@ public:
   bool onComplete();
 };
 
-class FruitInSnakeAnimation : public SnakeAnimation {
+class FruitInSnakeAnimation : public ISnakeEval {
 public:
   FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
   bool evaluateImpl();
@@ -38,7 +38,7 @@ private:
   
 };
 
-class SnakeDeathAnimation : public SnakeAnimation {
+class SnakeDeathAnimation : public ISnakeEval {
 public:
   SnakeDeathAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
   bool evaluateImpl();

@@ -1,6 +1,6 @@
 #include "snake.h"
 #include "snakeGame.h"
-#include "snakeAnimation.h"
+//#include "snakeEval.h"
 
 SnakeAction commonKeyActionMap(KEY key_, char ch_) {
   if (ch_=='X') {

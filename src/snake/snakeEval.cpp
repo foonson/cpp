@@ -1,18 +1,18 @@
-#include "snakeAnimation.h"
+#include "snakeEval.h"
 #include "snake.h"
 
-SnakeAnimation::SnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_) : IEval(pLayer_, interval_), _pSnake(pSnake_) {
+ISnakeEval::ISnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_) : IEval(pLayer_, interval_), _pSnake(pSnake_) {
 }
 /////////////////////////////////////////////////
 
-SnakeEvaluation::SnakeEvaluation(SPLayer pLayer_, long interval_, SPSnake pSnake_) : SnakeAnimation(pLayer_, interval_, pSnake_) {
+SnakeEval::SnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_) : ISnakeEval(pLayer_, interval_, pSnake_) {
 }
 
-bool SnakeEvaluation::needEvaluate() {
+bool SnakeEval::needEvaluate() {
   return _pSnake->moveTick().pass();
 }
 
-bool SnakeEvaluation::evaluateImpl() {
+bool SnakeEval::evaluateImpl() {
   START("");
   LOG << _pSnake->toString() << LEND;
   bool b = _pSnake->evaluate();
@@ -20,20 +20,20 @@ bool SnakeEvaluation::evaluateImpl() {
   return b;
 }
 
-void SnakeEvaluation::render() {
+void SnakeEval::render() {
   _pSnake->render();
 }
 
-bool SnakeEvaluation::completed() {
+bool SnakeEval::completed() {
   return false;
 }
 
-bool SnakeEvaluation::onComplete() {
+bool SnakeEval::onComplete() {
   return false;
 }
 
 FruitInSnakeAnimation::FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_) 
-  : SnakeAnimation(pLayer_, interval_, pSnake_) 
+  : ISnakeEval(pLayer_, interval_, pSnake_) 
 {
   START("");
   _fruitIndex = 0;
@@ -75,7 +75,7 @@ bool FruitInSnakeAnimation::onComplete() {
 /////////////////////////////////////////////////
 
 SnakeDeathAnimation::SnakeDeathAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_) 
-  : SnakeAnimation(pLayer_, interval_, pSnake_) 
+  : ISnakeEval(pLayer_, interval_, pSnake_) 
 {
   _direct = pSnake_->_direct;
   _originalLength = pSnake_->_snakeNodes.size();
