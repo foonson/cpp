@@ -39,7 +39,7 @@ Layer::~Layer() {
 }
 
 void Layer::clear() {
-  LOG << LEND;
+  //LOG << LEND;
   _pixels.clear();
 }
 

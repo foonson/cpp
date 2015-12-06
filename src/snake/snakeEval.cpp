@@ -60,11 +60,12 @@ bool FruitInSnakeAnimation::completed() {
 void FruitInSnakeAnimation::render() {
   if (completed()) return;
   if (_pSnake->_status!=SA_LIVE) return;
-  LOG << "completed()=" << completed() << LEND;
-  LOG << _pLayer->toString() << LEND;
-  LOG << "draw" << LEND;
+  //LOG << "completed()=" << completed() << LEND;
+  //LOG << _pLayer->toString() << LEND;
+  //LOG << "draw" << LEND;
   SnakeNode& node = _pSnake->_snakeNodes[_fruitIndex];
-  _pLayer->text(node.x(), node.y(), RED, BLACK, '@');
+  //_pLayer->text(node.x(), node.y(), RED, _pSnake->_body.bgColor, '@');
+  _pLayer->text(node.x(), node.y(), WHITE, RED, '@');
 }
 
 bool FruitInSnakeAnimation::onComplete() {
@@ -83,7 +84,7 @@ SnakeDeathAnimation::SnakeDeathAnimation(SPLayer pLayer_, long interval_, SPSnak
 }
 
 bool SnakeDeathAnimation::evaluateImpl() {
-  LOG << "len=" << _pSnake->_snakeNodes.size() << LEND;
+  //LOG << "len=" << _pSnake->_snakeNodes.size() << LEND;
   bool draw = true;
   if (!_pSnake->_snakeNodes.empty()) {
     _pSnake->_snakeNodes.pop_back();
@@ -98,19 +99,19 @@ bool SnakeDeathAnimation::completed() {
 }
 
 bool SnakeDeathAnimation::onComplete() {
-  START("");
+  //START("");
   _pSnake->_status = SA_DEAD; 
-  END("");
+  //END("");
 }
 
 void SnakeDeathAnimation::render() {
   if (completed()) return;
-  START("");
+  //START("");
   LOG << "snakeNodes.size()" << _pSnake->_snakeNodes.size() << LEND;
   LOG << _pLayer->toString() << LEND;
   //if (_pSnake->_status!=SA_DYING) return;
   SnakeNode& head = _pSnake->head();
   _pLayer->text(head.x(), head.y(), RED, BLACK, SnakeCommand::toChar(_direct));
-  END("");
+  //END("");
 }
 

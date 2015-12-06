@@ -270,8 +270,8 @@ void Snake::speedup() {
 }
 
 void Snake::render() {
-  START("");
-  LOG << toString() << LEND;
+  //START("");
+  //LOG << toString() << LEND;
   _pLayer->clear();
 
   // Body
@@ -288,8 +288,8 @@ void Snake::render() {
   if (_status==SA_LIVE) {
     _pLayer->text(_head._x, _head._y, _body.fgColor, _body.bgColor, SnakeCommand::toChar(_direct));
   }
-  LOG << _pLayer->toString() << LEND;
-  END("");
+  //LOG << _pLayer->toString() << LEND;
+  //END("");
 }
 
 bool Snake::touching(const XY& xy_) {

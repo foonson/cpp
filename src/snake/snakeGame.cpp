@@ -20,6 +20,11 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
 
   _maxFruit = 10;
 
+  Screen& screen = _app.screen();
+
+  screen.body(Pixel(0, 0, 17, 17, ' '));
+  _app.screen().clear();
+
   _pScreen = _app.screen().createLayer(XY(0,0), 0);
   _pBoard = _app.screen().createLayer(boardOffset, 0);
   //_screen.render();
@@ -28,7 +33,7 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   SPSnake pSnake1 = createSnake(pLayer1);
   pSnake1->_fnKeyActionMap = snake1KeyActionMap;
   pSnake1->_pcmdQueue = new SyncQueue<SnakeCommand>;
-  pSnake1->_body = Pixel(0,0,YELLOW,BLACK,'X');
+  pSnake1->_body = Pixel(0,0,BLACK,YELLOW,'X');
   pSnake1->_id = 1;
   pSnake1->_head = SnakeNode(10, 10, SN_BODY);
   pSnake1->_life = 3;
@@ -38,7 +43,7 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   SPSnake pSnake2 = createSnake(pLayer2);
   pSnake2->_fnKeyActionMap = snake2KeyActionMap;
   pSnake2->_pcmdQueue = new SyncQueue<SnakeCommand>;
-  pSnake2->_body = Pixel(0,0,LBLUE,BLACK,'O');
+  pSnake2->_body = Pixel(0,0,WHITE,LPURPLE,'O');
   pSnake2->_id = 2;
   pSnake2->_head = SnakeNode(20, 20, SN_BODY);
   pSnake2->_life = 3;
@@ -81,7 +86,7 @@ SnakeNode SnakeGame::getNode(const XY& xy_) {
 }
 
 Pixel SnakeGame::createFruitPixel(const XY& xy_) {
-  return Pixel(xy_, RED, BLACK, '@');
+  return Pixel(xy_, WHITE, RED, '@');
 }
 
 XY SnakeGame::randomEmptyXY() {
@@ -197,11 +202,11 @@ void SnakeGame::evaluateLoop() {
 
     for (auto& pSnake: _vpSnakes) {
       string s = "Life:" + UString::toString(pSnake->_life);
-      _pScreen->text(1, row, pSnake->_body.fgColor, BLACK, s);
+      _pScreen->text(1, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
       s = "Length:" + UString::toString(pSnake->_length);
-      _pScreen->text(10, row, pSnake->_body.fgColor, BLACK, s);
+      _pScreen->text(10, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
       s = "Score:" + UString::toString(pSnake->_score);
-      _pScreen->text(20, row, pSnake->_body.fgColor, BLACK, s);
+      _pScreen->text(20, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
       //pSnake->evaluate();
       evalSnake(pSnake);
       row++; 

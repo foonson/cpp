@@ -23,6 +23,12 @@ void Screen::dispose() {
   END("");
 }
 
+void Screen::clear() {
+  color(_body.fgColor, _body.bgColor);
+  printf(ESC33"1;1H");
+  printf(ESC33"2J");
+}
+
 XY Screen::maxXY() const {
   return XY(80,30);
 }
@@ -32,10 +38,13 @@ Screen& Screen::xy(int x, int y) {
   return *this;
 }
 
-Screen& Screen::color(int clr) {
-  int i=clr/100;
-  int j=clr%100;
-  printf(ESC33"0%d;%dm", i,j);
+Screen& Screen::color(int fgc, int bgc) {
+  //int i=clr/100;
+  //int j=clr%100;
+  //i -= 30;
+  //printf(ESC33"0%d;%dm", i,j);
+  printf(ESC256"%dm", fgc);
+  printf(ESC256B"%dm", bgc);
   return *this;
 }
 
@@ -60,11 +69,11 @@ Screen& Screen::flush() {
 }
 
 void Screen::text(int x_, int y_, int fgc_, int bgc_, char ch_) {
-  xy(x_, y_).color(fgc_).show(ch_);
+  xy(x_, y_).color(fgc_, bgc_).show(ch_);
 }
 
 void Screen::text(const Pixel& pixel_) {
-  xy(pixel_._x, pixel_._y).color(pixel_.fgColor).show(pixel_.ch);
+  xy(pixel_._x, pixel_._y).color(pixel_.fgColor, pixel_.bgColor).show(pixel_.ch);
 }
 
 SPLayer Screen::createLayer(const XY& offset_, int zOrder_) {
@@ -122,7 +131,7 @@ void Screen::render() {
   for (auto & pp: cur) {
     const XY& xy = pp.first;
     if (!tar.pixel(xy)) {
-      Pixel p(xy, BLACK, BLACK, ' ');
+      Pixel p(xy, _body.fgColor, _body.bgColor, ' ');
       tar.text(p);
     }
   }
