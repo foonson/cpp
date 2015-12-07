@@ -13,10 +13,10 @@ bool SnakeEval::needEvaluate() {
 }
 
 bool SnakeEval::evaluateImpl() {
-  START("");
-  LOG << _pSnake->toString() << LEND;
+  //START("");
+  //LOG << _pSnake->toString() << LEND;
   bool b = _pSnake->evaluate();
-  END("");
+  //END("");
   return b;
 }
 

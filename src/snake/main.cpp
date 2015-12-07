@@ -6,6 +6,7 @@
 
 #include "util/pch.h"
 #include "snakeGame.h"
+#include "snakeGameEval.h"
 
 INITLOG("./snake.log");
 
@@ -14,8 +15,13 @@ int main() {
 
   SnakeApp app;
   
-  SnakeGame game(app);
-  game.startThreads();
+  //SnakeGame game(app);
+  SPSnakeGame pGame = make_shared<SnakeGame>(app);
+
+  // should move to SnakeApp
+  pGame->evaluations().push_back(make_shared<SnakeGameEval>(pGame->screenLayer(), 50, pGame));
+  
+  pGame->startThreads();
 
   try {
   } catch (...) {

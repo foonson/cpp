@@ -13,7 +13,6 @@
 #include <functional> // std:function
 #include <deque>
 
-
 SnakeAction snake1KeyActionMap(KEY key_, char ch_); 
 SnakeAction snake2KeyActionMap(KEY key_, char ch_); 
 SnakeAction commonKeyActionMap(KEY key_, char ch_); 

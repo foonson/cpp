@@ -1,7 +1,6 @@
 #include "snakeGame.h"
 
 #include <thread>
-//#include <chrono>
 #include "screen/application.h"
 #include "screen/screen.h"
 #include "screen/keyboard.h"
@@ -9,8 +8,8 @@
 #include "snakeCommand.h"
 #include "snake.h"
 #include "snakeEval.h"
+#include "snakeGameEval.h"
 #include <stdlib.h>  // rand
-
 #include <functional> // std:function
 
 SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
@@ -23,7 +22,7 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   Screen& screen = _app.screen();
 
   screen.body(Pixel(0, 0, 17, 17, ' '));
-  _app.screen().clear();
+  screen.clear();
 
   _pScreen = _app.screen().createLayer(XY(0,0), 0);
   _pBoard = _app.screen().createLayer(boardOffset, 0);
@@ -49,10 +48,11 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   pSnake2->_life = 3;
   pSnake2->init();
 
+  _pAnimationLayer = _app.screen().createLayer(boardOffset, 3);
+
   _vpEvaluations.push_back(make_shared<SnakeEval>(pLayer1, 100, pSnake1));
   _vpEvaluations.push_back(make_shared<SnakeEval>(pLayer2, 100, pSnake2));
-
-  _pAnimationLayer = _app.screen().createLayer(boardOffset, 3);
+  //_vpEvaluations.push_back(make_shared<SnakeGameEval>(_pScreen, 50, make_shared<SnakeGame>(*this)));
 
   END("");
 }
@@ -83,10 +83,6 @@ SnakeNode SnakeGame::getNode(const XY& xy_) {
 
   return SnakeNode(xy_, SN_NOTHING);
 
-}
-
-Pixel SnakeGame::createFruitPixel(const XY& xy_) {
-  return Pixel(xy_, WHITE, RED, '@');
 }
 
 XY SnakeGame::randomEmptyXY() {
@@ -141,6 +137,11 @@ void SnakeGame::evalFruit() {
  
 }
 
+Pixel SnakeGame::createFruitPixel(const XY& xy_) {
+  return Pixel(xy_, WHITE, RED, '@');
+}
+
+/*
 void SnakeGame::evalSnake(SPSnake pSnake_) {
 
   SnakeNode& head = pSnake_->_head;
@@ -161,15 +162,14 @@ void SnakeGame::evalSnake(SPSnake pSnake_) {
     }
   }
 
+  if (pSnake_->touchingBody(head)) {
+    pSnake_->dead();
+    addSnakeEvaluation<SnakeDeathAnimation>(animationLayer(), 100, pSnake_);
+  }
+
   // evaluate touch
   for (auto& pOther: _vpSnakes) {
     if (pSnake_->_id==pOther->_id) {
-      if (pOther->touchingBody(head)) {
-        if (pOther->status()==SA_LIVE) {
-          pSnake_->dead();
-          addSnakeEvaluation<SnakeDeathAnimation>(animationLayer(), 100, pSnake_);
-        }
-      }
     } else {
       if (pOther->touching(head)) {
         if (pOther->status()==SA_LIVE) {
@@ -181,12 +181,12 @@ void SnakeGame::evalSnake(SPSnake pSnake_) {
 
   } 
 }
+*/
 
 void SnakeGame::evaluateLoop() {
   START("");
   do {
     _counter++;
-    
     _pScreen->text(50, 1, WHITE, BLACK, UString::toString(_counter));
     
     animationLayer()->clear();
@@ -194,12 +194,11 @@ void SnakeGame::evaluateLoop() {
       break;
     }   
 
-    int row = 1;
-
     for (auto& eval: _vpEvaluations) {
       eval->evaluate();
     }
 
+    /*
     for (auto& pSnake: _vpSnakes) {
       string s = "Life:" + UString::toString(pSnake->_life);
       _pScreen->text(1, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
@@ -210,13 +209,13 @@ void SnakeGame::evaluateLoop() {
       //pSnake->evaluate();
       evalSnake(pSnake);
       row++; 
-    } 
+    }
+    */
     evalFruit();
 
     for (auto& eval: _vpEvaluations) {
       eval->render();
     }
-
 
     auto it = _vpEvaluations.begin();
     while(it!=_vpEvaluations.end()) {

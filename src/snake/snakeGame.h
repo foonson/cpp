@@ -26,7 +26,7 @@ public:
   Pixel createFruitPixel(const XY& xy_);
   XY randomEmptyXY();
 
-  void evalSnake(SPSnake pSnake_);
+  //void evalSnake(SPSnake pSnake_);
   void evalFruit();
   void evaluateLoop();
   void listenCommandLoop();
@@ -34,6 +34,12 @@ public:
   void startThreads();
 
   SPLayer animationLayer() { return _pAnimationLayer; }
+  SPLayer screenLayer() { return _pScreen; }
+  SPLayer boardLayer() { return _pBoard; }
+
+  vector<SnakeNode>& fruits() { return _vFruits; }
+  vector<SPEval>& evaluations() { return _vpEvaluations; }
+
   SnakeApp& app() { return _app; }
 
   template<typename T>
@@ -57,5 +63,7 @@ private:
   std::chrono::time_point<std::chrono::system_clock> _lastShuffleFruit;
   int _maxFruit;
 };
+
+typedef shared_ptr<SnakeGame> SPSnakeGame;
 
 #endif

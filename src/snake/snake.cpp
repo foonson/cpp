@@ -302,8 +302,10 @@ bool Snake::touching(const XY& xy_) {
 }
 
 bool Snake::touchingBody(const XY& xy_) {
+  bool first = true;
   for (auto& i: _snakeNodes) {
-    if (i.touching(_head)) {
+    if (first) {
+      first = false;
       continue;
     }
     if (i.touching(xy_)) {

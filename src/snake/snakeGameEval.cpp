@@ -10,88 +10,79 @@
 //  IEval::needEvaluate
 //}
 
-SnakeGameEval::SnakeGameEval(SPLayer pLayer_, long interval_, SnakeGame& game_) : IEval(pLayer, interval_), _game(game_) {
-}
-
-
-Pixel SnakeGameEval::createFruitPixel(const XY& xy_) {
-  return Pixel(xy_, RED, BLACK, '@');
-}
-
-bool SnakeGameEval::evaluate() {
- 
-  needRender(true);
-  //if (UTime::pass(_lastShuffleFruit, 3000)) {
-    //_vFruits.clear();
-    //_lastShuffleFruit = UTime::now();
-    
-    if (!_vFruits.empty()) {
-      _vFruits.erase(_vFruits.begin());
-    }
-  //}
-
-  if (_vFruits.size()>=_maxFruit) {
-    return;
-  } 
-
-  //_pBoard->clear();
-
-  XY xy = randomEmptyXY();
-  
-  SnakeNode n = SnakeNode(xy, SN_FRUIT);
-  _vFruits.push_back(n);
-
+SnakeGameEval::SnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_) : IEval(pLayer_, interval_), _pGame(pGame_) {
 }
 
 void SnakeGameEval::render() {
-  int i=0;
-  for (auto& fruit : _game._vFruits) {
-    i++;
-    //if (i>_maxFruit/2) {
-    //  fruit.type(SN_BIGFRUIT);
-    //} else {
-    //  fruit.type(SN_FRUIT);
-    //}
-    _pLayer->text(createFruitPixel(fruit));
-  }
+  int row = 1;
+  auto pScreen = game()->screenLayer();
+  for (auto& pSnake: game()->_vpSnakes) {
+    string s = "Life:" + UString::toString(pSnake->_life);
+    pScreen->text(1, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
+    s = "Length:" + UString::toString(pSnake->_length);
+    pScreen->text(10, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
+    s = "Score:" + UString::toString(pSnake->_score);
+    pScreen->text(20, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
+
+    row++; 
+  } 
 }
 
+bool SnakeGameEval::completed() {
+  return false;
+}
 
-void SnakeGame::evalSnake(Snake& snake_) {
+bool SnakeGameEval::onComplete() {
+}
 
-  SnakeNode& head = snake_._head;
+bool SnakeGameEval::evaluateImpl() {
 
-  if (snake_.status()!=SA_LIVE) {
-    return;
+  for (auto& pSnake: game()->_vpSnakes) {
+    evalSnake(pSnake);
+  } 
+
+}
+
+bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
+  LOG << LEND;
+
+  SnakeNode& head = pSnake_->_head;
+
+  if (pSnake_->status()!=SA_LIVE) {
+    return false;
   }
 
+  auto& vFruits = game()->_vFruits;
+  //LOG << game()->_vFruits.size() << LEND;
+
   // evaluate eat fruit
-  for (auto it=_vFruits.begin();it!=_vFruits.end();it++) {
-  //for (auto& fruit: _vFruits) {
+  for (auto it=vFruits.begin();it!=vFruits.end();it++) {
     SnakeNode& fruit = *it;
     if (head.touching(fruit)) {
-      snake_.eatFruit(fruit);
-      _vFruits.erase(it);
+      pSnake_->eatFruit(fruit);
+      game()->addSnakeEvaluation<FruitInSnakeAnimation>(game()->animationLayer(), 50, pSnake_);
+      vFruits.erase(it);
       break;
     }
   }
 
+  if (pSnake_->touchingBody(head)) {
+    pSnake_->dead();
+    game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 200, pSnake_);
+  }
+
   // evaluate touch
-  for (auto& other: _vSnakes) {
-    if (snake_._id==other._id) {
-      if (other.touchingBody(head)) {
-        if (other.status()==SA_LIVE) {
-          snake_.dead();
-        }
-      }
+  for (auto& pOther: game()->_vpSnakes) {
+    if (pSnake_->_id==pOther->_id) {
     } else {
-      if (other.touching(head)) {
-        if (other.status()==SA_LIVE) {
-          snake_.dead();
+      if (pOther->touching(head)) {
+        if (pOther->status()==SA_LIVE) {
+          pSnake_->dead();
+          game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 200, pSnake_);
         }
       }
     }
-
   } 
+  return true;
 }
 
