@@ -20,6 +20,7 @@ int main() {
 
   // should move to SnakeApp
   pGame->evaluations().push_back(make_shared<SnakeGameEval>(pGame->screenLayer(), 50, pGame));
+  pGame->evaluations().push_back(make_shared<FruitEval>(pGame->boardLayer(), 3000, pGame));
   
   pGame->startThreads();
 

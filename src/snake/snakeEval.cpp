@@ -13,10 +13,8 @@ bool SnakeEval::needEvaluate() {
 }
 
 bool SnakeEval::evaluateImpl() {
-  //START("");
   //LOG << _pSnake->toString() << LEND;
   bool b = _pSnake->evaluate();
-  //END("");
   return b;
 }
 
@@ -32,12 +30,21 @@ bool SnakeEval::onComplete() {
   return false;
 }
 
+string SnakeEval::toString() {
+  return "SnakeEval";
+}
+
+
 FruitInSnakeAnimation::FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_) 
   : ISnakeEval(pLayer_, interval_, pSnake_) 
 {
   START("");
   _fruitIndex = 0;
   END("");
+}
+
+string FruitInSnakeAnimation::toString() {
+  return "FruitInSnakeAnimation";
 }
 
 bool FruitInSnakeAnimation::evaluateImpl() {
@@ -81,6 +88,10 @@ SnakeDeathAnimation::SnakeDeathAnimation(SPLayer pLayer_, long interval_, SPSnak
   _direct = pSnake_->_direct;
   _originalLength = pSnake_->_snakeNodes.size();
   _round = 0;
+}
+
+string SnakeDeathAnimation::toString() {
+  return "FruitInSnakeAnimation";
 }
 
 bool SnakeDeathAnimation::evaluateImpl() {

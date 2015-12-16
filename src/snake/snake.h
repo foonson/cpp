@@ -23,6 +23,7 @@ enum SnakeNodeType {
   SN_NOTHING = 0,
   SN_BODY = 1,
   SN_FRUIT,
+  SN_FRUITBIG,
 };
 
 class SnakeNode : public XY {
@@ -40,8 +41,12 @@ public:
     _type = type_;
   }
 
-  SnakeNodeType type() {
+  SnakeNodeType type() const {
     return _type;
+  }  
+
+  void type(SnakeNodeType type_) {
+    _type = type_;
   }  
 
 private:

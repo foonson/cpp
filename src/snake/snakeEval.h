@@ -23,6 +23,7 @@ public:
   bool completed();
   void render();
   bool onComplete();
+  virtual string toString();
 };
 
 class FruitInSnakeAnimation : public ISnakeEval {
@@ -32,6 +33,7 @@ public:
   bool completed();
   void render();
   bool onComplete();
+  virtual string toString();
 
 private:
   int _fruitIndex;
@@ -45,6 +47,7 @@ public:
   bool completed();
   void render();
   bool onComplete();
+  virtual string toString();
 
 private:
   SnakeAction _direct;

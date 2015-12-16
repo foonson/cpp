@@ -10,7 +10,14 @@
 //  IEval::needEvaluate
 //}
 
-SnakeGameEval::SnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_) : IEval(pLayer_, interval_), _pGame(pGame_) {
+ISnakeGameEval::ISnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_) : IEval(pLayer_, interval_), _pGame(pGame_) {
+}
+
+SnakeGameEval::SnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_) : ISnakeGameEval(pLayer_, interval_, pGame_) {
+}
+
+string SnakeGameEval::toString() {
+  return "SnakeGameEval";
 }
 
 void SnakeGameEval::render() {
@@ -44,7 +51,6 @@ bool SnakeGameEval::evaluateImpl() {
 }
 
 bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
-  LOG << LEND;
 
   SnakeNode& head = pSnake_->_head;
 
@@ -68,7 +74,7 @@ bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
 
   if (pSnake_->touchingBody(head)) {
     pSnake_->dead();
-    game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 200, pSnake_);
+    game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 100, pSnake_);
   }
 
   // evaluate touch
@@ -78,7 +84,7 @@ bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
       if (pOther->touching(head)) {
         if (pOther->status()==SA_LIVE) {
           pSnake_->dead();
-          game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 200, pSnake_);
+          game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 100, pSnake_);
         }
       }
     }
@@ -86,3 +92,58 @@ bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
   return true;
 }
 
+FruitEval::FruitEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_) : ISnakeGameEval(pLayer_, interval_, pGame_) {
+}
+
+bool FruitEval::evaluateImpl() {
+ 
+  auto& vFruits = game()->_vFruits;
+  //if (!vFruits.empty()) {
+    //vFruits.erase(vFruits.begin());
+  //}
+
+  if (vFruits.size()>=game()->_maxFruit) {
+    vFruits.erase(vFruits.begin());
+    //return true;
+  } 
+
+  XY xy = game()->randomEmptyXY();
+  
+  SnakeNode n = SnakeNode(xy, SN_FRUIT);
+  vFruits.push_back(n);
+ 
+}
+
+Pixel FruitEval::createFruitPixel(const SnakeNode& fruit_) {
+  if (fruit_.type()==SN_FRUITBIG) {
+    return Pixel((XY)fruit_, BLACK, LGREEN, '@');
+  }
+  return Pixel((XY)fruit_, BLACK, YELLOW, '*');
+}
+
+
+string FruitEval::toString() {
+  return "FruitEval";
+}
+
+void FruitEval::render() {
+  auto& vFruits = game()->_vFruits;
+  game()->_pBoard->clear();
+  int i=0;
+  for (auto& fruit : vFruits) {
+    i++;
+    if (i>game()->_maxFruit/2) {
+      fruit.type(SN_FRUITBIG);
+    } else {
+      fruit.type(SN_FRUIT);
+    }
+    game()->_pBoard->text(createFruitPixel(fruit));
+  }
+}
+
+bool FruitEval::completed() {
+  return false;
+}
+
+bool FruitEval::onComplete() {
+}

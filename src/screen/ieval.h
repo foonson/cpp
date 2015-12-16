@@ -11,6 +11,7 @@ public:
   virtual void render() = 0;
   virtual bool completed() = 0;
   virtual bool onComplete() = 0;
+  virtual string toString() = 0;
 
   virtual bool evaluate();
   virtual bool needEvaluate();

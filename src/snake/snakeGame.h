@@ -13,21 +13,22 @@
 class SnakeApp : public Application {
 };
 
-class SnakeGame {
+class SnakeGame { //: std::enable_shared_from_this<SnakeGame> {
 public:
 
   friend class SnakeGameEval;
+  friend class FruitEval;
 
   SnakeGame(SnakeApp& app_);
   SPSnake createSnake(SPLayer pLayer_);
 
   SnakeNode getNode(const XY& xy_);
   
-  Pixel createFruitPixel(const XY& xy_);
+  //Pixel createFruitPixel(const SnakeNode& fruit_);
   XY randomEmptyXY();
 
   //void evalSnake(SPSnake pSnake_);
-  void evalFruit();
+  //void evalFruit();
   void evaluateLoop();
   void listenCommandLoop();
   void renderLoop();

@@ -6,3 +6,8 @@ git commit -m "20151024"
 git push origin master
 git checkout -p
 git pull
+
+brew update
+brew install gdb
+http://www.patosai.com/blog/post/installing-gdb-on-mac-os-x-yosemite
+codesign -s gdb-cert gdb
