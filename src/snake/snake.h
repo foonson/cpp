@@ -7,8 +7,11 @@
 #include "screen/screen.h"
 #include "screen/layer.h"
 #include "screen/keyboard.h"
+#include "screen/ikeyListener.h"
 #include "util/syncQueue"
 #include "snakeCommand.h"
+
+#include "screen/application.h" // IKeyListener
 
 #include <functional> // std:function
 #include <deque>
@@ -54,7 +57,7 @@ private:
 
 };
 
-class Snake {
+class Snake : public IKeyListener {
   friend class FruitInSnakeAnimation;
   friend class SnakeDeathAnimation;
 
@@ -63,7 +66,7 @@ public:
   void init();
   string toString() const;
 
-  void listenCommand(KEY key_, char ch_);
+  void keyListen(KEY key_, char ch_);
   bool evaluate();
   bool evalMove();
   bool evalLive();

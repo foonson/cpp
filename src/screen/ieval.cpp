@@ -20,3 +20,7 @@ bool IEval::evaluate() {
   if (!needEvaluate()) return false;
   return evaluateImpl();
 }
+
+void IEval::clearLayer() {
+  _pLayer->clear();
+}

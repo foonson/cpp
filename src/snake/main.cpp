@@ -14,20 +14,18 @@ int main() {
   START();
 
   SnakeApp app;
-  
-  //SnakeGame game(app);
-  SPSnakeGame pGame = make_shared<SnakeGame>(app);
-
   // should move to SnakeApp
-  pGame->evaluations().push_back(make_shared<SnakeGameEval>(pGame->screenLayer(), 50, pGame));
-  pGame->evaluations().push_back(make_shared<FruitEval>(pGame->boardLayer(), 3000, pGame));
-  
-  pGame->startThreads();
 
-  try {
-  } catch (...) {
-    ERR << "main exception" << LEND;
-  }
+  SPSnakeGame pGame = make_shared<SnakeGame>(app);
+  app.pegMain()->evaluations().push_back(make_shared<SnakeGameEval>(pGame->screenLayer(), 50, pGame));
+  app.pegMain()->evaluations().push_back(make_shared<FruitEval>(pGame->boardLayer(), 3000, pGame));
+
+  app.startThreads();
+
+  //try {
+  //} catch (...) {
+  //  ERR << "main exception" << LEND;
+  //}
   END("");
 
 }

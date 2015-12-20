@@ -15,6 +15,7 @@ bool SnakeEval::needEvaluate() {
 bool SnakeEval::evaluateImpl() {
   //LOG << _pSnake->toString() << LEND;
   bool b = _pSnake->evaluate();
+  needRender(true);
   return b;
 }
 
@@ -50,13 +51,11 @@ string FruitInSnakeAnimation::toString() {
 bool FruitInSnakeAnimation::evaluateImpl() {
   //START("");
   bool draw = false;
-  //if (pass()) {
-    _fruitIndex++;
-    draw = true;
-    LOG << "_fruitIndex=" << _fruitIndex << LEND;
-  //}
-  //END("");
+  _fruitIndex++;
+  draw = true;
+  LOG << "_fruitIndex=" << _fruitIndex << LEND;
   //LOG << "draw=" << draw << LEND;
+  needRender(true);
   return draw;
 }
 
@@ -67,11 +66,7 @@ bool FruitInSnakeAnimation::completed() {
 void FruitInSnakeAnimation::render() {
   if (completed()) return;
   if (_pSnake->_status!=SA_LIVE) return;
-  //LOG << "completed()=" << completed() << LEND;
-  //LOG << _pLayer->toString() << LEND;
-  //LOG << "draw" << LEND;
   SnakeNode& node = _pSnake->_snakeNodes[_fruitIndex];
-  //_pLayer->text(node.x(), node.y(), RED, _pSnake->_body.bgColor, '@');
   _pLayer->text(node.x(), node.y(), WHITE, RED, '@');
 }
 
@@ -102,6 +97,7 @@ bool SnakeDeathAnimation::evaluateImpl() {
     _direct = SnakeCommand::clockwise(_direct);
     _round++;
   }
+  needRender(true);
   return draw;
 }
 

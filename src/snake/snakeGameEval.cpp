@@ -44,9 +44,13 @@ bool SnakeGameEval::onComplete() {
 
 bool SnakeGameEval::evaluateImpl() {
 
+  bool draw = false;
   for (auto& pSnake: game()->_vpSnakes) {
-    evalSnake(pSnake);
-  } 
+    if (evalSnake(pSnake)) {
+      draw = true;
+    }
+  }
+  needRender(draw);
 
 }
 
@@ -111,6 +115,8 @@ bool FruitEval::evaluateImpl() {
   
   SnakeNode n = SnakeNode(xy, SN_FRUIT);
   vFruits.push_back(n);
+
+  needRender(true);
  
 }
 

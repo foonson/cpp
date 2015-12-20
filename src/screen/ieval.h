@@ -13,6 +13,7 @@ public:
   virtual bool onComplete() = 0;
   virtual string toString() = 0;
 
+  virtual void clearLayer();
   virtual bool evaluate();
   virtual bool needEvaluate();
   virtual bool needRender();

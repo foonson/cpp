@@ -3,8 +3,11 @@
 
 #include "util/pch.h"
 
+#include <thread>
 #include "screen.h"
 #include "keyboard.h"
+#include "evalGroup.h"
+#include "ikeyListener.h"
 
 class Application {
 
@@ -19,14 +22,30 @@ public:
   void registerSignalHandler();
   virtual void dispose();
 
+  void evaluateLoop();
+  void listenCommandLoop();
+  //void renderLoop();
+  void startThreads();
+
+  vector<SPEvalGroup>& evalGroups() { return _vpEvalGroups; }
   Screen& screen() { return _screen; }
   Keyboard& keyboard() { return _keyboard; }
   bool _exit;
+
+  void addKeyListener(SPKeyListener listener_) {
+    _vpKeyListeners.push_back(listener_);
+  }
+  void addEvalGroup(SPEvalGroup pEvalGroup_) {
+    _vpEvalGroups.push_back(pEvalGroup_);
+  }
 
 private:
   bool _disposed;
   Screen _screen;
   Keyboard _keyboard;
+
+  vector<SPKeyListener> _vpKeyListeners;
+  vector<SPEvalGroup> _vpEvalGroups;
 };
 
 #endif

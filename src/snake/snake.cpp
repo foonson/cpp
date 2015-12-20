@@ -67,22 +67,12 @@ void Snake::init() {
   render();
 }
 
-void Snake::listenCommand(KEY key_, char ch_) {
+void Snake::keyListen(KEY key_, char ch_) {
   SnakeAction action = _fnKeyActionMap(key_, ch_);
   if (action!=SA_NOTHING) {
     _pcmdQueue->put(SnakeCommand(action));
   }
 }
-
-//bool Snake::evalAnimation() {
-//  bool draw = false;
-//  for(auto & pAnimation : _vpAnimations) {
-//    bool e = pAnimation->evaluate();
-//    draw = e||draw;
-//  }
-//  
-//  return draw;
-//}
 
 bool Snake::evalMove() {
   LOG << toString() << LEND;
@@ -172,22 +162,6 @@ bool Snake::evaluate() {
   if (draw) {
     render();
   }
-
-  //for (auto it=_vpAnimations.begin();it!=_vpAnimations.end();it++) {
-  /*
-  auto it = _vpAnimations.begin();
-  while(it!=_vpAnimations.end()) {
-    auto& n = *it;
-    if (n->completed()) {
-      n->onComplete();
-      it = _vpAnimations.erase(it);
-      LOG << "_vpAnumations.erase" << LEND;
-      //break;
-    } else {
-      it++;
-    }
-  }
-  */
 
   return draw;
 }

@@ -1,6 +1,5 @@
 #include "snakeGame.h"
 
-#include <thread>
 #include "screen/application.h"
 #include "screen/screen.h"
 #include "screen/keyboard.h"
@@ -51,10 +50,13 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
 
   _pAnimationLayer = _app.screen().createLayer(boardOffset, 3);
 
-  _vpEvaluations.push_back(make_shared<SnakeEval>(pLayer1, 100, pSnake1));
-  _vpEvaluations.push_back(make_shared<SnakeEval>(pLayer2, 100, pSnake2));
+  app().pegMain()->evaluations().push_back(make_shared<SnakeEval>(pLayer1, 100, pSnake1));
+  app().pegMain()->evaluations().push_back(make_shared<SnakeEval>(pLayer2, 100, pSnake2));
   //_vpEvaluations.push_back(make_shared<SnakeGameEval>(_pScreen, 50, shared_from_this()));
   //_vpEvaluations.push_back(make_shared<FruitEval>(_pBoard, 3000, shared_from_this()));
+
+  app().addKeyListener(pSnake1);
+  app().addKeyListener(pSnake2);
 
   END("");
 }
@@ -105,6 +107,13 @@ XY SnakeGame::randomEmptyXY() {
 }
 
 
+//void SnakeGame::listenCommand(KEY key_, char ch_) {
+//  SnakeAction action = _fnKeyActionMap(key_, ch_);
+//  if (action!=SA_NOTHING) {
+//    _pcmdQueue->put(SnakeCommand(action));
+//  }
+//}
+/*
 void SnakeGame::evaluateLoop() {
   START("");
   do {
@@ -119,32 +128,22 @@ void SnakeGame::evaluateLoop() {
     //for (auto& eval: _vpEvaluations) {
     size_t i = 0;
     while (i<_vpEvaluations.size()) {
-      //LOG << UString::toString(i) << LEND;
-      //LOG << UString::toString(_vpEvaluations.size()) << LEND;
-      //auto eval = *it;
-      auto& eval = _vpEvaluations[i];
-      LOG << eval->toString() << LEND;
-      eval->evaluate();
+      auto& pEval = _vpEvaluations[i];
+      LOG << pEval->toString() << LEND;
+      pEval->evaluate();
       i++;
     }
 
-    /*
-    for (auto& pSnake: _vpSnakes) {
-      string s = "Life:" + UString::toString(pSnake->_life);
-      _pScreen->text(1, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
-      s = "Length:" + UString::toString(pSnake->_length);
-      _pScreen->text(10, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
-      s = "Score:" + UString::toString(pSnake->_score);
-      _pScreen->text(20, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
-      //pSnake->evaluate();
-      evalSnake(pSnake);
-      row++; 
+    for (auto& pEval: _vpEvaluations) {
+      if (pEval->NeedRender()) {
+        pEval->clearLayer();
+      }
     }
-    */
-    //evalFruit();
 
-    for (auto& eval: _vpEvaluations) {
-      eval->render();
+    for (auto& pEval: _vpEvaluations) {
+      if (pEval->NeedRender()) {
+        pEval->render();
+      }
     }
 
     auto it = _vpEvaluations.begin();
@@ -165,56 +164,5 @@ void SnakeGame::evaluateLoop() {
   } while (true);
   END("");
 }
-
-void SnakeGame::listenCommandLoop() {
-  START("");
-  do {
-    //printf("listenCommandLoop");
-
-    if (_app._exit) {
-      break;
-    }   
-
-    KEY key;
-    char ch;
-    _app.keyboard().getKey(key, ch);
-    //LOG << ch << LEND;
-
-    for (auto& pSnake: _vpSnakes) {
-      pSnake->listenCommand(key, ch);
-    } 
-    
-    if (ch=='X') {
-      _app._exit = true;
-      break;
-    }
-
-  } while (true);
-  END("");
-}
-
-void SnakeGame::renderLoop() {
-
-  START("");
-  do {
-    if (_app._exit) {
-      break;
-    }   
-    _app.screen().render();
-    //this_thread::sleep_for(std::chrono::milliseconds(100));
-  } while (true);
-  END("");
-}
-
-void SnakeGame::startThreads() {
-  START("");
-  thread t1(&SnakeGame::listenCommandLoop, this);
-  //thread t2(&SnakeGame::renderLoop, this);
-  thread t3(&SnakeGame::evaluateLoop, this);
-
-  t1.join();
-  //t2.join();
-  t3.join();
-  END("");
-}
+*/
 
