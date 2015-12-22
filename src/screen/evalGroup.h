@@ -9,6 +9,9 @@ public:
   vector<SPEval>& evaluations() { return _vpEvaluations; }
   bool enabled() { return _enabled;}
   void enabled(bool enabled_) { _enabled = enabled_; }
+  void addEval(SPEval pEval_) {
+    _vpEvaluations.push_back(pEval_);
+  }
 
 private:
   bool _enabled;

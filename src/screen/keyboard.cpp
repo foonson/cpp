@@ -5,7 +5,7 @@ Keyboard::Keyboard() {
   _disposed = false;
   setbuf(stdout, NULL);
   // hide cursor
-  printf("\e[?25l");
+  printf(ESC33"?25l");
 
   tcgetattr(STDIN_FILENO, &_term);
   termios term = _term;
@@ -25,7 +25,8 @@ void Keyboard::dispose() {
   START("");
   if (!_disposed) {
     // show cursor
-    printf("\e[?25h");
+    printf(ESC33"?25h");
+    //_term.c_lflag |= ECHO;
     tcsetattr(STDIN_FILENO, TCSANOW, &_term);
     _disposed = true;
   }

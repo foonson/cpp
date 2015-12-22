@@ -66,7 +66,7 @@ public:
   void init();
   string toString() const;
 
-  void keyListen(KEY key_, char ch_);
+  virtual void keyListen(KEY key_, char ch_);
   bool evaluate();
   bool evalMove();
   bool evalLive();

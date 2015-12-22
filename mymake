@@ -21,5 +21,6 @@ $CCC -c src/snake/snakeEval.cpp -o lib/snakeEval.o
 $CCC -c src/snake/snakeGame.cpp -o lib/snakeGame.o
 $CCC -c src/snake/snakeApp.cpp -o lib/snakeApp.o
 $CCC -c src/snake/snakeGameEval.cpp -o lib/snakeGameEval.o
+$CCC -c src/snake/snakeAppEval.cpp -o lib/snakeAppEval.o
 $CCC lib/* src/snake/main.cpp -o snake.x
 

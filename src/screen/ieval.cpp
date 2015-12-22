@@ -24,3 +24,11 @@ bool IEval::evaluate() {
 void IEval::clearLayer() {
   _pLayer->clear();
 }
+
+bool IEval::completed() {
+  return false;
+}
+
+bool IEval::onComplete() {
+  return false;
+}

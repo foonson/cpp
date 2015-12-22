@@ -3,18 +3,20 @@
 
 #include "util/pch.h"
 
-#include "snake/snakeApp.h"
+#include "snakeApp.h"
 #include "screen/ieval.h"
 #include "snake.h"
 #include "snakeEval.h"
 
-class SnakeGame { //: std::enable_shared_from_this<SnakeGame> {
+class SnakeGame : public std::enable_shared_from_this<SnakeGame> {
 public:
 
   friend class SnakeGameEval;
   friend class FruitEval;
 
-  SnakeGame(SnakeApp& app_);
+  SnakeGame(weak_ptr<SnakeApp> pApp_);
+  void setup();
+
   SPSnake createSnake(SPLayer pLayer_);
 
   SnakeNode getNode(const XY& xy_);
@@ -27,15 +29,15 @@ public:
 
   vector<SnakeNode>& fruits() { return _vFruits; }
 
-  SnakeApp& app() { return _app; }
+  SPSnakeApp app();
 
   template<typename T>
   void addSnakeEvaluation(SPLayer pLayer_, long interval_, SPSnake pSnake_) {
-    app().pegMain()->evaluations().push_back(make_shared<T>(pLayer_, interval_, pSnake_));
+    app()->pegMain()->addEval(make_shared<T>(pLayer_, interval_, pSnake_));
   }
 
 private:
-  SnakeApp& _app;
+  WPSnakeApp _pApp;
   SPLayer _pScreen;
   SPLayer _pBoard;
   SPLayer _pAnimationLayer;
@@ -47,5 +49,6 @@ private:
 };
 
 typedef shared_ptr<SnakeGame> SPSnakeGame;
+typedef weak_ptr<SnakeGame> WPSnakeGame;
 
 #endif

@@ -61,7 +61,6 @@ void Application::registerSignalHandler() {
   std::signal(SIGFPE, signalHandler);
 }
 
-
 void Application::listenCommandLoop() {
   START("");
   do {
@@ -75,18 +74,10 @@ void Application::listenCommandLoop() {
     _keyboard.getKey(key, ch);
     //LOG << ch << LEND;
 
-    //for (auto& pSnake: _vpSnakes) {
-    //  pSnake->listenCommand(key, ch);
-    //}
     for (auto& pListener: _vpKeyListeners) {
       pListener->keyListen(key, ch);
     }
     
-    if (ch=='X') {
-      _exit = true;
-      break;
-    }
-
   } while (true);
   END("");
 }

@@ -35,13 +35,6 @@ void SnakeGameEval::render() {
   } 
 }
 
-bool SnakeGameEval::completed() {
-  return false;
-}
-
-bool SnakeGameEval::onComplete() {
-}
-
 bool SnakeGameEval::evaluateImpl() {
 
   bool draw = false;
@@ -127,7 +120,6 @@ Pixel FruitEval::createFruitPixel(const SnakeNode& fruit_) {
   return Pixel((XY)fruit_, BLACK, YELLOW, '*');
 }
 
-
 string FruitEval::toString() {
   return "FruitEval";
 }
@@ -143,13 +135,7 @@ void FruitEval::render() {
     } else {
       fruit.type(SN_FRUIT);
     }
-    game()->_pBoard->text(createFruitPixel(fruit));
+    _pLayer->text(createFruitPixel(fruit));
   }
 }
 
-bool FruitEval::completed() {
-  return false;
-}
-
-bool FruitEval::onComplete() {
-}

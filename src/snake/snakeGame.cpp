@@ -11,7 +11,12 @@
 #include <stdlib.h>  // rand
 #include <functional> // std:function
 
-SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
+SnakeGame::SnakeGame(WPSnakeApp pApp_): _pApp(pApp_) {
+}
+
+SPSnakeApp SnakeGame::app() { return _pApp.lock(); }
+
+void SnakeGame::setup() {
   START("");
 
   XY boardOffset(0,2);
@@ -19,16 +24,15 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   _maxFruit = 10;
   _counter = 0;
 
-  Screen& screen = _app.screen();
+  Screen& screen = app()->screen();
 
   screen.body(Pixel(0, 0, 17, 17, ' '));
   screen.clear();
 
-  _pScreen = _app.screen().createLayer(XY(0,0), 0);
-  _pBoard = _app.screen().createLayer(boardOffset, 0);
-  //_screen.render();
+  _pScreen = app()->screen().createLayer(XY(0,0), 0);
+  _pBoard = app()->screen().createLayer(boardOffset, 0);
 
-  shared_ptr<Layer> pLayer1 = _app.screen().createLayer(boardOffset, 1);
+  shared_ptr<Layer> pLayer1 = app()->screen().createLayer(boardOffset, 1);
   SPSnake pSnake1 = createSnake(pLayer1);
   pSnake1->_fnKeyActionMap = snake1KeyActionMap;
   pSnake1->_pcmdQueue = new SyncQueue<SnakeCommand>;
@@ -38,7 +42,7 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   pSnake1->_life = 3;
   pSnake1->init();
 
-  shared_ptr<Layer> pLayer2 = _app.screen().createLayer(boardOffset, 2);
+  shared_ptr<Layer> pLayer2 = app()->screen().createLayer(boardOffset, 2);
   SPSnake pSnake2 = createSnake(pLayer2);
   pSnake2->_fnKeyActionMap = snake2KeyActionMap;
   pSnake2->_pcmdQueue = new SyncQueue<SnakeCommand>;
@@ -48,15 +52,17 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
   pSnake2->_life = 3;
   pSnake2->init();
 
-  _pAnimationLayer = _app.screen().createLayer(boardOffset, 3);
+  _pAnimationLayer = app()->screen().createLayer(boardOffset, 3);
 
-  app().pegMain()->evaluations().push_back(make_shared<SnakeEval>(pLayer1, 100, pSnake1));
-  app().pegMain()->evaluations().push_back(make_shared<SnakeEval>(pLayer2, 100, pSnake2));
+  app()->pegMain()->addEval(make_shared<SnakeGameEval>(screenLayer(), 50, shared_from_this()));
+  app()->pegMain()->addEval(make_shared<FruitEval>(boardLayer(), 3000, shared_from_this()));
+  app()->pegMain()->addEval(make_shared<SnakeEval>(pLayer1, 100, pSnake1));
+  app()->pegMain()->addEval(make_shared<SnakeEval>(pLayer2, 100, pSnake2));
   //_vpEvaluations.push_back(make_shared<SnakeGameEval>(_pScreen, 50, shared_from_this()));
   //_vpEvaluations.push_back(make_shared<FruitEval>(_pBoard, 3000, shared_from_this()));
 
-  app().addKeyListener(pSnake1);
-  app().addKeyListener(pSnake2);
+  app()->addKeyListener(pSnake1);
+  app()->addKeyListener(pSnake2);
 
   END("");
 }
@@ -65,9 +71,6 @@ SnakeGame::SnakeGame(SnakeApp& app_): _app(app_) {
 SPSnake SnakeGame::createSnake(SPLayer pLayer_) {
   auto pSnake = make_shared<Snake>(*this, pLayer_);
   _vpSnakes.push_back(pSnake);
-  //Snake& snake = _vpSnakes.back();
-  //pSnake->setLayer(layer_);
-  //pSnake->_fnKeyActionMap = fnKeyActionMap_;
   return pSnake;
 } 
 
@@ -91,7 +94,7 @@ SnakeNode SnakeGame::getNode(const XY& xy_) {
 
 XY SnakeGame::randomEmptyXY() {
   
-  XY max = _app.screen().maxXY();
+  XY max = app()->screen().maxXY();
   XY min = XY(1,1);
 
   do {
@@ -121,7 +124,7 @@ void SnakeGame::evaluateLoop() {
     _pScreen->text(50, 1, WHITE, BLACK, UString::toString(_counter));
     
     animationLayer()->clear();
-    if (app()._exit) {
+    if (app()->_exit) {
       break;
     }   
 
@@ -159,7 +162,7 @@ void SnakeGame::evaluateLoop() {
       }
     }
 
-    app().screen().render();
+    app()->screen().render();
     //this_thread::sleep_for(std::chrono::milliseconds(100));
   } while (true);
   END("");

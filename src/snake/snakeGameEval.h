@@ -26,9 +26,10 @@ public:
   SnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_);
   virtual bool evaluateImpl();
   virtual void render();
-  virtual bool completed();
-  virtual bool onComplete();
   virtual string toString();
+  //virtual bool completed();
+  //virtual bool onComplete();
+
 private:
   bool evalSnake(SPSnake pSnake_);
 };
@@ -38,9 +39,9 @@ public:
   FruitEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_);
   virtual bool evaluateImpl();
   virtual void render();
-  virtual bool completed();
-  virtual bool onComplete();
   virtual string toString();
+  //virtual bool completed();
+  //virtual bool onComplete();
 
 private:
   Pixel createFruitPixel(const SnakeNode& fruit_);

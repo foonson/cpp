@@ -75,7 +75,6 @@ void Snake::keyListen(KEY key_, char ch_) {
 }
 
 bool Snake::evalMove() {
-  LOG << toString() << LEND;
   bool moved = false;
 
   XY max = _pLayer->maxXY();
@@ -151,17 +150,10 @@ bool Snake::evaluate() {
     if (_life<=0) return draw;
   }
 
-  // animation
-  //for (auto& pAnimation: _vpAnimations) {
-  //  bool e = pAnimation->evaluate();
-  //  draw = e||draw;
-  //}
-
-
   //LOG << "draw=" << draw << LEND;
-  if (draw) {
-    render();
-  }
+  //if (draw) {
+  //  render();
+  //}
 
   return draw;
 }
@@ -246,17 +238,12 @@ void Snake::speedup() {
 void Snake::render() {
   //START("");
   //LOG << toString() << LEND;
-  _pLayer->clear();
+  //_pLayer->clear();
 
   // Body
   for (auto& i: _snakeNodes) {
     _pLayer->text(i._x, i._y, _body);
   }
-
-  // Animation
-  //for (auto& pAnimation: _vpAnimations) {
-  //  pAnimation->render();
-  //}
 
   // Head
   if (_status==SA_LIVE) {
