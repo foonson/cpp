@@ -69,15 +69,11 @@ void Application::listenCommandLoop() {
       break;
     }   
 
-    KEY key;
-    char ch;
-    _keyboard.getKey(key, ch);
+    Key key;
+    _keyboard.getKey(key);
     //LOG << ch << LEND;
+    _queueKey.put(key);
 
-    for (auto& pListener: _vpKeyListeners) {
-      pListener->keyListen(key, ch);
-    }
-    
   } while (true);
   END("");
 }
@@ -89,12 +85,27 @@ void Application::evaluateLoop() {
     
     if (_exit) {
       break;
-    }   
+    }
+
+    optional<Key> opKey = std::experimental::nullopt;
+
+    if (!_queueKey.empty()) {
+      opKey = _queueKey.get();
+    }
 
     for (auto& pEvalGroup: _vpEvalGroups) {
       if (!pEvalGroup->enabled()) {
         continue;
       }
+
+      if (opKey) {
+        auto& key = *opKey;//.value();
+        auto& vpListeners = pEvalGroup->keyListeners();
+        for (auto& pListener: vpListeners) {
+          pListener->keyListen(key);
+        }
+      }
+
       auto& vpEvals = pEvalGroup->evaluations();
 
       size_t i = 0;

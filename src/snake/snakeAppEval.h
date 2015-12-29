@@ -3,6 +3,7 @@
 
 #include "util/pch.h"
 #include "screen/ieval.h"
+#include "screen/ikeyListener.h"
 #include "snakeApp.h"
 
 enum SnakeAppStatus {
@@ -20,7 +21,7 @@ public:
   virtual void render();
   virtual string toString();
 
-  virtual void keyListen(KEY key_, char ch_);
+  virtual void keyListen(const Key& key_);
 
   //virtual bool needEvaluate();
   //virtual bool completed();

@@ -21,8 +21,8 @@ void SnakeApp::setup() {
   _pegApp->enabled(true);
   auto pSnakeAppEval = make_shared<SnakeAppEval>(pLayerPreGame, 1000, shared_from_this());
   _pegApp->addEval(make_shared<SnakeAppEval>(pLayerPreGame, 1000, shared_from_this()));
+  _pegApp->addKeyListener(pSnakeAppEval);  
   addEvalGroup(_pegApp);
-  addKeyListener(pSnakeAppEval);  
 
   _pegMain = make_shared<EvalGroup>();
   _pegMain->enabled(false);

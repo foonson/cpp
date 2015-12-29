@@ -1,38 +1,40 @@
 #include "snake.h"
 #include "snakeGame.h"
-//#include "snakeEval.h"
 
-SnakeAction commonKeyActionMap(KEY key_, char ch_) {
-  if (ch_=='X') {
+SnakeAction commonKeyActionMap(const Key& key_) {
+  char ch = key_._ch;
+  if (ch=='X') {
     return SA_EXIT;
   }
   return SA_NOTHING;
 }
 
-SnakeAction snake1KeyActionMap(KEY key_, char ch_) {
-  if (key_==KEY_UP) {
+SnakeAction snake1KeyActionMap(const Key& key_) {
+  KEY key = key_._key;
+  if (key==KEY_UP) {
     return SA_UP;
-  } else if (key_==KEY_DOWN) {
+  } else if (key==KEY_DOWN) {
     return SA_DOWN;
-  } else if (key_==KEY_LEFT) {
+  } else if (key==KEY_LEFT) {
     return SA_LEFT;
-  } else if (key_==KEY_RIGHT) {
+  } else if (key==KEY_RIGHT) {
     return SA_RIGHT;
   }
-  return commonKeyActionMap(key_, ch_);
+  return commonKeyActionMap(key_);
 }
 
-SnakeAction snake2KeyActionMap(KEY key_, char ch_) {
-  if (ch_=='w') {
+SnakeAction snake2KeyActionMap(const Key& key_) {
+  char ch = key_._ch;
+  if (ch=='w') {
     return SA_UP;
-  } else if (ch_=='s') {
+  } else if (ch=='s') {
     return SA_DOWN;
-  } else if (ch_=='a') {
+  } else if (ch=='a') {
     return SA_LEFT;
-  } else if (ch_=='d') {
+  } else if (ch=='d') {
     return SA_RIGHT;
   }
-  return commonKeyActionMap(key_, ch_);
+  return commonKeyActionMap(key_);
 }
 
 Snake::Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_) : _game(game_), _pLayer(pLayer_) {
@@ -58,7 +60,6 @@ SnakeNode& Snake::head() {
 void Snake::init() {
   _head.xy(_game.randomEmptyXY());
   _direct = SnakeCommand::randomDirect();
-  _lastMoveEvaluation = std::chrono::system_clock::now(); 
   _moveTick.interval(300);
   _snakeNodes.clear();  
   _length = 2;
@@ -67,10 +68,14 @@ void Snake::init() {
   render();
 }
 
-void Snake::keyListen(KEY key_, char ch_) {
-  SnakeAction action = _fnKeyActionMap(key_, ch_);
+void Snake::keyListen(const Key& key_) {
+  SnakeAction action = _fnKeyActionMap(key_);
   if (action!=SA_NOTHING) {
-    _pcmdQueue->put(SnakeCommand(action));
+    //_pcmdQueue->put(SnakeCommand(action));
+    SnakeCommand cmd(action);
+    if (cmd.isMovement()) {
+      _direct = cmd.action();
+    }
   }
 }
 
@@ -146,7 +151,7 @@ bool Snake::evaluate() {
   }
 
   if (_status==SA_DEAD) {
-    bool e = evalDead();
+    evalDead();
     if (_life<=0) return draw;
   }
 
@@ -160,15 +165,15 @@ bool Snake::evaluate() {
 
 bool Snake::evalLive() {
 
-  SnakeAction action = SA_NOTHING;
+  //SnakeAction action = SA_NOTHING;
   bool draw = false;
 
   //do {
     //if (_pcmdQueue->empty()) {
     //  break;
     //}
-    SnakeCommand cmd = _pcmdQueue->get();
-    action = cmd.action();
+    //SnakeCommand cmd = *(_pcmdQueue->get());//.value();
+    //action = cmd.action();
     //if (action==SNAKE_NOTHING) {
     //  break;
     //}
@@ -178,13 +183,13 @@ bool Snake::evalLive() {
   //  action = _lastAction;
   //}
 
-  if (action==SA_EXIT) {
-    return draw;
-  }
-  if (cmd.isMovement()) {
-    _direct = cmd.action();
-    draw = true;
-  }
+  //if (action==SA_EXIT) {
+  //  return draw;
+  //}
+  //if (cmd.isMovement()) {
+  //  _direct = cmd.action();
+  //  draw = true;
+  //}
 
   // move
   //if (UTime::pass(_lastMoveEvaluation, _msMove)) {

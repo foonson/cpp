@@ -12,14 +12,13 @@ class SyncQueue {
 
 public:
   void put(const T& cmd_);
-  T get();
+  optional<T> get();
   bool empty();
   size_t size();
 private:
   deque<T> _queue;
   mutex _mutex;
 };
-
 
 template<typename T>
 bool SyncQueue<T>::empty() { return _queue.empty(); }
@@ -34,12 +33,15 @@ void SyncQueue<T>::put(const T& cmd_) {
 }
 
 template<typename T>
-T SyncQueue<T>::get() {
+optional<T> SyncQueue<T>::get() {
   lock_guard<mutex> lock(_mutex);
-  if (_queue.empty()) return T();
+  if (_queue.empty()) {
+    //return T();
+    return std::experimental::nullopt;
+  }
   T node = _queue.front();
   _queue.pop_front();
-  return node;
+  return optional<T>(node);
 }
 
 #endif

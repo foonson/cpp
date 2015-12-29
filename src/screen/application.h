@@ -6,8 +6,9 @@
 #include <thread>
 #include "screen.h"
 #include "keyboard.h"
+#include "key.h"
 #include "evalGroup.h"
-#include "ikeyListener.h"
+#include "util/syncQueue"
 
 class Application {
 
@@ -32,9 +33,9 @@ public:
   Keyboard& keyboard() { return _keyboard; }
   bool _exit;
 
-  void addKeyListener(SPKeyListener listener_) {
-    _vpKeyListeners.push_back(listener_);
-  }
+  //void addKeyListener(SPKeyListener listener_) {
+  //  _vpKeyListeners.push_back(listener_);
+  //}
   void addEvalGroup(SPEvalGroup pEvalGroup_) {
     _vpEvalGroups.push_back(pEvalGroup_);
   }
@@ -44,8 +45,9 @@ private:
   Screen _screen;
   Keyboard _keyboard;
 
-  vector<SPKeyListener> _vpKeyListeners;
+  //vector<SPKeyListener> _vpKeyListeners;
   vector<SPEvalGroup> _vpEvalGroups;
+  SyncQueue<Key> _queueKey;
 };
 
 #endif

@@ -8,17 +8,15 @@
 #include "screen/layer.h"
 #include "screen/keyboard.h"
 #include "screen/ikeyListener.h"
-#include "util/syncQueue"
 #include "snakeCommand.h"
-
-#include "screen/application.h" // IKeyListener
+//#include "screen/application.h" // IKeyListener
 
 #include <functional> // std:function
 #include <deque>
 
-SnakeAction snake1KeyActionMap(KEY key_, char ch_); 
-SnakeAction snake2KeyActionMap(KEY key_, char ch_); 
-SnakeAction commonKeyActionMap(KEY key_, char ch_); 
+SnakeAction snake1KeyActionMap(const Key& key_); 
+SnakeAction snake2KeyActionMap(const Key& key_); 
+SnakeAction commonKeyActionMap(const Key& key_); 
 
 class SnakeGame;
 
@@ -66,7 +64,7 @@ public:
   void init();
   string toString() const;
 
-  virtual void keyListen(KEY key_, char ch_);
+  virtual void keyListen(const Key& key_);
   bool evaluate();
   bool evalMove();
   bool evalLive();
@@ -89,16 +87,14 @@ public:
   SnakeAction status() { return _status; }
   SnakeGame& game() { return _game; }
 
-  function<SnakeAction(KEY, char)> _fnKeyActionMap;
-  SyncQueue<SnakeCommand>* _pcmdQueue;
+  function<SnakeAction(const Key&)> _fnKeyActionMap;
+  //SyncQueue<SnakeCommand>* _pcmdQueue;
   Pixel _body;
   SnakeNode _head;
   int _life;
   int _length;
   int _score;
   int _id;
-  //int _msMove;
-  //vector<SPEval> _vpAnimations;
   Tick& moveTick() { return _moveTick; }
   
   SnakeAction _status;
@@ -107,9 +103,6 @@ private:
   Tick _moveTick;
   SnakeGame& _game;
   SPLayer _pLayer;
-
-  std::chrono::time_point<std::chrono::system_clock> _lastMoveEvaluation;
-  
   deque<SnakeNode> _snakeNodes; 
   SnakeAction _direct;
 };

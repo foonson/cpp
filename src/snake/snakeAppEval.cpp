@@ -21,26 +21,27 @@ string SnakeAppEval::toString() {
   return "SnakeAppEval";
 }
 
-void SnakeAppEval::keyListen(KEY key_, char ch_) {
-  if (ch_=='X') {
+void SnakeAppEval::keyListen(const Key& key_) {
+  char ch = key_._ch;
+  if (ch=='X') {
     app()->_exit = true;
   }
 
   if (_status==SAS_PREGAME) {
-    if (ch_==' ') {
+    if (ch==' ') {
       app()->pegMain()->enabled(true); 
       _status = SAS_GAME;
     }
   }
   if (_status==SAS_PAUSE) {
-    if (ch_=='2') {
+    if (ch=='2') {
       app()->pegMain()->enabled(true); 
       _status = SAS_GAME;
     }
   }
 
   if (_status==SAS_GAME) {
-    if (ch_=='1') {
+    if (ch=='1') {
       app()->pegMain()->enabled(false); 
       _status = SAS_PAUSE;
     }

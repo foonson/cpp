@@ -3,7 +3,6 @@
 #include "screen/application.h"
 #include "screen/screen.h"
 #include "screen/keyboard.h"
-#include "util/syncQueue"
 #include "snakeCommand.h"
 #include "snake.h"
 #include "snakeEval.h"
@@ -35,7 +34,7 @@ void SnakeGame::setup() {
   shared_ptr<Layer> pLayer1 = app()->screen().createLayer(boardOffset, 1);
   SPSnake pSnake1 = createSnake(pLayer1);
   pSnake1->_fnKeyActionMap = snake1KeyActionMap;
-  pSnake1->_pcmdQueue = new SyncQueue<SnakeCommand>;
+  //pSnake1->_pcmdQueue = new SyncQueue<SnakeCommand>;
   pSnake1->_body = Pixel(0,0,BLACK,LPURPLE,'X');
   pSnake1->_id = 1;
   pSnake1->_head = SnakeNode(10, 10, SN_BODY);
@@ -45,7 +44,7 @@ void SnakeGame::setup() {
   shared_ptr<Layer> pLayer2 = app()->screen().createLayer(boardOffset, 2);
   SPSnake pSnake2 = createSnake(pLayer2);
   pSnake2->_fnKeyActionMap = snake2KeyActionMap;
-  pSnake2->_pcmdQueue = new SyncQueue<SnakeCommand>;
+  //pSnake2->_pcmdQueue = new SyncQueue<SnakeCommand>;
   pSnake2->_body = Pixel(0,0,WHITE,BLUE,'O');
   pSnake2->_id = 2;
   pSnake2->_head = SnakeNode(20, 20, SN_BODY);
@@ -54,15 +53,16 @@ void SnakeGame::setup() {
 
   _pAnimationLayer = app()->screen().createLayer(boardOffset, 3);
 
-  app()->pegMain()->addEval(make_shared<SnakeGameEval>(screenLayer(), 50, shared_from_this()));
-  app()->pegMain()->addEval(make_shared<FruitEval>(boardLayer(), 3000, shared_from_this()));
-  app()->pegMain()->addEval(make_shared<SnakeEval>(pLayer1, 100, pSnake1));
-  app()->pegMain()->addEval(make_shared<SnakeEval>(pLayer2, 100, pSnake2));
+  auto pegMain = app()->pegMain();
+  pegMain->addEval(make_shared<SnakeGameEval>(screenLayer(), 50, shared_from_this()));
+  pegMain->addEval(make_shared<FruitEval>(boardLayer(), 3000, shared_from_this()));
+  pegMain->addEval(make_shared<SnakeEval>(pLayer1, 100, pSnake1));
+  pegMain->addEval(make_shared<SnakeEval>(pLayer2, 100, pSnake2));
+  pegMain->addKeyListener(pSnake1);
+  pegMain->addKeyListener(pSnake2);
   //_vpEvaluations.push_back(make_shared<SnakeGameEval>(_pScreen, 50, shared_from_this()));
   //_vpEvaluations.push_back(make_shared<FruitEval>(_pBoard, 3000, shared_from_this()));
 
-  app()->addKeyListener(pSnake1);
-  app()->addKeyListener(pSnake2);
 
   END("");
 }
@@ -110,12 +110,6 @@ XY SnakeGame::randomEmptyXY() {
 }
 
 
-//void SnakeGame::listenCommand(KEY key_, char ch_) {
-//  SnakeAction action = _fnKeyActionMap(key_, ch_);
-//  if (action!=SA_NOTHING) {
-//    _pcmdQueue->put(SnakeCommand(action));
-//  }
-//}
 /*
 void SnakeGame::evaluateLoop() {
   START("");

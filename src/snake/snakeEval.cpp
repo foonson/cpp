@@ -114,8 +114,8 @@ bool SnakeDeathAnimation::onComplete() {
 void SnakeDeathAnimation::render() {
   if (completed()) return;
   //START("");
-  LOG << "snakeNodes.size()" << _pSnake->_snakeNodes.size() << LEND;
-  LOG << _pLayer->toString() << LEND;
+  //LOG << "snakeNodes.size()" << _pSnake->_snakeNodes.size() << LEND;
+  //LOG << _pLayer->toString() << LEND;
   //if (_pSnake->_status!=SA_DYING) return;
   SnakeNode& head = _pSnake->head();
   _pLayer->text(head.x(), head.y(), RED, BLACK, SnakeCommand::toChar(_direct));

@@ -30,12 +30,4 @@ enum COLOR {
   WHITE  =15
 };
 
-enum KEY {
-  KEY_NORMAL = 0,
-  KEY_UP,
-  KEY_DOWN,
-  KEY_LEFT,
-  KEY_RIGHT
-};
-
 #endif

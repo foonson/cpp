@@ -4,7 +4,6 @@
 Screen::Screen() : _frame0(*this), _frame1(*this), _tick(50) {
   START("");
   _disposed = false;
-  //_frameInterval = 50;
   END("");
 }
 
@@ -107,8 +106,6 @@ void Screen::switchFrame() {
 void Screen::render() {
 
   if (!_tick.pass()) return;
-  //if (!UTime::pass(_lastRender, _frameInterval)) return;
-  //_lastRender = UTime::now(); 
 
   Layer& cur = current();
   Layer& tar = target();

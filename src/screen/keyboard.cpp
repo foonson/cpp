@@ -34,25 +34,30 @@ void Keyboard::dispose() {
 }
 
 
-bool Keyboard::getKey(KEY& key_, char& ch_) {
+//bool Keyboard::getKey(KEY& key_, char& ch_) {
+bool Keyboard::getKey(Key& key_) {
   char ch=getchar();
+  KEY key = KEY_NORMAL;
   if (ch==27) {
     ch=getchar();
     if (ch==91) {
       ch=getchar();
       if (ch==65) {
-        key_ = KEY_UP;
+        key = KEY_UP;
       } else if (ch==66) {
-        key_ = KEY_DOWN;
+        key = KEY_DOWN;
       } else if (ch==68) {
-        key_ = KEY_LEFT;
+        key = KEY_LEFT;
       } else if (ch==67) {
-        key_ = KEY_RIGHT;
+        key = KEY_RIGHT;
       }
     }
   } else {
-    key_ = KEY_NORMAL;
-    ch_ = ch;
+    key = KEY_NORMAL;
   }
+
+  key_._key = key;
+  key_._ch = ch;
+
   return true;
 }
