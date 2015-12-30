@@ -56,8 +56,15 @@ void SnakeGame::setup() {
   auto pegMain = app()->pegMain();
   pegMain->addEval(make_shared<SnakeGameEval>(screenLayer(), 50, shared_from_this()));
   pegMain->addEval(make_shared<FruitEval>(boardLayer(), 3000, shared_from_this()));
-  pegMain->addEval(make_shared<SnakeEval>(pLayer1, 100, pSnake1));
-  pegMain->addEval(make_shared<SnakeEval>(pLayer2, 100, pSnake2));
+
+  auto pSnakeEval1 = make_shared<SnakeEval>(pLayer1, 100, pSnake1);
+  auto pSnakeEval2 = make_shared<SnakeEval>(pLayer2, 100, pSnake2);
+
+  pSnake1->snakeEval(pSnakeEval1);
+  pSnake2->snakeEval(pSnakeEval2);
+  pegMain->addEval(pSnakeEval1);
+  pegMain->addEval(pSnakeEval2);
+
   pegMain->addKeyListener(pSnake1);
   pegMain->addKeyListener(pSnake2);
   //_vpEvaluations.push_back(make_shared<SnakeGameEval>(_pScreen, 50, shared_from_this()));

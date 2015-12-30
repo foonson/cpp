@@ -9,7 +9,6 @@
 #include "screen/keyboard.h"
 #include "screen/ikeyListener.h"
 #include "snakeCommand.h"
-//#include "screen/application.h" // IKeyListener
 
 #include <functional> // std:function
 #include <deque>
@@ -88,7 +87,6 @@ public:
   SnakeGame& game() { return _game; }
 
   function<SnakeAction(const Key&)> _fnKeyActionMap;
-  //SyncQueue<SnakeCommand>* _pcmdQueue;
   Pixel _body;
   SnakeNode _head;
   int _life;
@@ -99,12 +97,18 @@ public:
   
   SnakeAction _status;
 
+  void snakeEval(SPEval pEval) {
+    _pSnakeEval = pEval;
+  }
+
 private:
   Tick _moveTick;
   SnakeGame& _game;
   SPLayer _pLayer;
   deque<SnakeNode> _snakeNodes; 
   SnakeAction _direct;
+
+  WPEval _pSnakeEval;
 };
 
 typedef shared_ptr<Snake> SPSnake;

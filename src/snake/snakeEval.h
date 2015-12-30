@@ -18,21 +18,19 @@ protected:
 class SnakeEval : public ISnakeEval {
 public:
   SnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_);
-  bool evaluateImpl();
-  bool needEvaluate();
-  bool completed();
-  void render();
-  bool onComplete();
+  virtual bool evaluateImpl();
+  virtual bool needEvaluate();
+  virtual void render();
   virtual string toString();
 };
 
 class FruitInSnakeAnimation : public ISnakeEval {
 public:
   FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
-  bool evaluateImpl();
-  bool completed();
-  void render();
-  bool onComplete();
+  virtual bool evaluateImpl();
+  virtual bool completed();
+  virtual void render();
+  virtual bool onComplete();
   virtual string toString();
 
 private:
@@ -43,10 +41,10 @@ private:
 class SnakeDeathAnimation : public ISnakeEval {
 public:
   SnakeDeathAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
-  bool evaluateImpl();
-  bool completed();
-  void render();
-  bool onComplete();
+  virtual bool evaluateImpl();
+  virtual bool completed();
+  virtual void render();
+  virtual bool onComplete();
   virtual string toString();
 
 private:
@@ -54,6 +52,5 @@ private:
   size_t _originalLength;
   size_t _round;
 };
-
 
 #endif

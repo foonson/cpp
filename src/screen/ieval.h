@@ -18,14 +18,17 @@ public:
   virtual bool needEvaluate();
   virtual bool needRender();
   virtual void needRender(bool needRender_);
+  virtual void forceEvaluate(bool forceEval_);
 
 protected:
   SPLayer _pLayer;
   Tick _tick;
   bool _needRender;
+  bool _forceEval;
   
 };
 
 typedef shared_ptr<IEval> SPEval;
+typedef weak_ptr<IEval> WPEval;
 
 #endif

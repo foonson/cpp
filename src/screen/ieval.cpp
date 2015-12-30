@@ -5,6 +5,10 @@ IEval::IEval(SPLayer pLayer_, long interval_) : _pLayer(pLayer_), _tick(interval
 }
 
 bool IEval::needEvaluate() {
+  if (_forceEval) {
+    _forceEval = false;
+    return true;
+  }
   return _tick.pass();
 }
 
@@ -14,6 +18,10 @@ bool IEval::needRender() {
 
 void IEval::needRender(bool needRender_) {
   _needRender = needRender_;
+}
+
+void IEval::forceEvaluate(bool forceEval_) {
+  _forceEval = forceEval_;
 }
 
 bool IEval::evaluate() {

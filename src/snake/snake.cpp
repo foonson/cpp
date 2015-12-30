@@ -1,5 +1,6 @@
 #include "snake.h"
 #include "snakeGame.h"
+#include "auplay/AudioPlayer.h"
 
 SnakeAction commonKeyActionMap(const Key& key_) {
   char ch = key_._ch;
@@ -71,10 +72,17 @@ void Snake::init() {
 void Snake::keyListen(const Key& key_) {
   SnakeAction action = _fnKeyActionMap(key_);
   if (action!=SA_NOTHING) {
-    //_pcmdQueue->put(SnakeCommand(action));
     SnakeCommand cmd(action);
     if (cmd.isMovement()) {
-      _direct = cmd.action();
+      auto pEval = _pSnakeEval.lock();
+      if (cmd.action()==_direct) {
+        if (pEval) {
+          pEval->forceEvaluate(true);
+        }
+      } else {
+        _direct = cmd.action();
+      }
+      pEval->needRender(true);
     }
   }
 }
@@ -205,6 +213,11 @@ bool Snake::evalLive() {
 
 bool Snake::eatFruit(const SnakeNode& fruit) {
   LOG << toString() << LEND;
+
+  AudioPlayer* ap=(AudioPlayer::file("./sound/eat.wav"));
+  if(ap) {
+    ap->play();
+  }
 
   //FruitInSnakeAnimation* pAnimation = new FruitInSnakeAnimation(game().animationLayer(), 10, SPSnake(this));
   //_vpAnimations.push_back(shared_ptr<FruitInSnakeAnimation>(pAnimation));

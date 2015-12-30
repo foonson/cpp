@@ -71,8 +71,8 @@ void Application::listenCommandLoop() {
 
     Key key;
     _keyboard.getKey(key);
-    //LOG << ch << LEND;
     _queueKey.put(key);
+    LOG << key._ch << LEND;
 
   } while (true);
   END("");
@@ -125,6 +125,7 @@ void Application::evaluateLoop() {
       for (auto& pEval: vpEvals) {
         if (pEval->needRender()) {
           pEval->render();
+          pEval->needRender(false);
         }
       }
 
@@ -147,7 +148,6 @@ void Application::evaluateLoop() {
   } while (true);
   END("");
 }
-
 
 /*
 void Application::renderLoop() {

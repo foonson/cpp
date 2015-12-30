@@ -9,6 +9,10 @@ SnakeEval::SnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_) : ISnakeE
 }
 
 bool SnakeEval::needEvaluate() {
+  if (_forceEval) {
+    _forceEval = false;
+    return true;
+  }
   return _pSnake->moveTick().pass();
 }
 
@@ -21,14 +25,6 @@ bool SnakeEval::evaluateImpl() {
 
 void SnakeEval::render() {
   _pSnake->render();
-}
-
-bool SnakeEval::completed() {
-  return false;
-}
-
-bool SnakeEval::onComplete() {
-  return false;
 }
 
 string SnakeEval::toString() {
