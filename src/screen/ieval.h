@@ -20,11 +20,19 @@ public:
   virtual void needRender(bool needRender_);
   virtual void forceEvaluate(bool forceEval_);
 
+  void addDependEval(shared_ptr<IEval> pEval_) {
+    _vpDependEvals.push_back(pEval_);
+  }
+  
+  void triggerDependEvals();
+
 protected:
   SPLayer _pLayer;
   Tick _tick;
   bool _needRender;
   bool _forceEval;
+
+  vector<shared_ptr<IEval>> _vpDependEvals;
   
 };
 

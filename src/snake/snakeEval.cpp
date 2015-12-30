@@ -31,6 +31,21 @@ string SnakeEval::toString() {
   return "SnakeEval";
 }
 
+void SnakeEval::keyListen(const Key& key_) {
+  SnakeAction action = _pSnake->_fnKeyActionMap(key_);
+  if (action!=SA_NOTHING) {
+    SnakeCommand cmd(action);
+    if (cmd.isMovement()) {
+      //auto pEval = _pSnakeEval.lock();
+      if (cmd.action()==_pSnake->_direct) {
+        forceEvaluate(true);
+      } else {
+        _pSnake->_direct = cmd.action();
+      }
+      needRender(true);
+    }
+  }
+}
 
 FruitInSnakeAnimation::FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_) 
   : ISnakeEval(pLayer_, interval_, pSnake_) 

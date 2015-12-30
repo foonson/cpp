@@ -34,8 +34,6 @@ void Keyboard::dispose() {
   END("");
 }
 
-
-//bool Keyboard::getKey(KEY& key_, char& ch_) {
 bool Keyboard::getKey(Key& key_) {
   char ch=getchar();
   KEY key = KEY_NORMAL;

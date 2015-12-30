@@ -26,6 +26,8 @@ void Screen::clear() {
   color(_body.fgColor, _body.bgColor);
   printf(ESC33"1;1H");
   printf(ESC33"2J");
+  _frame0.clear();
+  _frame1.clear();
 }
 
 XY Screen::maxXY() const {
@@ -38,10 +40,6 @@ Screen& Screen::xy(int x, int y) {
 }
 
 Screen& Screen::color(int fgc, int bgc) {
-  //int i=clr/100;
-  //int j=clr%100;
-  //i -= 30;
-  //printf(ESC33"0%d;%dm", i,j);
   printf(ESC256"%dm", fgc);
   printf(ESC256B"%dm", bgc);
   return *this;

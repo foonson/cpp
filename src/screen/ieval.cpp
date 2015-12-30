@@ -40,3 +40,10 @@ bool IEval::completed() {
 bool IEval::onComplete() {
   return false;
 }
+
+void IEval::triggerDependEvals() {
+  for(auto& pEval:_vpDependEvals) {
+    pEval->forceEvaluate(true);
+  }
+}
+

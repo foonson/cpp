@@ -13,8 +13,8 @@ enum KEY {
 
 class Key {
 public:
-  Key() {}
-  virtual ~Key() {}
+  //Key() {}
+  //virtual ~Key() {}
   char _ch;
   KEY _key;
 };

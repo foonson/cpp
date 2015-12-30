@@ -7,7 +7,6 @@
 #include "screen/screen.h"
 #include "screen/layer.h"
 #include "screen/keyboard.h"
-#include "screen/ikeyListener.h"
 #include "snakeCommand.h"
 
 #include <functional> // std:function
@@ -54,16 +53,16 @@ private:
 
 };
 
-class Snake : public IKeyListener {
+class Snake {
   friend class FruitInSnakeAnimation;
   friend class SnakeDeathAnimation;
+  friend class SnakeEval;
 
 public:
   Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_);
   void init();
   string toString() const;
 
-  virtual void keyListen(const Key& key_);
   bool evaluate();
   bool evalMove();
   bool evalLive();
@@ -97,9 +96,9 @@ public:
   
   SnakeAction _status;
 
-  void snakeEval(SPEval pEval) {
-    _pSnakeEval = pEval;
-  }
+  //void snakeEval(SPEval pEval) {
+  //  _pSnakeEval = pEval;
+  //}
 
 private:
   Tick _moveTick;
@@ -108,7 +107,7 @@ private:
   deque<SnakeNode> _snakeNodes; 
   SnakeAction _direct;
 
-  WPEval _pSnakeEval;
+  //WPEval _pSnakeEval;
 };
 
 typedef shared_ptr<Snake> SPSnake;

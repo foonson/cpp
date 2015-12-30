@@ -3,6 +3,7 @@
 
 #include "util/pch.h"
 #include "screen/ieval.h"
+#include "screen/ikeyListener.h"
 #include "snakeCommand.h"
 #include "snake.h"
 
@@ -15,13 +16,15 @@ protected:
   SPSnake _pSnake;
 };
 
-class SnakeEval : public ISnakeEval {
+class SnakeEval : public ISnakeEval, public IKeyListener {
 public:
   SnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_);
   virtual bool evaluateImpl();
   virtual bool needEvaluate();
   virtual void render();
   virtual string toString();
+
+  virtual void keyListen(const Key& key_);
 };
 
 class FruitInSnakeAnimation : public ISnakeEval {

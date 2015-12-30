@@ -68,23 +68,6 @@ void Snake::init() {
   render();
 }
 
-void Snake::keyListen(const Key& key_) {
-  SnakeAction action = _fnKeyActionMap(key_);
-  if (action!=SA_NOTHING) {
-    SnakeCommand cmd(action);
-    if (cmd.isMovement()) {
-      auto pEval = _pSnakeEval.lock();
-      if (cmd.action()==_direct) {
-        if (pEval) {
-          pEval->forceEvaluate(true);
-        }
-      } else {
-        _direct = cmd.action();
-      }
-      pEval->needRender(true);
-    }
-  }
-}
 
 bool Snake::evalMove() {
   bool moved = false;

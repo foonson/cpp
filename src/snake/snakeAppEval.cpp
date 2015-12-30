@@ -1,7 +1,7 @@
 #include "snakeAppEval.h"
 
 SnakeAppEval::SnakeAppEval(SPLayer pLayer_, long interval_, WPSnakeApp pApp_) : IEval(pLayer_, interval_), _pApp(pApp_) {
-  _status = SAS_PREGAME;
+  _status = SAS_TITLE;
 }
 
 //bool SnakeAppEval::needEvaluate() {
@@ -9,12 +9,12 @@ SnakeAppEval::SnakeAppEval(SPLayer pLayer_, long interval_, WPSnakeApp pApp_) : 
 //}
 
 bool SnakeAppEval::evaluateImpl() {
-  needRender(true);
+  needRender(false);
   return true;
 }
 
 void SnakeAppEval::render() {
-  _pLayer->text(10, 10, BLACK, YELLOW, ' ');
+  //_pLayer->text(10, 10, BLACK, YELLOW, ' ');
 }
 
 string SnakeAppEval::toString() {
@@ -27,9 +27,11 @@ void SnakeAppEval::keyListen(const Key& key_) {
     app()->_exit = true;
   }
 
-  if (_status==SAS_PREGAME) {
+  if (_status==SAS_TITLE) {
     if (ch==' ') {
+      app()->pegTitle()->enabled(false); 
       app()->pegMain()->enabled(true); 
+      //app()->screen().clear();
       _status = SAS_GAME;
     }
   }
@@ -46,4 +48,92 @@ void SnakeAppEval::keyListen(const Key& key_) {
       _status = SAS_PAUSE;
     }
   }
+}
+
+//////////////////////////////
+
+SnakeTitleEval::SnakeTitleEval(SPLayer pLayer_, long interval_, WPSnakeApp pApp_) : IEval(pLayer_, interval_), _pApp(pApp_) {
+}
+
+string SnakeTitleEval::toString() {
+  return "SnakeTitleEval";
+}
+
+bool SnakeTitleEval::evaluateImpl() {
+  needRender(true);
+  return true;
+}
+
+void SnakeTitleEval::render() {
+  int x = 10;
+  int y = 10;
+  int dx = 0;
+  _pLayer->text(x+10, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+10+dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10-dx, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+10+dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10-dx, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+10+dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10-dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+10+dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10-dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+8,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+9,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+11, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+12, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+10+dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10-dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+11, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+10+dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10-dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+10+dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10-dx, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+8,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+9,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+11, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+12, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+8,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+12, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+8,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+9,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+11, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+12, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+8,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+12, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+8,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+9,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+11, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+12, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+8,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+12, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+8,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+9,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+11, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+12, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+9,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+11, y, BLACK, YELLOW, ' ');
+  y++;dx++;
+  _pLayer->text(x+8,  y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+12, y, BLACK, YELLOW, ' ');
 }

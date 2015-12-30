@@ -7,7 +7,7 @@
 #include "snakeApp.h"
 
 enum SnakeAppStatus {
-  SAS_PREGAME=1,
+  SAS_TITLE=1,
   SAS_GAME,
   SAS_PAUSE
 };
@@ -32,6 +32,25 @@ public:
 private:
   WPSnakeApp _pApp;
   SnakeAppStatus _status;
+
+};
+
+class SnakeTitleEval : public IEval {
+public:
+  SnakeTitleEval(SPLayer pLayer_, long interval_, WPSnakeApp pApp_);
+  virtual bool evaluateImpl();
+  virtual void render();
+  //virtual bool needRender();
+  virtual string toString();
+
+  //virtual bool needEvaluate();
+  //virtual bool completed();
+  //virtual bool onComplete();
+
+  SPSnakeApp app() { return _pApp.lock(); }
+
+private:
+  WPSnakeApp _pApp;
 
 };
 

@@ -1,6 +1,6 @@
 #include <csignal> //std:signal
 #include <cstdlib> //std::exit
-#include <time.h>
+#include <time.h> //srand(time(NULL));
 
 #include "Application.h"
 #include "auplay/AudioPlayer.h"
@@ -97,6 +97,10 @@ void Application::evaluateLoop() {
 
     for (auto& pEvalGroup: _vpEvalGroups) {
       if (!pEvalGroup->enabled()) {
+        //auto& vpEvals = pEvalGroup->evaluations();
+        //for (auto& pEval: vpEvals) {
+        //  pEval->clearLayer();
+        //}
         continue;
       }
 

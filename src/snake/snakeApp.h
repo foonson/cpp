@@ -18,6 +18,7 @@ public:
   void setup();
 
   SPEvalGroup pegApp() { return _pegApp; }
+  SPEvalGroup pegTitle() { return _pegTitle; }
   SPEvalGroup pegMain() { return _pegMain; }
 
 private:
@@ -25,6 +26,7 @@ private:
 
   shared_ptr<SnakeGame> _pGame;
   SPEvalGroup _pegApp;
+  SPEvalGroup _pegTitle;
   SPEvalGroup _pegMain;
 
 };
