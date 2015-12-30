@@ -21,6 +21,8 @@ public:
   SPEvalGroup pegMain() { return _pegMain; }
 
 private:
+  virtual void keyListen(const Key& key_);
+
   shared_ptr<SnakeGame> _pGame;
   SPEvalGroup _pegApp;
   SPEvalGroup _pegMain;

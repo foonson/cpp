@@ -2,19 +2,17 @@
 #define _SCREEN_KEYBOARD
 
 #include "util/pch.h"
-#include "sconstant.h"
 #include "key.h"
+#include "util/idispose.h"
 #include <termios.h>
 
-class Keyboard {
+class Keyboard : private IDispose {
 public:
   Keyboard();
   virtual ~Keyboard();
   virtual void dispose();
-  //bool getKey(KEY& key_, char& ch_);
   bool getKey(Key& key_);
 private:
-  bool _disposed;
   termios _term; 
 };
 

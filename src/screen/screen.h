@@ -4,8 +4,9 @@
 #include "util/pch.h"
 #include "util/tick.h"
 #include "layer.h"
+#include "util/idispose.h"
 
-class Screen : public ILayer{
+class Screen : public ILayer, private IDispose {
 public:
   Screen();
   virtual ~Screen();
@@ -33,7 +34,6 @@ public:
   Pixel body() { return _body; }
 
 private:
-  bool _disposed;
   int _currentFrame;
   Layer _frame0;
   Layer _frame1;

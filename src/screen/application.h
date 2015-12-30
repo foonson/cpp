@@ -7,10 +7,12 @@
 #include "screen.h"
 #include "keyboard.h"
 #include "key.h"
+#include "ikeyListener.h"
+#include "util/idispose.h"
 #include "evalGroup.h"
 #include "util/syncQueue"
 
-class Application {
+class Application : private IKeyListener, private IDispose {
 
 public:
 
@@ -25,27 +27,28 @@ public:
 
   void evaluateLoop();
   void listenCommandLoop();
+
   //void renderLoop();
   void startThreads();
 
   vector<SPEvalGroup>& evalGroups() { return _vpEvalGroups; }
   Screen& screen() { return _screen; }
   Keyboard& keyboard() { return _keyboard; }
-  bool _exit;
 
-  //void addKeyListener(SPKeyListener listener_) {
-  //  _vpKeyListeners.push_back(listener_);
-  //}
   void addEvalGroup(SPEvalGroup pEvalGroup_) {
     _vpEvalGroups.push_back(pEvalGroup_);
   }
 
+  void sound(const string& pathName_);
+
+protected:
+  bool _exit;
+
 private:
-  bool _disposed;
+  //bool _disposed;
   Screen _screen;
   Keyboard _keyboard;
 
-  //vector<SPKeyListener> _vpKeyListeners;
   vector<SPEvalGroup> _vpEvalGroups;
   SyncQueue<Key> _queueKey;
 };

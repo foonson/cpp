@@ -3,6 +3,7 @@
 #include <time.h>
 
 #include "Application.h"
+#include "auplay/AudioPlayer.h"
 
 Application* Application::_pApp = NULL;
 
@@ -71,6 +72,7 @@ void Application::listenCommandLoop() {
 
     Key key;
     _keyboard.getKey(key);
+    keyListen(key);
     _queueKey.put(key);
     LOG << key._ch << LEND;
 
@@ -174,5 +176,13 @@ void Application::startThreads() {
   //t2.join();
   t3.join();
   END("");
+}
+
+void Application::sound(const string& pathName_) {
+  //unique_ptr<AudioPlayer> ap(AudioPlayer::file("./sound/pacman.wav"));
+  AudioPlayer* ap = (AudioPlayer::file(pathName_.c_str()));
+  if(ap) {
+    ap->play();
+  }
 }
 

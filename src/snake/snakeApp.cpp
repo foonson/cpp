@@ -32,3 +32,8 @@ void SnakeApp::setup() {
 
 }
 
+void SnakeApp::keyListen(const Key& key_) {
+  if (key_._ch=='X') {
+    _exit = true;
+  }
+}
