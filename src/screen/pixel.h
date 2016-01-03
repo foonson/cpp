@@ -15,6 +15,12 @@ public:
     if (l_._y > r_._y) return false;
     return (l_._x < r_._x);
   }
+
+  bool operator==(const XY& other_) {
+    if (_x!=other_._x) return false;
+    return _y!=other_._y;
+  }
+
   void xy(int x_, int y_);
   void xy(const XY& xy_);
   bool touching(const XY& xy_);
@@ -71,6 +77,7 @@ public:
   }
 
   bool operator==(const Pixel& other_) {
+    if (!XY::operator==(other_)) return false;
     if (fgColor!=other_.fgColor) return false;
     if (bgColor!=other_.bgColor) return false;
     if (ch!=other_.ch) return false;

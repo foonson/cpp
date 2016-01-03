@@ -135,9 +135,9 @@ void Screen::render(SPLayers vpLayers_) {
     const XY& xy = pp.first;
     const Pixel& p = pp.second;
     if (p.ch!=TRANSPARENT) {
-      auto cp = cur.pixel(xy);
-      if (cp) {
-        if (*cp==p) {
+      auto ocp = cur.pixel(xy);
+      if (ocp) {
+        if (!(*ocp==p)) {
           text(p);
         }
       } else {
