@@ -45,7 +45,6 @@ protected:
   bool _exit;
 
 private:
-  //bool _disposed;
   Screen _screen;
   Keyboard _keyboard;
 

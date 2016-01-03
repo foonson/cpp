@@ -34,7 +34,6 @@ void SnakeGame::setup() {
   shared_ptr<Layer> pLayer1 = app()->screen().createLayer(boardOffset, 1);
   SPSnake pSnake1 = createSnake(pLayer1);
   pSnake1->_fnKeyActionMap = snake1KeyActionMap;
-  //pSnake1->_pcmdQueue = new SyncQueue<SnakeCommand>;
   pSnake1->_body = Pixel(0,0,BLACK,LPURPLE,'X');
   pSnake1->_id = 1;
   pSnake1->_head = SnakeNode(10, 10, SN_BODY);
@@ -44,7 +43,6 @@ void SnakeGame::setup() {
   shared_ptr<Layer> pLayer2 = app()->screen().createLayer(boardOffset, 2);
   SPSnake pSnake2 = createSnake(pLayer2);
   pSnake2->_fnKeyActionMap = snake2KeyActionMap;
-  //pSnake2->_pcmdQueue = new SyncQueue<SnakeCommand>;
   pSnake2->_body = Pixel(0,0,WHITE,BLUE,'O');
   pSnake2->_id = 2;
   pSnake2->_head = SnakeNode(20, 20, SN_BODY);
@@ -55,7 +53,7 @@ void SnakeGame::setup() {
 
   auto pegMain = app()->pegMain();
   
-  auto pGameEval = make_shared<SnakeGameEval>(screenLayer(), 50, shared_from_this());
+  auto pGameEval = make_shared<SnakeGameEval>(screenLayer(), 10000, shared_from_this());
   pegMain->addEval(pGameEval);
   pegMain->addEval(make_shared<FruitEval>(boardLayer(), 3000, shared_from_this()));
 

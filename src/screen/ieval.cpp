@@ -26,7 +26,9 @@ void IEval::forceEvaluate(bool forceEval_) {
 
 bool IEval::evaluate() {
   if (!needEvaluate()) return false;
-  return evaluateImpl();
+  bool b = evaluateImpl();
+  triggerDependEvals();
+  return b;
 }
 
 void IEval::clearLayer() {

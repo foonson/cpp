@@ -70,6 +70,13 @@ public:
     ch = pixel_.ch;
   }
 
+  bool operator==(const Pixel& other_) {
+    if (fgColor!=other_.fgColor) return false;
+    if (bgColor!=other_.bgColor) return false;
+    if (ch!=other_.ch) return false;
+    return true;
+  }
+
   int fgColor;
   int bgColor;
   char ch;

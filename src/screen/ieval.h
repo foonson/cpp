@@ -7,24 +7,31 @@
 class IEval {
 public:
   IEval(SPLayer pLayer_, long interval_);
-  virtual bool evaluateImpl() = 0;
-  virtual void render() = 0;
   virtual string toString() = 0;
+
+  // IEval
+  virtual bool evaluateImpl() = 0;
+  virtual bool evaluate();
+  virtual bool needEvaluate();
+  virtual void forceEvaluate(bool forceEval_);
+  void triggerDependEvals();
 
   virtual bool completed();
   virtual bool onComplete();
-  virtual void clearLayer();
-  virtual bool evaluate();
-  virtual bool needEvaluate();
-  virtual bool needRender();
-  virtual void needRender(bool needRender_);
-  virtual void forceEvaluate(bool forceEval_);
 
   void addDependEval(shared_ptr<IEval> pEval_) {
     _vpDependEvals.push_back(pEval_);
   }
-  
-  void triggerDependEvals();
+
+
+  // IRender
+  virtual void render() = 0;
+  virtual void clearLayer();
+  virtual bool needRender();
+  virtual void needRender(bool needRender_);
+
+  void layer(SPLayer pLayer_) { _pLayer = pLayer_; }
+  SPLayer layer() { return _pLayer; }
 
 protected:
   SPLayer _pLayer;

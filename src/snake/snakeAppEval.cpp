@@ -29,6 +29,7 @@ void SnakeAppEval::keyListen(const Key& key_) {
 
   if (_status==SAS_TITLE) {
     if (ch==' ') {
+      LOG << "switch to game" << LEND;
       app()->pegTitle()->enabled(false); 
       app()->pegMain()->enabled(true); 
       //app()->screen().clear();
@@ -68,7 +69,7 @@ void SnakeTitleEval::render() {
   int x = 10;
   int y = 10;
   int dx = 0;
-  _pLayer->text(x+10, y, BLACK, YELLOW, ' ');
+  _pLayer->text(x+10, y, BLACK, YELLOW, 'X');
   y++;dx++;
   _pLayer->text(x+10+dx, y, BLACK, YELLOW, ' ');
   _pLayer->text(x+10-dx, y, BLACK, YELLOW, ' ');

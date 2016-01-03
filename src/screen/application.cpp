@@ -95,12 +95,9 @@ void Application::evaluateLoop() {
       opKey = _queueKey.get();
     }
 
+    SPLayers vpLayers;
     for (auto& pEvalGroup: _vpEvalGroups) {
       if (!pEvalGroup->enabled()) {
-        //auto& vpEvals = pEvalGroup->evaluations();
-        //for (auto& pEval: vpEvals) {
-        //  pEval->clearLayer();
-        //}
         continue;
       }
 
@@ -119,10 +116,15 @@ void Application::evaluateLoop() {
         auto& pEval = vpEvals[i];
         //LOG << pEval->toString() << LEND;
         pEval->evaluate();
+        //if (pEval->needEvaluate()) {
+        //  pEval->evaluateImpl();
+        //  pEval->triggerDependEvals();
+        //}
         i++;
       }
 
       for (auto& pEval: vpEvals) {
+        vpLayers.push_back(pEval->layer()); 
         if (pEval->needRender()) {
           pEval->clearLayer();
         }
@@ -135,6 +137,8 @@ void Application::evaluateLoop() {
         }
       }
 
+      //LOG << UString::toString(vpLayers.size()) << LEND;
+
       auto it = vpEvals.begin();
       while(it!=vpEvals.end()) {
         auto& n = *it;
@@ -142,14 +146,15 @@ void Application::evaluateLoop() {
           n->onComplete();
           it = vpEvals.erase(it);
           LOG << "vpEvals.erase" << LEND;
-          //break;
         } else {
           it++;
         }
       }
 
-      screen().render();
-    //this_thread::sleep_for(std::chrono::milliseconds(100));
+      //this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    if (!vpLayers.empty()) {
+      screen().render(vpLayers);
     }
   } while (true);
   END("");

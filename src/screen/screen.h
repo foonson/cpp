@@ -18,7 +18,7 @@ public:
   void text(const Pixel& pixel_);
   SPLayer createLayer(int xOffset_, int yOffset_, int zOrder_);
   SPLayer createLayer(const XY& offset_, int zOrder_);
-  void render(); 
+  void render(SPLayers vpLayers_); 
   Screen& xy(int x, int y);
   Screen& color(int fgc_, int bgc_);
   Screen& colorDefault();
@@ -37,7 +37,7 @@ private:
   int _currentFrame;
   Layer _frame0;
   Layer _frame1;
-  vector<shared_ptr<Layer>> _vpLayers;
+  //vector<shared_ptr<Layer>> _vpLayers;
   Tick _tick;
   Pixel _body;
 };

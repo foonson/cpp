@@ -76,7 +76,7 @@ void Screen::text(const Pixel& pixel_) {
 SPLayer Screen::createLayer(const XY& offset_, int zOrder_) {
   START("");
   SPLayer pLayer = make_shared<Layer>(*this, offset_, zOrder_);
-  _vpLayers.push_back(pLayer);
+  //_vpLayers.push_back(pLayer);
   END("");
   return pLayer;
 }
@@ -101,7 +101,7 @@ void Screen::switchFrame() {
   _currentFrame = (_currentFrame+1)%2;
 }
 
-void Screen::render() {
+void Screen::render(SPLayers vpLayers_) {
 
   if (!_tick.pass()) return;
 
@@ -110,7 +110,7 @@ void Screen::render() {
   switchFrame();
 
   tar.clear();
-  for (auto & pLayer : _vpLayers) {
+  for (auto & pLayer : vpLayers_) {
     for (auto & pp: *pLayer) {
       //const XY& xy = pp.first;
       Pixel p = pp.second;
@@ -137,7 +137,7 @@ void Screen::render() {
     if (p.ch!=TRANSPARENT) {
       auto cp = cur.pixel(xy);
       if (cp) {
-        if (cp->ch!=p.ch) {
+        if (*cp==p) {
           text(p);
         }
       } else {

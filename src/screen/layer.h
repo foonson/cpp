@@ -53,5 +53,6 @@ private:
 };
 
 typedef shared_ptr<Layer> SPLayer;
+typedef vector<SPLayer> SPLayers;
 
 #endif

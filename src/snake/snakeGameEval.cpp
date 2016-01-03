@@ -36,7 +36,6 @@ void SnakeGameEval::render() {
 }
 
 bool SnakeGameEval::evaluateImpl() {
-
   bool draw = false;
   for (auto& pSnake: game()->_vpSnakes) {
     if (evalSnake(pSnake)) {
@@ -44,7 +43,6 @@ bool SnakeGameEval::evaluateImpl() {
     }
   }
   needRender(draw);
-
 }
 
 bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
@@ -126,7 +124,7 @@ string FruitEval::toString() {
 
 void FruitEval::render() {
   auto& vFruits = game()->_vFruits;
-  game()->_pBoard->clear();
+  //game()->_pBoard->clear();
   int i=0;
   for (auto& fruit : vFruits) {
     i++;

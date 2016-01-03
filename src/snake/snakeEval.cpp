@@ -117,9 +117,7 @@ bool SnakeDeathAnimation::completed() {
 }
 
 bool SnakeDeathAnimation::onComplete() {
-  //START("");
   _pSnake->_status = SA_DEAD; 
-  //END("");
 }
 
 void SnakeDeathAnimation::render() {
