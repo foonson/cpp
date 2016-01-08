@@ -1,6 +1,8 @@
 #include "snakeEval.h"
 #include "snake.h"
 
+#include "snakeGameEval.h"
+
 ISnakeEval::ISnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_) : IEval(pLayer_, interval_), _pSnake(pSnake_) {
 }
 /////////////////////////////////////////////////
@@ -8,9 +10,31 @@ ISnakeEval::ISnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_) : IEval
 SnakeEval::SnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_) : ISnakeEval(pLayer_, interval_, pSnake_) {
 }
 
+void SnakeEval::keyListen(const Key& key_) {
+  SnakeAction action = _pSnake->_fnKeyActionMap(key_);
+  if (action!=SA_NOTHING) {
+    SnakeCommand cmd(action);
+    if (cmd.isMovement()) {
+      //auto pEval = _pSnakeEval.lock();
+      if (cmd.action()==_pSnake->_direct) {
+        forceEvaluate(true);
+      } else {
+        _pSnake->_direct = cmd.action();
+        forceEvaluate(true);
+      }
+      needRender(true);
+    } else if (action==SA_SHOOT) {
+      auto pGame = _pSnake->game();
+      pGame->addEval(make_shared<SnakeShootEval>(pGame->blockLayer(), pGame, _pSnake->tail()));
+      //needRender(true);
+    }
+  }
+}
+
 bool SnakeEval::needEvaluate() {
   if (_forceEval) {
     _forceEval = false;
+    _pSnake->moveTick().force();
     return true;
   }
   return _pSnake->moveTick().pass();
@@ -24,27 +48,24 @@ bool SnakeEval::evaluateImpl() {
 }
 
 void SnakeEval::render() {
-  _pSnake->render();
-}
+  //START("");
+  //LOG << toString() << LEND;
+  //_pLayer->clear();
 
-string SnakeEval::toString() {
-  return "SnakeEval";
-}
+  auto& head = _pSnake->head();
+  auto& body = _pSnake->body();
 
-void SnakeEval::keyListen(const Key& key_) {
-  SnakeAction action = _pSnake->_fnKeyActionMap(key_);
-  if (action!=SA_NOTHING) {
-    SnakeCommand cmd(action);
-    if (cmd.isMovement()) {
-      //auto pEval = _pSnakeEval.lock();
-      if (cmd.action()==_pSnake->_direct) {
-        forceEvaluate(true);
-      } else {
-        _pSnake->_direct = cmd.action();
-      }
-      needRender(true);
-    }
+  // Body
+  for (auto& i: _pSnake->_snakeNodes) {
+    _pLayer->text(i.x(), i.y(), body);
   }
+
+  // Head
+  if (_pSnake->status()==SA_LIVE) {
+    _pLayer->text(head.x(), head.y(), body.fgColor, body.bgColor, SnakeCommand::toChar(_pSnake->_direct));
+  }
+  //LOG << _pLayer->toString() << LEND;
+  //END("");
 }
 
 FruitInSnakeAnimation::FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_) 
@@ -53,10 +74,6 @@ FruitInSnakeAnimation::FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SP
   START("");
   _fruitIndex = 0;
   END("");
-}
-
-string FruitInSnakeAnimation::toString() {
-  return "FruitInSnakeAnimation";
 }
 
 bool FruitInSnakeAnimation::evaluateImpl() {
@@ -81,10 +98,10 @@ void FruitInSnakeAnimation::render() {
   _pLayer->text(node.x(), node.y(), WHITE, RED, '@');
 }
 
-bool FruitInSnakeAnimation::onComplete() {
-  START("");
-  END("");
-}
+//bool FruitInSnakeAnimation::onComplete() {
+//  START("");
+//  END("");
+//}
 
 /////////////////////////////////////////////////
 
@@ -94,10 +111,6 @@ SnakeDeathAnimation::SnakeDeathAnimation(SPLayer pLayer_, long interval_, SPSnak
   _direct = pSnake_->_direct;
   _originalLength = pSnake_->_snakeNodes.size();
   _round = 0;
-}
-
-string SnakeDeathAnimation::toString() {
-  return "FruitInSnakeAnimation";
 }
 
 bool SnakeDeathAnimation::evaluateImpl() {
@@ -118,6 +131,7 @@ bool SnakeDeathAnimation::completed() {
 
 bool SnakeDeathAnimation::onComplete() {
   _pSnake->_status = SA_DEAD; 
+  return true;
 }
 
 void SnakeDeathAnimation::render() {

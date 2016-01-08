@@ -24,9 +24,9 @@ private:
 class SnakeGameEval : public ISnakeGameEval {
 public:
   SnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_);
+  virtual string toString() { return "SnakeGameEval"; }
   virtual bool evaluateImpl();
   virtual void render();
-  virtual string toString();
   //virtual bool completed();
   //virtual bool onComplete();
 
@@ -37,14 +37,29 @@ private:
 class FruitEval : public ISnakeGameEval {
 public:
   FruitEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_);
+  virtual string toString() { return "FruitEval"; }
   virtual bool evaluateImpl();
   virtual void render();
-  virtual string toString();
   //virtual bool completed();
   //virtual bool onComplete();
 
 private:
   Pixel createFruitPixel(const SnakeNode& fruit_);
+};
+
+
+class SnakeShootEval : public ISnakeGameEval {
+public:
+  SnakeShootEval(SPLayer pLayer_, SPSnakeGame pGame, const SnakeNode& tail_);
+  virtual string toString() { return "SnakeShootEval"; }
+  virtual bool evaluateImpl();
+  virtual void render();
+  virtual bool completed() { return true; }
+  //virtual bool onComplete();
+
+private:
+  SnakeNode _tail;
+  vector<SnakeNode> _vBlocks;
 };
 
 #endif

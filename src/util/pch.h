@@ -1,3 +1,6 @@
+#ifndef _UTIL_PCH
+#define _UTIL_PCH
+
 #include <string>
 #include <vector>
 #include <map>
@@ -16,3 +19,5 @@ using namespace std;
 #include "util/UTime.h"
 #include "util/log.h"
 #include "util/UString.h"
+
+#endif

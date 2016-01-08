@@ -46,8 +46,7 @@ void Layer::clear() {
 void Layer::text(int x_, int y_, int fgc_, int bgc_, char ch_) {
   //LOG << toString() << " " << x_ << "," << y_ << " " << ch_ << LEND;
   Pixel p;
-  p._x = x_;
-  p._y = y_;
+  p.xy(x_, y_);
   p.ch = ch_;
   p.fgColor = fgc_;
   p.bgColor = bgc_;
@@ -68,8 +67,7 @@ void Layer::text(int x_, int y_, const Pixel& pixel_) {
 
 void Layer::text(const XY& xy_, const Pixel& pixel_) {
   Pixel p(pixel_);
-  p._x = xy_._x;
-  p._y = xy_._y;
+  p.xy(xy_);
   return text(p);
 }
 

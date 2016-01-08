@@ -1,7 +1,7 @@
 #include "screen.h"
 #include <unistd.h>
 
-Screen::Screen() : _frame0(*this), _frame1(*this), _tick(50) {
+Screen::Screen() : _frame0(*this), _frame1(*this), _tick(20) {
   START("");
   _disposed = false;
   END("");
@@ -34,14 +34,18 @@ XY Screen::maxXY() const {
   return XY(80,30);
 }
 
-Screen& Screen::xy(int x, int y) {
-  printf(ESC33"%d;%dH", y, x);
+Screen& Screen::xy(const XY& xy_) {
+  return xy(xy_.x(), xy_.y());
+}
+
+Screen& Screen::xy(int x_, int y_) {
+  printf(ESC33"%d;%dH", y_, x_);
   return *this;
 }
 
-Screen& Screen::color(int fgc, int bgc) {
-  printf(ESC256"%dm", fgc);
-  printf(ESC256B"%dm", bgc);
+Screen& Screen::color(int fgc_, int bgc_) {
+  printf(ESC256"%dm", fgc_);
+  printf(ESC256B"%dm", bgc_);
   return *this;
 }
 
@@ -70,7 +74,7 @@ void Screen::text(int x_, int y_, int fgc_, int bgc_, char ch_) {
 }
 
 void Screen::text(const Pixel& pixel_) {
-  xy(pixel_._x, pixel_._y).color(pixel_.fgColor, pixel_.bgColor).show(pixel_.ch);
+  xy((XY)pixel_).color(pixel_.fgColor, pixel_.bgColor).show(pixel_.ch);
 }
 
 SPLayer Screen::createLayer(const XY& offset_, int zOrder_) {
@@ -114,8 +118,7 @@ void Screen::render(SPLayers vpLayers_) {
     for (auto & pp: *pLayer) {
       //const XY& xy = pp.first;
       Pixel p = pp.second;
-      p._x += pLayer->offset().x();
-      p._y += pLayer->offset().y();
+      p.addxy(pLayer->offset());
       //if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND && p.ch!=t.ch) {
       if (p.ch!=TRANSPARENT && p.ch!=BACKGROUND) {
         tar.text(p);

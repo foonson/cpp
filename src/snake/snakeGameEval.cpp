@@ -16,10 +16,6 @@ ISnakeGameEval::ISnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGam
 SnakeGameEval::SnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_) : ISnakeGameEval(pLayer_, interval_, pGame_) {
 }
 
-string SnakeGameEval::toString() {
-  return "SnakeGameEval";
-}
-
 void SnakeGameEval::render() {
   int row = 1;
   auto pScreen = game()->screenLayer();
@@ -118,10 +114,6 @@ Pixel FruitEval::createFruitPixel(const SnakeNode& fruit_) {
   return Pixel((XY)fruit_, BLACK, YELLOW, '*');
 }
 
-string FruitEval::toString() {
-  return "FruitEval";
-}
-
 void FruitEval::render() {
   auto& vFruits = game()->_vFruits;
   //game()->_pBoard->clear();
@@ -134,6 +126,28 @@ void FruitEval::render() {
       fruit.type(SN_FRUIT);
     }
     _pLayer->text(createFruitPixel(fruit));
+  }
+}
+
+SnakeShootEval::SnakeShootEval(SPLayer pLayer_, SPSnakeGame pGame_, const SnakeNode& tail_) 
+: ISnakeGameEval(pLayer_, 0, pGame_), 
+  _tail(tail_)
+{
+}
+
+bool SnakeShootEval::evaluateImpl() {
+  START() << LEND;
+  //game()->snakeShoot(_tail);
+  _vBlocks.push_back(_tail);
+  needRender(true);
+  return true;
+}
+
+void SnakeShootEval::render() {
+  for (auto& block: _vBlocks) {
+    Pixel p = Pixel(block, BLACK, RED, ' ');
+    p.addxy(XY(1,1));
+    _pLayer->text(p);
   }
 }
 

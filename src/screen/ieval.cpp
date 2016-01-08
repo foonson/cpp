@@ -7,6 +7,7 @@ IEval::IEval(SPLayer pLayer_, long interval_) : _pLayer(pLayer_), _tick(interval
 bool IEval::needEvaluate() {
   if (_forceEval) {
     _forceEval = false;
+    _tick.force();
     return true;
   }
   return _tick.pass();

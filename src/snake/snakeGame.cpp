@@ -29,7 +29,9 @@ void SnakeGame::setup() {
   screen.clear();
 
   _pScreen = app()->screen().createLayer(XY(0,0), 0);
-  _pBoard = app()->screen().createLayer(boardOffset, 0);
+  _pFruit = app()->screen().createLayer(boardOffset, 0);
+  _pBlock = app()->screen().createLayer(boardOffset, 0);
+  _pAnimation = app()->screen().createLayer(boardOffset, 3);
 
   shared_ptr<Layer> pLayer1 = app()->screen().createLayer(boardOffset, 1);
   SPSnake pSnake1 = createSnake(pLayer1);
@@ -49,13 +51,12 @@ void SnakeGame::setup() {
   pSnake2->_life = 3;
   pSnake2->init();
 
-  _pAnimationLayer = app()->screen().createLayer(boardOffset, 3);
 
   auto pegMain = app()->pegMain();
   
   auto pGameEval = make_shared<SnakeGameEval>(screenLayer(), 10000, shared_from_this());
   pegMain->addEval(pGameEval);
-  pegMain->addEval(make_shared<FruitEval>(boardLayer(), 3000, shared_from_this()));
+  pegMain->addEval(make_shared<FruitEval>(fruitLayer(), 3000, shared_from_this()));
 
   auto pSnakeEval1 = make_shared<SnakeEval>(pLayer1, 100, pSnake1);
   auto pSnakeEval2 = make_shared<SnakeEval>(pLayer2, 100, pSnake2);
@@ -77,7 +78,7 @@ void SnakeGame::setup() {
 
 //Snake& createSnake(Layer& layer_, (SNAKEACTION)(KEY, char) fnKeyActionMap_) {
 SPSnake SnakeGame::createSnake(SPLayer pLayer_) {
-  auto pSnake = make_shared<Snake>(*this, pLayer_);
+  auto pSnake = make_shared<Snake>(shared_from_this());
   _vpSnakes.push_back(pSnake);
   return pSnake;
 } 
@@ -116,58 +117,4 @@ XY SnakeGame::randomEmptyXY() {
   
   // never reach
 }
-
-
-/*
-void SnakeGame::evaluateLoop() {
-  START("");
-  do {
-    _counter++;
-    _pScreen->text(50, 1, WHITE, BLACK, UString::toString(_counter));
-    
-    animationLayer()->clear();
-    if (app()->_exit) {
-      break;
-    }   
-
-    //for (auto& eval: _vpEvaluations) {
-    size_t i = 0;
-    while (i<_vpEvaluations.size()) {
-      auto& pEval = _vpEvaluations[i];
-      LOG << pEval->toString() << LEND;
-      pEval->evaluate();
-      i++;
-    }
-
-    for (auto& pEval: _vpEvaluations) {
-      if (pEval->NeedRender()) {
-        pEval->clearLayer();
-      }
-    }
-
-    for (auto& pEval: _vpEvaluations) {
-      if (pEval->NeedRender()) {
-        pEval->render();
-      }
-    }
-
-    auto it = _vpEvaluations.begin();
-    while(it!=_vpEvaluations.end()) {
-      auto& n = *it;
-      if (n->completed()) {
-        n->onComplete();
-        it = _vpEvaluations.erase(it);
-        LOG << "_vpEvaluations.erase" << LEND;
-        //break;
-      } else {
-        it++;
-      }
-    }
-
-    app()->screen().render();
-    //this_thread::sleep_for(std::chrono::milliseconds(100));
-  } while (true);
-  END("");
-}
-*/
 

@@ -24,3 +24,7 @@ bool Tick::pass() {
   }
   return false;
 }
+
+void Tick::force() {
+  _last = UTime::now();
+}

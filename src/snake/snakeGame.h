@@ -23,9 +23,10 @@ public:
   
   XY randomEmptyXY();
 
-  SPLayer animationLayer() { return _pAnimationLayer; }
+  SPLayer animationLayer() { return _pAnimation; }
   SPLayer screenLayer() { return _pScreen; }
-  SPLayer boardLayer() { return _pBoard; }
+  SPLayer fruitLayer() { return _pFruit; }
+  SPLayer blockLayer() { return _pBlock; }
 
   vector<SnakeNode>& fruits() { return _vFruits; }
 
@@ -36,13 +37,19 @@ public:
     app()->pegMain()->addEval(make_shared<T>(pLayer_, interval_, pSnake_));
   }
 
+  void addEval(SPEval pEval_) {
+    app()->pegMain()->addEval(pEval_);
+  }
+
 private:
   WPSnakeApp _pApp;
   SPLayer _pScreen;
-  SPLayer _pBoard;
-  SPLayer _pAnimationLayer;
-  vector<SPSnake> _vpSnakes;
+  SPLayer _pFruit;
+  SPLayer _pAnimation;
+  SPLayer _pBlock;
+  vector<shared_ptr<Snake>> _vpSnakes;
   vector<SnakeNode> _vFruits;
+  vector<SnakeNode> _vBlocks;
   long long _counter;
 
   int _maxFruit;

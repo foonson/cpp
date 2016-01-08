@@ -4,12 +4,16 @@
 #include "pch.h"
 #include <iostream>
 #include <fstream>
+#include "idispose.h"
 
-class Log {
+class Log : private IDispose {
 public:
   Log(const string& pathname_);
   virtual ~Log();
+
+  // IDispose
   virtual void dispose();
+
   ostream& log(const string& s_);
   void flush();
   ostream& operator<<(const string& s_) {
@@ -19,7 +23,6 @@ public:
 
 private:
   fstream _logs;
-  bool _disposed;
 };
 
 extern Log g_log;

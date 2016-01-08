@@ -12,6 +12,7 @@ enum SnakeAction {
   SA_LIVE,
   SA_DYING,
   SA_DEAD,
+  SA_SHOOT,
   SA_EXIT=999
 };
 

@@ -1,16 +1,13 @@
 #include "snake.h"
 #include "snakeGame.h"
 
-SnakeAction commonKeyActionMap(const Key& key_) {
-  char ch = key_._ch;
-  if (ch=='X') {
-    return SA_EXIT;
-  }
-  return SA_NOTHING;
-}
+#include "screen/IEval.h"
+#include "screen/screen.h"
+#include "screen/keyboard.h"
 
 SnakeAction snake1KeyActionMap(const Key& key_) {
   KEY key = key_._key;
+  char ch = key_._ch;
   if (key==KEY_UP) {
     return SA_UP;
   } else if (key==KEY_DOWN) {
@@ -20,7 +17,11 @@ SnakeAction snake1KeyActionMap(const Key& key_) {
   } else if (key==KEY_RIGHT) {
     return SA_RIGHT;
   }
-  return commonKeyActionMap(key_);
+  if (ch=='/') {
+    return SA_SHOOT;
+  }
+  return SA_NOTHING;
+  //return commonKeyActionMap(key_);
 }
 
 SnakeAction snake2KeyActionMap(const Key& key_) {
@@ -33,11 +34,14 @@ SnakeAction snake2KeyActionMap(const Key& key_) {
     return SA_LEFT;
   } else if (ch=='d') {
     return SA_RIGHT;
+  } else if (ch=='q') {
+    return SA_SHOOT;
   }
-  return commonKeyActionMap(key_);
+  return SA_NOTHING;
+  //return commonKeyActionMap(key_);
 }
 
-Snake::Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_) : _game(game_), _pLayer(pLayer_) {
+Snake::Snake(SPSnakeGame pGame_) : _pGame(pGame_) {
   START("");
   _direct = SA_NOTHING;
   _score = 0;
@@ -53,26 +57,25 @@ string Snake::toString() const {
   return s;
 }
 
-SnakeNode& Snake::head() {
-  return _head;
-}
-
 void Snake::init() {
-  _head.xy(_game.randomEmptyXY());
+  _head.xy(game()->randomEmptyXY());
   _direct = SnakeCommand::randomDirect();
   _moveTick.interval(300);
   _snakeNodes.clear();  
   _length = 2;
   _status = SA_LIVE;
 
-  render();
 }
 
+SnakeNode Snake::tail() {
+  SnakeNode tail = _snakeNodes[_snakeNodes.size()-1];
+  return tail;
+}
 
 bool Snake::evalMove() {
   bool moved = false;
 
-  XY max = _pLayer->maxXY();
+  XY max = game()->app()->screen().maxXY();
   int x = _head.x();
   int y = _head.y();
 
@@ -196,7 +199,7 @@ bool Snake::evalLive() {
 bool Snake::eatFruit(const SnakeNode& fruit) {
   LOG << toString() << LEND;
 
-  game().app()->sound("./sound/eat.wav");
+  game()->app()->sound("./sound/eat.wav");
 
   increaseLength(2);
   speedup();
@@ -208,7 +211,7 @@ void Snake::dead() {
 
   _status = SA_DYING;
   _life--;
-  //SnakeDeathAnimation* pAnimation = new SnakeDeathAnimation(game().animationLayer(), 100, SPSnake(this));
+  //SnakeDeathAnimation* pAnimation = new SnakeDeathAnimation(game()->animationLayer(), 100, SPSnake(this));
   //_vpAnimations.push_back(shared_ptr<SnakeDeathAnimation>(pAnimation));  
   //init();
 }
@@ -228,6 +231,7 @@ void Snake::speedup() {
   _moveTick.interval(l);
 }
 
+/*
 void Snake::render() {
   //START("");
   //LOG << toString() << LEND;
@@ -235,16 +239,17 @@ void Snake::render() {
 
   // Body
   for (auto& i: _snakeNodes) {
-    _pLayer->text(i._x, i._y, _body);
+    _pLayer->text(i.x(), i.y(), _body);
   }
 
   // Head
   if (_status==SA_LIVE) {
-    _pLayer->text(_head._x, _head._y, _body.fgColor, _body.bgColor, SnakeCommand::toChar(_direct));
+    _pLayer->text(_head.x(), _head.y(), _body.fgColor, _body.bgColor, SnakeCommand::toChar(_direct));
   }
   //LOG << _pLayer->toString() << LEND;
   //END("");
 }
+*/
 
 bool Snake::touching(const XY& xy_) {
   for (auto& i: _snakeNodes) {

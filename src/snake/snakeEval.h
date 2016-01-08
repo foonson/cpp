@@ -7,8 +7,6 @@
 #include "snakeCommand.h"
 #include "snake.h"
 
-//class Snake;
-
 class ISnakeEval : public IEval {
 public:
   ISnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_);
@@ -19,10 +17,10 @@ protected:
 class SnakeEval : public ISnakeEval, public IKeyListener {
 public:
   SnakeEval(SPLayer pLayer_, long interval_, SPSnake pSnake_);
+  virtual string toString() { return "SnakeEval"; }
   virtual bool evaluateImpl();
   virtual bool needEvaluate();
   virtual void render();
-  virtual string toString();
 
   virtual void keyListen(const Key& key_);
 };
@@ -30,11 +28,11 @@ public:
 class FruitInSnakeAnimation : public ISnakeEval {
 public:
   FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
+  virtual string toString() { return "FruitInSnakeAnimation"; }
   virtual bool evaluateImpl();
-  virtual bool completed();
   virtual void render();
-  virtual bool onComplete();
-  virtual string toString();
+  virtual bool completed();
+  //virtual bool onComplete();
 
 private:
   int _fruitIndex;
@@ -44,11 +42,11 @@ private:
 class SnakeDeathAnimation : public ISnakeEval {
 public:
   SnakeDeathAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
+  virtual string toString() { return "SnakeDeathAnimation"; }
   virtual bool evaluateImpl();
-  virtual bool completed();
   virtual void render();
+  virtual bool completed();
   virtual bool onComplete();
-  virtual string toString();
 
 private:
   SnakeAction _direct;

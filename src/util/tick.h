@@ -11,6 +11,7 @@ public:
   void interval(long interval_);
   long interval();
   bool pass();
+  void force();
 
 private:
   long _interval;  

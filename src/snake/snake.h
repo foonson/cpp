@@ -3,55 +3,19 @@
 
 #include "util/pch.h"
 
-#include "screen/IEval.h"
-#include "screen/screen.h"
-#include "screen/layer.h"
-#include "screen/keyboard.h"
 #include "snakeCommand.h"
+#include "snakeNode.h"
+#include "screen/key.h"
+#include "screen/pixel.h"
+#include "util/tick.h"
 
 #include <functional> // std:function
 #include <deque>
 
 SnakeAction snake1KeyActionMap(const Key& key_); 
 SnakeAction snake2KeyActionMap(const Key& key_); 
-SnakeAction commonKeyActionMap(const Key& key_); 
 
 class SnakeGame;
-
-enum SnakeNodeType {
-  SN_NOTHING = 0,
-  SN_BODY = 1,
-  SN_FRUIT,
-  SN_FRUITBIG,
-};
-
-class SnakeNode : public XY {
-public:
-  SnakeNode() : XY() {
-    _type = SN_NOTHING;
-  }
-  SnakeNode(const SnakeNode& node_) : XY((XY)node_) {
-    _type = node_._type;
-  }
-  SnakeNode(int x_, int y_, SnakeNodeType type_) : XY(x_, y_) {
-    _type = type_;
-  }
-  SnakeNode(const XY& xy_, SnakeNodeType type_) : XY(xy_) {
-    _type = type_;
-  }
-
-  SnakeNodeType type() const {
-    return _type;
-  }  
-
-  void type(SnakeNodeType type_) {
-    _type = type_;
-  }  
-
-private:
-  SnakeNodeType _type;
-
-};
 
 class Snake {
   friend class FruitInSnakeAnimation;
@@ -59,7 +23,7 @@ class Snake {
   friend class SnakeEval;
 
 public:
-  Snake(SnakeGame& game_, shared_ptr<Layer> pLayer_);
+  Snake(shared_ptr<SnakeGame> pGame_);
   void init();
   string toString() const;
 
@@ -69,7 +33,6 @@ public:
   bool evalDying();
   bool evalDead();
   bool evalAnimation();
-  void render();
 
   void increaseLength(int inc_);
   void speedup();
@@ -81,29 +44,30 @@ public:
 
   bool eatFruit(const SnakeNode& fruit);
 
-  SnakeNode& head();
+  SnakeNode& head() { return _head; }
+  SnakeNode tail();
   SnakeAction status() { return _status; }
-  SnakeGame& game() { return _game; }
+  shared_ptr<SnakeGame> game() { return _pGame.lock(); }
+  Pixel& body() { return _body; }
 
   function<SnakeAction(const Key&)> _fnKeyActionMap;
-  Pixel _body;
-  SnakeNode _head;
   int _life;
   int _length;
   int _score;
   int _id;
   Tick& moveTick() { return _moveTick; }
   
-  SnakeAction _status;
-
   //void snakeEval(SPEval pEval) {
   //  _pSnakeEval = pEval;
   //}
+  Pixel _body;
+  SnakeNode _head;
 
 private:
+  SnakeAction _status;
   Tick _moveTick;
-  SnakeGame& _game;
-  SPLayer _pLayer;
+  weak_ptr<SnakeGame> _pGame;
+  //SPLayer _pLayer;
   deque<SnakeNode> _snakeNodes; 
   SnakeAction _direct;
 

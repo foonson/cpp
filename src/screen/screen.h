@@ -19,7 +19,8 @@ public:
   SPLayer createLayer(int xOffset_, int yOffset_, int zOrder_);
   SPLayer createLayer(const XY& offset_, int zOrder_);
   void render(SPLayers vpLayers_); 
-  Screen& xy(int x, int y);
+  Screen& xy(int x_, int y_);
+  Screen& xy(const XY& xy_);
   Screen& color(int fgc_, int bgc_);
   Screen& colorDefault();
   Screen& show(const string& s);
