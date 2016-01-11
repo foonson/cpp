@@ -5,6 +5,7 @@
 #include "snakeCommand.h"
 #include "snake.h"
 #include <stdlib.h>  // rand
+#include "util/UCollection.h"
 
 //bool SnakeGameEval::needEvaluate() {
 //  IEval::needEvaluate
@@ -38,7 +39,8 @@ bool SnakeGameEval::evaluateImpl() {
       draw = true;
     }
   }
-  needRender(draw);
+  renderType(RENDER_FULL);
+  return true;
 }
 
 bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
@@ -112,8 +114,8 @@ bool FruitEval::evaluateImpl() {
   SnakeNode n = SnakeNode(xy, SN_FRUIT);
   vFruits.push_back(n);
 
-  needRender(true);
- 
+  renderType(RENDER_FULL);
+  return true; 
 }
 
 Pixel FruitEval::createFruitPixel(const SnakeNode& fruit_) {
@@ -125,7 +127,6 @@ Pixel FruitEval::createFruitPixel(const SnakeNode& fruit_) {
 
 void FruitEval::render() {
   auto& vFruits = game()->_vFruits;
-  //game()->_pBoard->clear();
   int i=0;
   for (auto& fruit : vFruits) {
     i++;
@@ -146,16 +147,15 @@ SnakeShootEval::SnakeShootEval(SPLayer pLayer_, SPSnakeGame pGame_, const SnakeN
 
 bool SnakeShootEval::evaluateImpl() {
   START() << LEND;
-  game()->snakeShoot(_tail);
-  _vBlocks.push_back(_tail);
-  needRender(true);
+  auto vBlocks = game()->snakeShoot(_tail);
+  UCollection::add(_vBlocks, vBlocks);
+  renderType(RENDER_ADD);
   return true;
 }
 
 void SnakeShootEval::render() {
   for (auto& block: _vBlocks) {
     Pixel p = Pixel(block, BLACK, RED, ' ');
-    //p.addxy(XY(1,1));
     _pLayer->text(p);
   }
 }

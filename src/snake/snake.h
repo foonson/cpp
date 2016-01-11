@@ -37,6 +37,8 @@ public:
   void increaseLength(int inc_);
   void speedup();
   void dead();
+  void shoot();
+  bool canShoot();
 
   SnakeNode getNode(const XY& xy_);
   bool touching(const XY& xy_);

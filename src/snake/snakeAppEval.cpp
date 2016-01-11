@@ -4,12 +4,8 @@ SnakeAppEval::SnakeAppEval(SPLayer pLayer_, long interval_, WPSnakeApp pApp_) : 
   _status = SAS_TITLE;
 }
 
-//bool SnakeAppEval::needEvaluate() {
-//  return _pSnake->moveTick().pass();
-//}
-
 bool SnakeAppEval::evaluateImpl() {
-  needRender(false);
+  renderType(RENDER_FULL);
   return true;
 }
 
@@ -61,7 +57,7 @@ string SnakeTitleEval::toString() {
 }
 
 bool SnakeTitleEval::evaluateImpl() {
-  needRender(true);
+  renderType(RENDER_FULL);
   return true;
 }
 

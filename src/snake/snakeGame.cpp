@@ -9,6 +9,7 @@
 #include "snakeGameEval.h"
 #include <stdlib.h>  // rand
 #include <functional> // std:function
+#include "util/UCollection.h"
 
 SnakeGame::SnakeGame(WPSnakeApp pApp_): _pApp(pApp_) {
 }
@@ -51,8 +52,6 @@ void SnakeGame::setup(SPEvalGroup pEG_) {
   pSnake2->_life = 3;
   pSnake2->init();
 
-  //auto pegMain = app()->pegMain();
-  
   auto pGameEval = make_shared<SnakeGameEval>(screenLayer(), 10000, shared_from_this());
   pEG_->addEval(pGameEval);
   pEG_->addEval(make_shared<FruitEval>(fruitLayer(), 3000, shared_from_this()));
@@ -68,12 +67,12 @@ void SnakeGame::setup(SPEvalGroup pEG_) {
   pEG_->addKeyListener(pSnakeEval1);
   pEG_->addKeyListener(pSnakeEval2);
 
-  pEG_->addLayer(pLayer1);
-  pEG_->addLayer(pLayer2);
-  pEG_->addLayer(animationLayer());
   pEG_->addLayer(screenLayer());
   pEG_->addLayer(fruitLayer());
   pEG_->addLayer(blockLayer());
+  pEG_->addLayer(pLayer1);
+  pEG_->addLayer(pLayer2);
+  pEG_->addLayer(animationLayer());
 
   END("");
 }
@@ -85,10 +84,29 @@ SPSnake SnakeGame::createSnake(SPLayer pLayer_) {
   return pSnake;
 } 
 
-void SnakeGame::snakeShoot(const SnakeNode& tail_) {
+vector<SnakeNode> SnakeGame::snakeShoot(const SnakeNode& tail_) {
   SnakeNode block(tail_);
-  block.type(SN_BLOCK); 
+  block.type(SN_BLOCK);
+  vector<SnakeNode> vBlocks;
+
+  vBlocks.push_back(block);
   _vBlocks.push_back(block);
+
+  block.x(tail_.x()-1);
+  vBlocks.push_back(block);
+  _vBlocks.push_back(block);
+
+  block.x(tail_.x()-1);
+  block.y(tail_.y()-1);
+  vBlocks.push_back(block);
+  _vBlocks.push_back(block);
+
+  block.x(tail_.x());
+  block.y(tail_.y()-1);
+  vBlocks.push_back(block);
+  _vBlocks.push_back(block);
+
+  return vBlocks;
 }
 
 SnakeNode SnakeGame::getNode(const XY& xy_) {

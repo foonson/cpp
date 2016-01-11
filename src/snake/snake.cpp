@@ -106,7 +106,7 @@ bool Snake::evalMove() {
   _head.xy(x,y);
 
   _snakeNodes.push_front(_head);
-  if (_snakeNodes.size()>_length) {
+  while (_snakeNodes.size()>_length) {
     _snakeNodes.pop_back();
   }
 
@@ -216,6 +216,14 @@ void Snake::dead() {
   //init();
 }
 
+void Snake::shoot() {
+  _length--;
+}
+
+bool Snake::canShoot() {
+  return _length>1;
+}
+
 void Snake::increaseLength(int inc_) {
   _length += inc_;
   _score += inc_;
@@ -230,26 +238,6 @@ void Snake::speedup() {
   }
   _moveTick.interval(l);
 }
-
-/*
-void Snake::render() {
-  //START("");
-  //LOG << toString() << LEND;
-  //_pLayer->clear();
-
-  // Body
-  for (auto& i: _snakeNodes) {
-    _pLayer->text(i.x(), i.y(), _body);
-  }
-
-  // Head
-  if (_status==SA_LIVE) {
-    _pLayer->text(_head.x(), _head.y(), _body.fgColor, _body.bgColor, SnakeCommand::toChar(_direct));
-  }
-  //LOG << _pLayer->toString() << LEND;
-  //END("");
-}
-*/
 
 bool Snake::touching(const XY& xy_) {
   for (auto& i: _snakeNodes) {

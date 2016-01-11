@@ -22,11 +22,15 @@ void SnakeEval::keyListen(const Key& key_) {
         _pSnake->_direct = cmd.action();
         forceEvaluate(true);
       }
-      needRender(true);
+      renderType(RENDER_FULL);
     } else if (action==SA_SHOOT) {
-      auto pGame = _pSnake->game();
-      pGame->addEval(make_shared<SnakeShootEval>(pGame->blockLayer(), pGame, _pSnake->tail()));
-      //needRender(true);
+      if (_pSnake->canShoot()) {
+        auto pGame = _pSnake->game();
+        SnakeNode tail = _pSnake->tail();
+        _pSnake->shoot();
+        pGame->addEval(make_shared<SnakeShootEval>(pGame->blockLayer(), pGame, tail));
+        renderType(RENDER_FULL);
+      }
     }
   }
 }
@@ -43,14 +47,13 @@ bool SnakeEval::needEvaluate() {
 bool SnakeEval::evaluateImpl() {
   //LOG << _pSnake->toString() << LEND;
   bool b = _pSnake->evaluate();
-  needRender(true);
+  renderType(RENDER_FULL);
   return b;
 }
 
 void SnakeEval::render() {
   //START("");
   //LOG << toString() << LEND;
-  //_pLayer->clear();
 
   auto& head = _pSnake->head();
   auto& body = _pSnake->body();
@@ -77,14 +80,10 @@ FruitInSnakeAnimation::FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SP
 }
 
 bool FruitInSnakeAnimation::evaluateImpl() {
-  //START("");
-  bool draw = false;
   _fruitIndex++;
-  draw = true;
   LOG << "_fruitIndex=" << _fruitIndex << LEND;
-  //LOG << "draw=" << draw << LEND;
-  needRender(true);
-  return draw;
+  renderType(RENDER_FULL);
+  return true;
 }
 
 bool FruitInSnakeAnimation::completed() {
@@ -121,7 +120,7 @@ bool SnakeDeathAnimation::evaluateImpl() {
     _direct = SnakeCommand::clockwise(_direct);
     _round++;
   }
-  needRender(true);
+  renderType(RENDER_FULL);
   return draw;
 }
 

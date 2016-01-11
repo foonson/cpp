@@ -129,15 +129,15 @@ void Application::evaluateLoop() {
       }
 
       for (auto& pEval: vpEvals) {
-        if (pEval->needRender()) {
+        if (pEval->renderType()==RENDER_FULL) {
           pEval->clearLayer();
         }
       }
 
       for (auto& pEval: vpEvals) {
-        if (pEval->needRender()) {
+        if (pEval->renderType()!=RENDER_OFF) {
           pEval->render();
-          pEval->needRender(false);
+          pEval->renderType(RENDER_OFF);
         }
       }
 

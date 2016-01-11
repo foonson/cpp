@@ -13,12 +13,12 @@ bool IEval::needEvaluate() {
   return _tick.pass();
 }
 
-bool IEval::needRender() {
-  return _needRender;
+ERenderType IEval::renderType() {
+  return _renderType;
 }
 
-void IEval::needRender(bool needRender_) {
-  _needRender = needRender_;
+void IEval::renderType(ERenderType renderType_) {
+  _renderType = renderType_;
 }
 
 void IEval::forceEvaluate(bool forceEval_) {

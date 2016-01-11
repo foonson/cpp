@@ -4,6 +4,12 @@
 #include "Layer.h"
 #include "util/tick.h"
 
+enum ERenderType {
+  RENDER_OFF=0,
+  RENDER_FULL=1,
+  RENDER_ADD
+};
+
 class IEval {
 public:
   IEval(SPLayer pLayer_, long interval_);
@@ -27,8 +33,8 @@ public:
   // IRender
   virtual void render() = 0;
   virtual void clearLayer();
-  virtual bool needRender();
-  virtual void needRender(bool needRender_);
+  virtual ERenderType renderType();
+  virtual void renderType(ERenderType renderType_);
 
   void layer(SPLayer pLayer_) { _pLayer = pLayer_; }
   SPLayer layer() { return _pLayer; }
@@ -36,7 +42,7 @@ public:
 protected:
   SPLayer _pLayer;
   Tick _tick;
-  bool _needRender;
+  ERenderType _renderType;
   bool _forceEval;
 
   vector<shared_ptr<IEval>> _vpDependEvals;
