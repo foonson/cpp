@@ -8,9 +8,8 @@ SnakeApp::SnakeApp() {
 
 void SnakeApp::setup() {
    
-  auto pLayerPreGame = screen().createLayer(XY(0,0), 0);
-
   // App
+  auto pLayerPreGame = screen().createLayer(XY(0,0), 0);
   _pegApp = make_shared<EvalGroup>();
   addEvalGroup(_pegApp);
   _pegApp->enabled(true);
@@ -25,13 +24,14 @@ void SnakeApp::setup() {
   _pegTitle->enabled(true);
   auto pTitleEval = make_shared<SnakeTitleEval>(pLayerTitle, 1000, shared_from_this());
   _pegTitle->addEval(pTitleEval);
+  _pegTitle->addLayer(pLayerTitle);
 
   // Main
   _pegMain = make_shared<EvalGroup>();
   addEvalGroup(_pegMain);
   _pegMain->enabled(false);
   _pGame = make_shared<SnakeGame>(shared_from_this());
-  _pGame->setup();
+  _pGame->setup(_pegMain);
 
 }
 

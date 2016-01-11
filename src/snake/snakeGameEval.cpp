@@ -49,16 +49,25 @@ bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
     return false;
   }
 
-  auto& vFruits = game()->_vFruits;
-  //LOG << game()->_vFruits.size() << LEND;
-
   // evaluate eat fruit
+  auto& vFruits = game()->_vFruits;
   for (auto it=vFruits.begin();it!=vFruits.end();it++) {
     SnakeNode& fruit = *it;
     if (head.touching(fruit)) {
       pSnake_->eatFruit(fruit);
       game()->addSnakeEvaluation<FruitInSnakeAnimation>(game()->animationLayer(), 50, pSnake_);
       vFruits.erase(it);
+      break;
+    }
+  }
+
+  // evaluate hit block
+  auto& vBlocks = game()->_vBlocks; 
+  for (auto it=vBlocks.begin();it!=vBlocks.end();it++) {
+    SnakeNode& block = *it;
+    if (head.touching(block)) {
+      pSnake_->dead();
+      game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 100, pSnake_);
       break;
     }
   }
@@ -137,7 +146,7 @@ SnakeShootEval::SnakeShootEval(SPLayer pLayer_, SPSnakeGame pGame_, const SnakeN
 
 bool SnakeShootEval::evaluateImpl() {
   START() << LEND;
-  //game()->snakeShoot(_tail);
+  game()->snakeShoot(_tail);
   _vBlocks.push_back(_tail);
   needRender(true);
   return true;
@@ -146,7 +155,7 @@ bool SnakeShootEval::evaluateImpl() {
 void SnakeShootEval::render() {
   for (auto& block: _vBlocks) {
     Pixel p = Pixel(block, BLACK, RED, ' ');
-    p.addxy(XY(1,1));
+    //p.addxy(XY(1,1));
     _pLayer->text(p);
   }
 }

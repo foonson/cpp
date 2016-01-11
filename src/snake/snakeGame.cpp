@@ -15,7 +15,7 @@ SnakeGame::SnakeGame(WPSnakeApp pApp_): _pApp(pApp_) {
 
 SPSnakeApp SnakeGame::app() { return _pApp.lock(); }
 
-void SnakeGame::setup() {
+void SnakeGame::setup(SPEvalGroup pEG_) {
   START("");
 
   XY boardOffset(0,2);
@@ -51,27 +51,29 @@ void SnakeGame::setup() {
   pSnake2->_life = 3;
   pSnake2->init();
 
-
-  auto pegMain = app()->pegMain();
+  //auto pegMain = app()->pegMain();
   
   auto pGameEval = make_shared<SnakeGameEval>(screenLayer(), 10000, shared_from_this());
-  pegMain->addEval(pGameEval);
-  pegMain->addEval(make_shared<FruitEval>(fruitLayer(), 3000, shared_from_this()));
+  pEG_->addEval(pGameEval);
+  pEG_->addEval(make_shared<FruitEval>(fruitLayer(), 3000, shared_from_this()));
 
   auto pSnakeEval1 = make_shared<SnakeEval>(pLayer1, 100, pSnake1);
   auto pSnakeEval2 = make_shared<SnakeEval>(pLayer2, 100, pSnake2);
   pSnakeEval1->addDependEval(pGameEval);
   pSnakeEval2->addDependEval(pGameEval);
 
-  //pSnake1->snakeEval(pSnakeEval1);
-  //pSnake2->snakeEval(pSnakeEval2);
-  pegMain->addEval(pSnakeEval1);
-  pegMain->addEval(pSnakeEval2);
+  pEG_->addEval(pSnakeEval1);
+  pEG_->addEval(pSnakeEval2);
 
-  pegMain->addKeyListener(pSnakeEval1);
-  pegMain->addKeyListener(pSnakeEval2);
-  //_vpEvaluations.push_back(make_shared<SnakeGameEval>(_pScreen, 50, shared_from_this()));
-  //_vpEvaluations.push_back(make_shared<FruitEval>(_pBoard, 3000, shared_from_this()));
+  pEG_->addKeyListener(pSnakeEval1);
+  pEG_->addKeyListener(pSnakeEval2);
+
+  pEG_->addLayer(pLayer1);
+  pEG_->addLayer(pLayer2);
+  pEG_->addLayer(animationLayer());
+  pEG_->addLayer(screenLayer());
+  pEG_->addLayer(fruitLayer());
+  pEG_->addLayer(blockLayer());
 
   END("");
 }
@@ -82,6 +84,12 @@ SPSnake SnakeGame::createSnake(SPLayer pLayer_) {
   _vpSnakes.push_back(pSnake);
   return pSnake;
 } 
+
+void SnakeGame::snakeShoot(const SnakeNode& tail_) {
+  SnakeNode block(tail_);
+  block.type(SN_BLOCK); 
+  _vBlocks.push_back(block);
+}
 
 SnakeNode SnakeGame::getNode(const XY& xy_) {
   for (auto& pSnake: _vpSnakes) {
@@ -94,6 +102,11 @@ SnakeNode SnakeGame::getNode(const XY& xy_) {
   for (auto& fruit: _vFruits) {
     if (fruit.touching(xy_)) {
       return fruit;
+    }
+  }
+  for (auto& block: _vBlocks) {
+    if (block.touching(xy_)) {
+      return block;
     }
   }
 

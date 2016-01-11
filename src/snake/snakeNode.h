@@ -11,6 +11,7 @@ enum SnakeNodeType {
   SN_BODY = 1,
   SN_FRUIT,
   SN_FRUITBIG,
+  SN_BLOCK,
 };
 
 class SnakeNode : public XY {

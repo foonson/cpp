@@ -15,11 +15,13 @@ public:
   friend class FruitEval;
 
   SnakeGame(weak_ptr<SnakeApp> pApp_);
-  void setup();
+  void setup(SPEvalGroup pEG_);
 
   SPSnake createSnake(SPLayer pLayer_);
 
   SnakeNode getNode(const XY& xy_);
+
+  void snakeShoot(const SnakeNode& tail_);
   
   XY randomEmptyXY();
 

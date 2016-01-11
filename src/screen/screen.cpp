@@ -1,7 +1,7 @@
 #include "screen.h"
 #include <unistd.h>
 
-Screen::Screen() : _frame0(*this), _frame1(*this), _tick(20) {
+Screen::Screen() : _frame0(*this), _frame1(*this), _tick(10) {
   START("");
   _disposed = false;
   END("");

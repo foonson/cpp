@@ -123,8 +123,12 @@ void Application::evaluateLoop() {
         i++;
       }
 
+
+      for (auto& pLayer: pEvalGroup->layers()) {
+        vpLayers.push_back(pLayer); 
+      }
+
       for (auto& pEval: vpEvals) {
-        vpLayers.push_back(pEval->layer()); 
         if (pEval->needRender()) {
           pEval->clearLayer();
         }
@@ -151,7 +155,7 @@ void Application::evaluateLoop() {
         }
       }
 
-      //this_thread::sleep_for(std::chrono::milliseconds(100));
+      this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     if (!vpLayers.empty()) {
       screen().render(vpLayers);
