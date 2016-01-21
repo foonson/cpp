@@ -28,13 +28,14 @@ public:
   string toString() const;
 
   bool evaluate();
-  bool evalMove();
-  bool evalLive();
+  //bool evalMove();
+  //bool evalLive();
   bool evalDying();
   bool evalDead();
   bool evalAnimation();
 
   void increaseLength(int inc_);
+  void increaseScore(int inc_);
   void speedup();
   void dead();
   void shoot();
@@ -53,25 +54,26 @@ public:
   Pixel& body() { return _body; }
 
   function<SnakeAction(const Key&)> _fnKeyActionMap;
-  int _life;
   int _length;
   int _score;
   int _id;
   Tick& moveTick() { return _moveTick; }
+  void life(int life_) { _life=life_; }
+  int life() { return _life; }
   
   //void snakeEval(SPEval pEval) {
   //  _pSnakeEval = pEval;
   //}
   Pixel _body;
-  SnakeNode _head;
 
 private:
+  int _life;
+  SnakeNode _head;
   SnakeAction _status;
+  SnakeAction _direct;
   Tick _moveTick;
   weak_ptr<SnakeGame> _pGame;
-  //SPLayer _pLayer;
   deque<SnakeNode> _snakeNodes; 
-  SnakeAction _direct;
 
   //WPEval _pSnakeEval;
 };

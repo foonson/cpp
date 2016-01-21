@@ -7,7 +7,7 @@
 enum ERenderType {
   RENDER_OFF=0,
   RENDER_FULL=1,
-  RENDER_ADD
+  RENDER_DELTA
 };
 
 class IEval {
@@ -31,7 +31,8 @@ public:
 
 
   // IRender
-  virtual void render() = 0;
+  virtual void renderFull() = 0;
+  virtual void renderDelta();
   virtual void clearLayer();
   virtual ERenderType renderType();
   virtual void renderType(ERenderType renderType_);

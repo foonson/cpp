@@ -22,6 +22,7 @@ public:
   SnakeNode getNode(const XY& xy_);
 
   vector<SnakeNode> snakeShoot(const SnakeNode& tail_);
+  optional<XY> clearShoot();
   
   XY randomEmptyXY();
 

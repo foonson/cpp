@@ -20,7 +20,8 @@ public:
   virtual string toString() { return "SnakeEval"; }
   virtual bool evaluateImpl();
   virtual bool needEvaluate();
-  virtual void render();
+  virtual void renderFull();
+  virtual void renderDelta();
 
   virtual void keyListen(const Key& key_);
 };
@@ -30,7 +31,8 @@ public:
   FruitInSnakeAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
   virtual string toString() { return "FruitInSnakeAnimation"; }
   virtual bool evaluateImpl();
-  virtual void render();
+  virtual void renderFull();
+  virtual void renderDelta() {};
   virtual bool completed();
   //virtual bool onComplete();
 
@@ -44,7 +46,8 @@ public:
   SnakeDeathAnimation(SPLayer pLayer_, long interval_, SPSnake pSnake_);
   virtual string toString() { return "SnakeDeathAnimation"; }
   virtual bool evaluateImpl();
-  virtual void render();
+  virtual void renderFull();
+  virtual void renderDelta() {};
   virtual bool completed();
   virtual bool onComplete();
 

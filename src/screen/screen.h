@@ -6,11 +6,21 @@
 #include "layer.h"
 #include "util/idispose.h"
 
-class Screen : public ILayer, private IDispose {
+class IScreen {
+  virtual void render(SPLayers vpLayers_) = 0; 
+};
+
+class Screen : public IScreen, public ILayer, private IDispose {
 public:
   Screen();
   virtual ~Screen();
+
+  // IScreen
+  virtual void render(SPLayers vpLayers_); 
+
+  // IDispose
   virtual void dispose();
+
   XY maxXY() const;
 
   void clear();
@@ -18,7 +28,6 @@ public:
   void text(const Pixel& pixel_);
   SPLayer createLayer(int xOffset_, int yOffset_, int zOrder_);
   SPLayer createLayer(const XY& offset_, int zOrder_);
-  void render(SPLayers vpLayers_); 
   Screen& xy(int x_, int y_);
   Screen& xy(const XY& xy_);
   Screen& color(int fgc_, int bgc_);
@@ -39,7 +48,7 @@ private:
   Layer _frame0;
   Layer _frame1;
   //vector<shared_ptr<Layer>> _vpLayers;
-  Tick _tick;
+  //Tick _tick;
   Pixel _body;
 };
 

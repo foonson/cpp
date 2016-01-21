@@ -47,6 +47,8 @@ protected:
 
 };
 
+typedef vector<XY> XYs;
+
 class XYZ {
 public:
   XYZ(int x_, int y_, int z_);

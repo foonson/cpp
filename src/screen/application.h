@@ -43,6 +43,7 @@ public:
 
 protected:
   bool _exit;
+  int _interval;
 
 private:
   Screen _screen;

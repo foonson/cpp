@@ -5,17 +5,13 @@ SnakeAppEval::SnakeAppEval(SPLayer pLayer_, long interval_, WPSnakeApp pApp_) : 
 }
 
 bool SnakeAppEval::evaluateImpl() {
-  renderType(RENDER_FULL);
+  renderType(RENDER_OFF);
   return true;
 }
 
-void SnakeAppEval::render() {
-  //_pLayer->text(10, 10, BLACK, YELLOW, ' ');
-}
-
-string SnakeAppEval::toString() {
-  return "SnakeAppEval";
-}
+//void SnakeAppEval::renderFull() {
+//  //_pLayer->text(10, 10, BLACK, YELLOW, ' ');
+//}
 
 void SnakeAppEval::keyListen(const Key& key_) {
   char ch = key_._ch;
@@ -52,16 +48,12 @@ void SnakeAppEval::keyListen(const Key& key_) {
 SnakeTitleEval::SnakeTitleEval(SPLayer pLayer_, long interval_, WPSnakeApp pApp_) : IEval(pLayer_, interval_), _pApp(pApp_) {
 }
 
-string SnakeTitleEval::toString() {
-  return "SnakeTitleEval";
-}
-
 bool SnakeTitleEval::evaluateImpl() {
   renderType(RENDER_FULL);
   return true;
 }
 
-void SnakeTitleEval::render() {
+void SnakeTitleEval::renderFull() {
   int x = 10;
   int y = 10;
   int dx = 0;

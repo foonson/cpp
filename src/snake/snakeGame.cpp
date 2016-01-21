@@ -39,8 +39,8 @@ void SnakeGame::setup(SPEvalGroup pEG_) {
   pSnake1->_fnKeyActionMap = snake1KeyActionMap;
   pSnake1->_body = Pixel(0,0,BLACK,LPURPLE,'X');
   pSnake1->_id = 1;
-  pSnake1->_head = SnakeNode(10, 10, SN_BODY);
-  pSnake1->_life = 3;
+  //pSnake1->_head = SnakeNode(10, 10, SN_BODY);
+  pSnake1->life(100);
   pSnake1->init();
 
   shared_ptr<Layer> pLayer2 = app()->screen().createLayer(boardOffset, 2);
@@ -48,13 +48,14 @@ void SnakeGame::setup(SPEvalGroup pEG_) {
   pSnake2->_fnKeyActionMap = snake2KeyActionMap;
   pSnake2->_body = Pixel(0,0,WHITE,BLUE,'O');
   pSnake2->_id = 2;
-  pSnake2->_head = SnakeNode(20, 20, SN_BODY);
-  pSnake2->_life = 3;
+  //pSnake2->_head = SnakeNode(20, 20, SN_BODY);
+  pSnake2->life(100);
   pSnake2->init();
 
   auto pGameEval = make_shared<SnakeGameEval>(screenLayer(), 10000, shared_from_this());
   pEG_->addEval(pGameEval);
   pEG_->addEval(make_shared<FruitEval>(fruitLayer(), 3000, shared_from_this()));
+  pEG_->addEval(make_shared<ClearShootEval>(blockLayer(), 2000, shared_from_this()));
 
   auto pSnakeEval1 = make_shared<SnakeEval>(pLayer1, 100, pSnake1);
   auto pSnakeEval2 = make_shared<SnakeEval>(pLayer2, 100, pSnake2);
@@ -85,6 +86,8 @@ SPSnake SnakeGame::createSnake(SPLayer pLayer_) {
 } 
 
 vector<SnakeNode> SnakeGame::snakeShoot(const SnakeNode& tail_) {
+
+  app()->sound("./sound/shoot.mp3");
   SnakeNode block(tail_);
   block.type(SN_BLOCK);
   vector<SnakeNode> vBlocks;
@@ -107,6 +110,18 @@ vector<SnakeNode> SnakeGame::snakeShoot(const SnakeNode& tail_) {
   _vBlocks.push_back(block);
 
   return vBlocks;
+}
+
+optional<XY> SnakeGame::clearShoot() {
+  if (_vBlocks.empty()) {
+    return std::experimental::nullopt; 
+  } 
+  size_t l = _vBlocks.size();
+  size_t index = rand() % l;
+  auto it = _vBlocks.begin() + index;
+  XY xy(*it);
+  _vBlocks.erase(it);
+  return xy;
 }
 
 SnakeNode SnakeGame::getNode(const XY& xy_) {

@@ -7,9 +7,6 @@
 #include <stdlib.h>  // rand
 #include "util/UCollection.h"
 
-//bool SnakeGameEval::needEvaluate() {
-//  IEval::needEvaluate
-//}
 
 ISnakeGameEval::ISnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_) : IEval(pLayer_, interval_), _pGame(pGame_) {
 }
@@ -17,16 +14,17 @@ ISnakeGameEval::ISnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGam
 SnakeGameEval::SnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_) : ISnakeGameEval(pLayer_, interval_, pGame_) {
 }
 
-void SnakeGameEval::render() {
+void SnakeGameEval::renderFull() {
   int row = 1;
   auto pScreen = game()->screenLayer();
   for (auto& pSnake: game()->_vpSnakes) {
-    string s = "Life:" + UString::toString(pSnake->_life);
-    pScreen->text(1, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
-    s = "Length:" + UString::toString(pSnake->_length);
-    pScreen->text(10, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
+    auto rBody = pSnake->body();
+    string s = "Life:" + UString::toString(pSnake->life());
+    pScreen->text(1, row, rBody.fgColor, rBody.bgColor, s);
+    //s = "Length:" + UString::toString(pSnake->_length);
+    //pScreen->text(10, row, rBody.fgColor, rBody.bgColor, s);
     s = "Score:" + UString::toString(pSnake->_score);
-    pScreen->text(20, row, pSnake->_body.fgColor, pSnake->_body.bgColor, s);
+    pScreen->text(10, row, rBody.fgColor, rBody.bgColor, s);
 
     row++; 
   } 
@@ -45,7 +43,7 @@ bool SnakeGameEval::evaluateImpl() {
 
 bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
 
-  SnakeNode& head = pSnake_->_head;
+  SnakeNode& rHead = pSnake_->head();
 
   if (pSnake_->status()!=SA_LIVE) {
     return false;
@@ -55,7 +53,7 @@ bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
   auto& vFruits = game()->_vFruits;
   for (auto it=vFruits.begin();it!=vFruits.end();it++) {
     SnakeNode& fruit = *it;
-    if (head.touching(fruit)) {
+    if (rHead.touching(fruit)) {
       pSnake_->eatFruit(fruit);
       game()->addSnakeEvaluation<FruitInSnakeAnimation>(game()->animationLayer(), 50, pSnake_);
       vFruits.erase(it);
@@ -67,14 +65,14 @@ bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
   auto& vBlocks = game()->_vBlocks; 
   for (auto it=vBlocks.begin();it!=vBlocks.end();it++) {
     SnakeNode& block = *it;
-    if (head.touching(block)) {
+    if (rHead.touching(block)) {
       pSnake_->dead();
       game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 100, pSnake_);
       break;
     }
   }
 
-  if (pSnake_->touchingBody(head)) {
+  if (pSnake_->touchingBody(rHead)) {
     pSnake_->dead();
     game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 100, pSnake_);
   }
@@ -83,7 +81,7 @@ bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
   for (auto& pOther: game()->_vpSnakes) {
     if (pSnake_->_id==pOther->_id) {
     } else {
-      if (pOther->touching(head)) {
+      if (pOther->touching(rHead)) {
         if (pOther->status()==SA_LIVE) {
           pSnake_->dead();
           game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 100, pSnake_);
@@ -125,7 +123,7 @@ Pixel FruitEval::createFruitPixel(const SnakeNode& fruit_) {
   return Pixel((XY)fruit_, BLACK, YELLOW, '*');
 }
 
-void FruitEval::render() {
+void FruitEval::renderFull() {
   auto& vFruits = game()->_vFruits;
   int i=0;
   for (auto& fruit : vFruits) {
@@ -146,17 +144,31 @@ SnakeShootEval::SnakeShootEval(SPLayer pLayer_, SPSnakeGame pGame_, const SnakeN
 }
 
 bool SnakeShootEval::evaluateImpl() {
-  START() << LEND;
   auto vBlocks = game()->snakeShoot(_tail);
-  UCollection::add(_vBlocks, vBlocks);
-  renderType(RENDER_ADD);
+  //UCollection::add(_vBlocks, vBlocks);
+
+  for (auto& block: vBlocks) {
+    Pixel p = Pixel(block, BLACK, RED, ' ');
+    _pLayer->deltaAdd(p);
+  }
+  renderType(RENDER_DELTA);
   return true;
 }
 
-void SnakeShootEval::render() {
-  for (auto& block: _vBlocks) {
-    Pixel p = Pixel(block, BLACK, RED, ' ');
-    _pLayer->text(p);
+//////////////////////////
+
+ClearShootEval::ClearShootEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_) 
+: ISnakeGameEval(pLayer_, interval_, pGame_)
+{
+}
+
+bool ClearShootEval::evaluateImpl() {
+  auto oxy = game()->clearShoot();
+  if (oxy) {
+    _pLayer->deltaRemove(*oxy);
+    renderType(RENDER_DELTA);
   }
+  return true;
+
 }
 

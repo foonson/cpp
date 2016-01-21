@@ -13,6 +13,10 @@ bool IEval::needEvaluate() {
   return _tick.pass();
 }
 
+void IEval::renderDelta() {
+  _pLayer->renderDelta();
+}
+
 ERenderType IEval::renderType() {
   return _renderType;
 }

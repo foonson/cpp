@@ -13,6 +13,7 @@ Application::Application() {
   _pApp = this;
   _disposed = false;
   _exit = false;
+  //_interval = 1;
   registerSignalHandler();
   END("");
 }
@@ -100,6 +101,17 @@ void Application::evaluateLoop() {
       if (!pEvalGroup->enabled()) {
         continue;
       }
+      for (auto& pLayer: pEvalGroup->layers()) {
+        vpLayers.push_back(pLayer); 
+        pLayer->clearDelta();
+      }
+    }
+
+    bool needRender = false;
+    for (auto& pEvalGroup: _vpEvalGroups) {
+      if (!pEvalGroup->enabled()) {
+        continue;
+      }
 
       if (opKey) {
         auto& key = *opKey;//.value();
@@ -124,10 +136,6 @@ void Application::evaluateLoop() {
       }
 
 
-      for (auto& pLayer: pEvalGroup->layers()) {
-        vpLayers.push_back(pLayer); 
-      }
-
       for (auto& pEval: vpEvals) {
         if (pEval->renderType()==RENDER_FULL) {
           pEval->clearLayer();
@@ -135,10 +143,15 @@ void Application::evaluateLoop() {
       }
 
       for (auto& pEval: vpEvals) {
-        if (pEval->renderType()!=RENDER_OFF) {
-          pEval->render();
-          pEval->renderType(RENDER_OFF);
+        if (pEval->renderType()==RENDER_FULL) {
+          pEval->renderFull();
+          needRender = true;
         }
+        if (pEval->renderType()==RENDER_DELTA) {
+          pEval->renderDelta();
+          needRender = true;
+        }
+        pEval->renderType(RENDER_OFF);
       }
 
       //LOG << UString::toString(vpLayers.size()) << LEND;
@@ -155,10 +168,14 @@ void Application::evaluateLoop() {
         }
       }
 
-      this_thread::sleep_for(std::chrono::milliseconds(1));
+      if (_interval>0) {
+        this_thread::sleep_for(std::chrono::milliseconds(_interval));
+      }
     }
-    if (!vpLayers.empty()) {
-      screen().render(vpLayers);
+    if (needRender) {
+      if (!vpLayers.empty()) {
+        screen().render(vpLayers);
+      }
     }
   } while (true);
   END("");

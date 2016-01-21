@@ -47,4 +47,7 @@ public:
   char ch;
 };
 
+typedef vector<Pixel> Pixels;
+typedef map<XY, Pixel> PixelMap;
+
 #endif

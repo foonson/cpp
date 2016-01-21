@@ -17,9 +17,11 @@ class SnakeAppEval : public IEval,
 {
 public:
   SnakeAppEval(SPLayer pLayer_, long interval_, WPSnakeApp pApp_);
+  virtual string toString() { return "SnakeAppEval"; }
+
   virtual bool evaluateImpl();
-  virtual void render();
-  virtual string toString();
+  virtual void renderFull() {};
+  virtual void renderDelta() {};
 
   virtual void keyListen(const Key& key_);
 
@@ -38,10 +40,12 @@ private:
 class SnakeTitleEval : public IEval {
 public:
   SnakeTitleEval(SPLayer pLayer_, long interval_, WPSnakeApp pApp_);
+  virtual string toString() { return "SnakeTitleEval"; }
+
   virtual bool evaluateImpl();
-  virtual void render();
+  virtual void renderFull();
+  virtual void renderDelta() {}
   //virtual bool needRender();
-  virtual string toString();
 
   //virtual bool needEvaluate();
   //virtual bool completed();

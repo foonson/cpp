@@ -26,7 +26,8 @@ public:
   SnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_);
   virtual string toString() { return "SnakeGameEval"; }
   virtual bool evaluateImpl();
-  virtual void render();
+  virtual void renderFull();
+  virtual void renderDelta() {}
   //virtual bool completed();
   //virtual bool onComplete();
 
@@ -39,7 +40,8 @@ public:
   FruitEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_);
   virtual string toString() { return "FruitEval"; }
   virtual bool evaluateImpl();
-  virtual void render();
+  virtual void renderFull();
+  //virtual void renderDelta() {}
   //virtual bool completed();
   //virtual bool onComplete();
 
@@ -47,19 +49,26 @@ private:
   Pixel createFruitPixel(const SnakeNode& fruit_);
 };
 
-
 class SnakeShootEval : public ISnakeGameEval {
 public:
-  SnakeShootEval(SPLayer pLayer_, SPSnakeGame pGame, const SnakeNode& tail_);
+  SnakeShootEval(SPLayer pLayer_, SPSnakeGame pGame_, const SnakeNode& tail_);
   virtual string toString() { return "SnakeShootEval"; }
   virtual bool evaluateImpl();
-  virtual void render();
+  virtual void renderFull() {}
   virtual bool completed() { return true; }
   //virtual bool onComplete();
 
 private:
   SnakeNode _tail;
-  vector<SnakeNode> _vBlocks;
+  //vector<SnakeNode> _vBlocks;
+};
+
+class ClearShootEval : public ISnakeGameEval {
+public:
+  ClearShootEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_);
+  virtual string toString() { return "SnakeClearShootEval"; }
+  virtual bool evaluateImpl();
+  virtual void renderFull() {}
 };
 
 #endif

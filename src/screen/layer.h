@@ -18,7 +18,6 @@ public:
   //virtaul ILayer& flush() =0;
 };
 
-typedef map<XY, Pixel> PixelMap;
 
 class Layer : public ILayer {
 public:
@@ -27,19 +26,24 @@ public:
   virtual ~Layer();
   string toString() const;
   virtual void clear();
+  virtual void clearDelta();
+  //virtual void clearPixel(const Pixel& pixel_);
 
   XY maxXY() const;
 
+  void renderDelta();
   void text(int x_, int y_, int fgc_, int bgc_, char ch_);
   void text(int x_, int y_, int fgc_, int bgc_, const string& s_);
   void text(int x_, int y_, const Pixel& pixel_);
   void text(const XY& xy_, const Pixel& pixel_);
   void text(const Pixel& pixel_);
-  //const Pixel& pixel(int x_, int y_); 
   optional<Pixel> pixel(const XY& xy_); 
 
   PixelMap::iterator begin();  
   PixelMap::iterator end();  
+
+  void deltaAdd(const Pixel& pixel_);
+  void deltaRemove(const XY& xy_);
 
   const XY& offset() { return _offset; }
   int zOrder() { return _zOrder; }
@@ -49,6 +53,9 @@ private:
   PixelMap _pixels;
   XY _offset;
   int _zOrder;
+
+  Pixels _deltaAdd;
+  XYs _deltaRemove;
   
 };
 

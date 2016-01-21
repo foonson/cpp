@@ -1,7 +1,7 @@
 #include "screen.h"
 #include <unistd.h>
 
-Screen::Screen() : _frame0(*this), _frame1(*this), _tick(10) {
+Screen::Screen() : _frame0(*this), _frame1(*this) { //, _tick(10) {
   START("");
   _disposed = false;
   END("");
@@ -31,7 +31,7 @@ void Screen::clear() {
 }
 
 XY Screen::maxXY() const {
-  return XY(80,30);
+  return XY(100, 30);
 }
 
 Screen& Screen::xy(const XY& xy_) {
@@ -78,10 +78,10 @@ void Screen::text(const Pixel& pixel_) {
 }
 
 SPLayer Screen::createLayer(const XY& offset_, int zOrder_) {
-  START("");
+  //START("");
   SPLayer pLayer = make_shared<Layer>(*this, offset_, zOrder_);
   //_vpLayers.push_back(pLayer);
-  END("");
+  //END("");
   return pLayer;
 }
 
@@ -107,7 +107,7 @@ void Screen::switchFrame() {
 
 void Screen::render(SPLayers vpLayers_) {
 
-  if (!_tick.pass()) return;
+  //if (!_tick.pass()) return;
 
   Layer& cur = current();
   Layer& tar = target();

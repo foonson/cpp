@@ -65,6 +65,14 @@ public:
     return action_;
   }
 
+  static SnakeAction opposite(SnakeAction action_) {
+    if (action_==SA_UP)    return SA_DOWN;
+    if (action_==SA_DOWN)  return SA_UP;
+    if (action_==SA_LEFT)  return SA_RIGHT;
+    if (action_==SA_RIGHT) return SA_LEFT;
+    return action_;
+  }
+
 private:
   SnakeAction _action;
 };

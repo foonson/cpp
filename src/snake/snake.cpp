@@ -21,7 +21,6 @@ SnakeAction snake1KeyActionMap(const Key& key_) {
     return SA_SHOOT;
   }
   return SA_NOTHING;
-  //return commonKeyActionMap(key_);
 }
 
 SnakeAction snake2KeyActionMap(const Key& key_) {
@@ -38,14 +37,13 @@ SnakeAction snake2KeyActionMap(const Key& key_) {
     return SA_SHOOT;
   }
   return SA_NOTHING;
-  //return commonKeyActionMap(key_);
 }
 
 Snake::Snake(SPSnakeGame pGame_) : _pGame(pGame_) {
-  START("");
+  //START("");
   _direct = SA_NOTHING;
   _score = 0;
-  END("");
+  //END("");
 }
 
 string Snake::toString() const {
@@ -64,7 +62,6 @@ void Snake::init() {
   _snakeNodes.clear();  
   _length = 2;
   _status = SA_LIVE;
-
 }
 
 SnakeNode Snake::tail() {
@@ -72,6 +69,7 @@ SnakeNode Snake::tail() {
   return tail;
 }
 
+/*
 bool Snake::evalMove() {
   bool moved = false;
 
@@ -112,6 +110,7 @@ bool Snake::evalMove() {
 
   return moved;
 }
+*/
 
 bool Snake::evalDying() {
   //if (_snakeNodes.empty()) {
@@ -133,10 +132,10 @@ bool Snake::evaluate() {
 
   bool draw = false;
 
-  if (_status==SA_LIVE) {
-    bool e = evalLive();
-    draw = e||draw;
-  }
+  //if (_status==SA_LIVE) {
+  //  bool e = evalLive();
+  //  draw = e||draw;
+  //}
 
   if (_status==SA_DYING) {
     bool e = evalDying();
@@ -156,6 +155,7 @@ bool Snake::evaluate() {
   return draw;
 }
 
+/*
 bool Snake::evalLive() {
 
   //SnakeAction action = SA_NOTHING;
@@ -195,6 +195,9 @@ bool Snake::evalLive() {
   return draw;
 
 }
+*/
+
+
 
 bool Snake::eatFruit(const SnakeNode& fruit) {
   LOG << toString() << LEND;
@@ -202,11 +205,13 @@ bool Snake::eatFruit(const SnakeNode& fruit) {
   game()->app()->sound("./sound/eat.wav");
 
   increaseLength(2);
+  increaseScore(2);
   speedup();
   return true;
 }
 
 void Snake::dead() {
+  game()->app()->sound("./sound/bear.mp3");
   LOG << toString() << LEND;
 
   _status = SA_DYING;
@@ -217,7 +222,9 @@ void Snake::dead() {
 }
 
 void Snake::shoot() {
-  _length--;
+  //_length--;
+  increaseScore(2);
+  increaseLength(-1);
 }
 
 bool Snake::canShoot() {
@@ -226,6 +233,9 @@ bool Snake::canShoot() {
 
 void Snake::increaseLength(int inc_) {
   _length += inc_;
+}
+
+void Snake::increaseScore(int inc_) {
   _score += inc_;
 }
 

@@ -39,8 +39,25 @@ Layer::~Layer() {
 }
 
 void Layer::clear() {
-  //LOG << LEND;
   _pixels.clear();
+}
+
+void Layer::clearDelta() {
+  _deltaAdd.clear();
+  _deltaRemove.clear();
+}
+
+void Layer::renderDelta() {
+  for(auto& xy: _deltaRemove) {
+    auto it = _pixels.find(xy);
+    if (it!=_pixels.end()) {
+      _pixels.erase(it);
+    }
+  }
+  for(auto& pixel: _deltaAdd) {
+    text(pixel);
+  }
+  
 }
 
 void Layer::text(int x_, int y_, int fgc_, int bgc_, char ch_) {
@@ -77,6 +94,14 @@ void Layer::text(const Pixel& pixel_) {
     _pixels[(XY)pixel_] = pixel_;
   //} else {
   //}
+}
+
+void Layer::deltaAdd(const Pixel& pixel_) {
+  _deltaAdd.push_back(pixel_);
+}
+
+void Layer::deltaRemove(const XY& xy_) {
+  _deltaRemove.push_back(xy_);
 }
 
 optional<Pixel> Layer::pixel(const XY& xy_) {
