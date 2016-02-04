@@ -48,22 +48,30 @@ void Layer::clearDelta() {
 }
 
 void Layer::renderDelta() {
-  for(auto& xy: _deltaRemove) {
+  for(auto const& xy: _deltaRemove) {
     auto it = _pixels.find(xy);
     if (it!=_pixels.end()) {
       _pixels.erase(it);
     }
   }
-  for(auto& pixel: _deltaAdd) {
-    text(pixel);
+  for(auto const& itPixel: _deltaAdd) {
+    text(itPixel.second);
   }
   
 }
 
 void Layer::text(int x_, int y_, int fgc_, int bgc_, char ch_) {
-  //LOG << toString() << " " << x_ << "," << y_ << " " << ch_ << LEND;
   Pixel p;
   p.xy(x_, y_);
+  p.ch = ch_;
+  p.fgColor = fgc_;
+  p.bgColor = bgc_;
+  text(p);
+}
+
+void Layer::text(const XY& xy_, int fgc_, int bgc_, char ch_) {
+  Pixel p;
+  p.xy(xy_);
   p.ch = ch_;
   p.fgColor = fgc_;
   p.bgColor = bgc_;
@@ -97,11 +105,13 @@ void Layer::text(const Pixel& pixel_) {
 }
 
 void Layer::deltaAdd(const Pixel& pixel_) {
-  _deltaAdd.push_back(pixel_);
+  //_deltaAdd.push_back(pixel_);
+  _deltaAdd[(XY)pixel_] = pixel_;
 }
 
 void Layer::deltaRemove(const XY& xy_) {
-  _deltaRemove.push_back(xy_);
+  //_deltaRemove.push_back(xy_);
+  _deltaRemove.insert(xy_);
 }
 
 optional<Pixel> Layer::pixel(const XY& xy_) {

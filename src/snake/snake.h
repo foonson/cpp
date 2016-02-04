@@ -6,7 +6,8 @@
 #include "snakeCommand.h"
 #include "snakeNode.h"
 #include "screen/key.h"
-#include "screen/pixel.h"
+//#include "screen/pixel.h"
+#include "screen/layer.h"
 #include "util/tick.h"
 
 #include <functional> // std:function
@@ -23,7 +24,7 @@ class Snake {
   friend class SnakeEval;
 
 public:
-  Snake(shared_ptr<SnakeGame> pGame_);
+  Snake(shared_ptr<SnakeGame> pGame_, SPLayer pLayer_);
   void init();
   string toString() const;
 
@@ -66,13 +67,16 @@ public:
   //}
   Pixel _body;
 
+  SPLayer layer() { return _pLayer; }
+
 private:
+  weak_ptr<SnakeGame> _pGame;
+  SPLayer _pLayer;
   int _life;
   SnakeNode _head;
   SnakeAction _status;
   SnakeAction _direct;
   Tick _moveTick;
-  weak_ptr<SnakeGame> _pGame;
   deque<SnakeNode> _snakeNodes; 
 
   //WPEval _pSnakeEval;

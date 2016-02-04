@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <stdio.h>
 #include <memory> // std::shared_ptr 
 #include <algorithm> // std::remove_if

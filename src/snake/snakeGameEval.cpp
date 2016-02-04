@@ -17,6 +17,7 @@ SnakeGameEval::SnakeGameEval(SPLayer pLayer_, long interval_, SPSnakeGame pGame_
 void SnakeGameEval::renderFull() {
   int row = 1;
   auto pScreen = game()->screenLayer();
+  pScreen->text(50, 1, RED, BLACK, "Version:0.39");
   for (auto& pSnake: game()->_vpSnakes) {
     auto rBody = pSnake->body();
     string s = "Life:" + UString::toString(pSnake->life());
@@ -67,14 +68,14 @@ bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
     SnakeNode& block = *it;
     if (rHead.touching(block)) {
       pSnake_->dead();
-      game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 100, pSnake_);
+      game()->addSnakeEvaluation<SnakeDeathAnimation>(pSnake_->layer(), 100, pSnake_);
       break;
     }
   }
 
   if (pSnake_->touchingBody(rHead)) {
     pSnake_->dead();
-    game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 100, pSnake_);
+    game()->addSnakeEvaluation<SnakeDeathAnimation>(pSnake_->layer(), 100, pSnake_);
   }
 
   // evaluate touch
@@ -84,7 +85,7 @@ bool SnakeGameEval::evalSnake(SPSnake pSnake_) {
       if (pOther->touching(rHead)) {
         if (pOther->status()==SA_LIVE) {
           pSnake_->dead();
-          game()->addSnakeEvaluation<SnakeDeathAnimation>(game()->animationLayer(), 100, pSnake_);
+          game()->addSnakeEvaluation<SnakeDeathAnimation>(pSnake_->layer(), 100, pSnake_);
         }
       }
     }

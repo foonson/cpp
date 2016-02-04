@@ -196,11 +196,16 @@ bool SnakeDeathAnimation::evaluateImpl() {
   //LOG << "len=" << _pSnake->_snakeNodes.size() << LEND;
   bool draw = true;
   if (!_pSnake->_snakeNodes.empty()) {
+    SnakeNode& rHead = _pSnake->head();
+    auto tail = _pSnake->tail();
+    _pLayer->deltaRemove(tail);
     _pSnake->_snakeNodes.pop_back();
     _direct = SnakeCommand::clockwise(_direct);
     _round++;
+
+    _pLayer->text(rHead, RED, BLACK, SnakeCommand::toChar(_direct));
+    renderType(RENDER_DELTA);
   }
-  renderType(RENDER_FULL);
   return draw;
 }
 
@@ -215,12 +220,7 @@ bool SnakeDeathAnimation::onComplete() {
 
 void SnakeDeathAnimation::renderFull() {
   if (completed()) return;
-  //START("");
-  //LOG << "snakeNodes.size()" << _pSnake->_snakeNodes.size() << LEND;
-  //LOG << _pLayer->toString() << LEND;
-  //if (_pSnake->_status!=SA_DYING) return;
   SnakeNode& head = _pSnake->head();
   _pLayer->text(head.x(), head.y(), RED, BLACK, SnakeCommand::toChar(_direct));
-  //END("");
 }
 

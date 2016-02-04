@@ -80,7 +80,7 @@ void SnakeGame::setup(SPEvalGroup pEG_) {
 
 //Snake& createSnake(Layer& layer_, (SNAKEACTION)(KEY, char) fnKeyActionMap_) {
 SPSnake SnakeGame::createSnake(SPLayer pLayer_) {
-  auto pSnake = make_shared<Snake>(shared_from_this());
+  auto pSnake = make_shared<Snake>(shared_from_this(), pLayer_);
   _vpSnakes.push_back(pSnake);
   return pSnake;
 } 

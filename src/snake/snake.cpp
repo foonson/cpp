@@ -39,7 +39,7 @@ SnakeAction snake2KeyActionMap(const Key& key_) {
   return SA_NOTHING;
 }
 
-Snake::Snake(SPSnakeGame pGame_) : _pGame(pGame_) {
+Snake::Snake(SPSnakeGame pGame_, SPLayer pLayer_) : _pGame(pGame_), _pLayer(pLayer_) {
   //START("");
   _direct = SA_NOTHING;
   _score = 0;

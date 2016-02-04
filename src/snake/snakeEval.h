@@ -32,7 +32,7 @@ public:
   virtual string toString() { return "FruitInSnakeAnimation"; }
   virtual bool evaluateImpl();
   virtual void renderFull();
-  virtual void renderDelta() {};
+  //virtual void renderDelta() {};
   virtual bool completed();
   //virtual bool onComplete();
 
@@ -47,7 +47,7 @@ public:
   virtual string toString() { return "SnakeDeathAnimation"; }
   virtual bool evaluateImpl();
   virtual void renderFull();
-  virtual void renderDelta() {};
+  //virtual void renderDelta() {};
   virtual bool completed();
   virtual bool onComplete();
 

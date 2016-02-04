@@ -48,6 +48,7 @@ protected:
 };
 
 typedef vector<XY> XYs;
+typedef set<XY> XYSet;
 
 class XYZ {
 public:
