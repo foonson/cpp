@@ -2,6 +2,7 @@ git
   git status
   git add <File>
   git rm <File>
+  git mv <File>
   git add remote https://github.com/foonson/cpp.git
   git clone https://github.com/foonson/cpp.git
   git commit -m "20151024"
