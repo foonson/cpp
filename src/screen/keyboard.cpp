@@ -1,5 +1,6 @@
 #include "keyboard.h"
 #include "sconstant.h"
+#include <unistd.h>
 
 Keyboard::Keyboard() {
   START("");

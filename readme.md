@@ -13,6 +13,7 @@
 
 # Other
 ```
+gmake -f snake.mk
 brew update
 brew install gdb
 http://www.patosai.com/blog/post/installing-gdb-on-mac-os-x-yosemite

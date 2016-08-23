@@ -1,7 +1,7 @@
 #ifndef _SCREEN_IRENDER
 #define _SCREEN_IRENDER
 
-#include "Layer.h"
+#include "layer.h"
 #include "util/tick.h"
 
 enum ERenderType {

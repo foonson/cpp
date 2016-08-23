@@ -2,8 +2,8 @@
 #include <cstdlib> //std::exit
 #include <time.h> //srand(time(NULL));
 
-#include "Application.h"
-#include "auplay/AudioPlayer.h"
+#include "application.h"
+//#include "auplay/AudioPlayer.h"
 
 Application* Application::_pApp = NULL;
 
@@ -209,10 +209,9 @@ void Application::startThreads() {
 }
 
 void Application::sound(const string& pathName_) {
-  //unique_ptr<AudioPlayer> ap(AudioPlayer::file("./sound/pacman.wav"));
-  AudioPlayer* ap = (AudioPlayer::file(pathName_.c_str()));
-  if(ap) {
-    ap->play();
-  }
+  //AudioPlayer* ap = (AudioPlayer::file(pathName_.c_str()));
+  //if(ap) {
+  //  ap->play();
+  //}
 }
 

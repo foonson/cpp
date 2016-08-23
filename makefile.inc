@@ -3,8 +3,7 @@ CFLAGS+=-pthread
 CFLAGS+=-std=c++14
 CFLAGS+=-Wall
 CFLAGS+=-g
-LDFLAGS+=-framework CoreFoundation
-LDFLAGS+=-framework AudioToolbox
+LDFLAGS+= -lpthread
 INC+=-Isrc
 INC+=-I3py
 CCC=$(CC) $(CFLAGS) $(INC)
